@@ -746,6 +746,7 @@ Rule:
 - DOMAIN-SUFFIX,ieee.org,🎓 学术相关
 - DOMAIN-SUFFIX,ctan.org,🎓 学术相关
 - DOMAIN-SUFFIX,cn.overleaf.com,🎓 学术相关
+- DOMAIN-SUFFIX,nas.rundong.me,🎯 全球直连
 - DOMAIN-SUFFIX,local,🎯 全球直连
 - IP-CIDR,192.168.0.0/16,🎯 全球直连,no-resolve
 - IP-CIDR,10.0.0.0/8,🎯 全球直连,no-resolve

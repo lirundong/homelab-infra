@@ -10,3 +10,6 @@ rules:
       - DOMAIN-SUFFIX,ieee.org
       - DOMAIN-SUFFIX,ctan.org
       - DOMAIN-SUFFIX,cn.overleaf.com
+  - name: 🎯 全球直连
+    rule:
+      - DOMAIN-SUFFIX,nas.rundong.me

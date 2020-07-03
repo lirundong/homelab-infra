@@ -47,13 +47,15 @@ def update_with_custom_rule(sub, custom_rules, **custom_kv):
 
     new_pg = []
     new_rules = []
+    sub_pg_names = {s["name"] for s in sub[PG_T]}
     for rule in custom_rules:
-        pg = {
-            "name": rule["name"],
-            "type": "select",
-            "proxies": rule["proxies"],
-        }
-        new_pg.append(pg)
+        if rule["name"] not in sub_pg_names:
+            pg = {
+                "name": rule["name"],
+                "type": "select",
+                "proxies": rule["proxies"],
+            }
+            new_pg.append(pg)
         for r in rule["rule"]:
             r += f",{rule['name']}"
             new_rules.append(r)
