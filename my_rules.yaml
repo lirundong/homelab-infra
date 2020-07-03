@@ -1,0 +1,12 @@
+port: 10081
+socks-port: 10080
+rules:
+  - name: 🎓 学术相关
+    proxies:
+      - DIRECT
+      - 🔰 节点选择
+    rule:
+      - DOMAIN-SUFFIX,arxiv.org
+      - DOMAIN-SUFFIX,ieee.org
+      - DOMAIN-SUFFIX,ctan.org
+      - DOMAIN-SUFFIX,cn.overleaf.com
