@@ -317,13 +317,6 @@ Proxy:
   tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- name: Trojan-香港测试-不扣流量
-  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 3016
-  server: lsb-v1.lanan.world
-  skip-cert-verify: false
-  sni: null
-  type: trojan
 Proxy Group:
 - name: 🎓 学术相关
   proxies:
@@ -378,7 +371,6 @@ Proxy Group:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试-不扣流量
   type: select
 - interval: 500
   name: ♻️ 自动选择
@@ -427,7 +419,6 @@ Proxy Group:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试-不扣流量
   type: url-test
   url: http://www.gstatic.com/generate_204
 - name: 🌍 国外媒体
@@ -479,7 +470,6 @@ Proxy Group:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试-不扣流量
   type: select
 - name: 🇨🇳 国内媒体
   proxies:
@@ -529,7 +519,6 @@ Proxy Group:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试-不扣流量
   type: select
 - name: Ⓜ️ 微软服务
   proxies:
@@ -579,7 +568,6 @@ Proxy Group:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试-不扣流量
   type: select
 - name: 📲 电报信息
   proxies:
@@ -628,7 +616,6 @@ Proxy Group:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试-不扣流量
   type: select
 - name: 🍎 苹果服务
   proxies:
@@ -679,7 +666,6 @@ Proxy Group:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试-不扣流量
   type: select
 - name: 🎯 全球直连
   proxies:
@@ -739,7 +725,6 @@ Proxy Group:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试-不扣流量
   type: select
 Rule:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关

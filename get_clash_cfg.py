@@ -27,8 +27,8 @@ PG_T = "Proxy Group"
 RULE_T = "Rule"
 
 
-def get_subscription(url, **params):
-    r = requests.get(url, params=params, headers={"user-agent": "clash"})
+def get_subscription(url, **kwargs):
+    r = requests.get(url, headers={"user-agent": "clash"}, **kwargs)
     if r.status_code != 200:
         raise requests.HTTPError(r.reason)
     sub_info = yaml.load(r.text, Loader=yaml.SafeLoader)
@@ -70,11 +70,18 @@ def update_with_custom_rule(sub, custom_rules, **custom_kv):
 if __name__ == "__main__":
     # V2fly, private
     url = "https://sub.v2club.top/api/v1/client/subscribe"
-    params = {"token": "90cc293a40e07f4387655fdf6722225f"}
+    sub_args = {
+        "params": {
+            "token":"90cc293a40e07f4387655fdf6722225f",
+        },
+        "proxies": {
+            "https": "http://127.0.0.1:10081",
+        },
+    }
     custom_path = "my_rules.yaml"
     output_path = "V2fly.yaml"
 
-    sub = get_subscription(url, **params)
+    sub = get_subscription(url, **sub_args)
     custom_rules, custom_cfg = get_custom_rule(custom_path)
     updated_sub = update_with_custom_rule(sub, custom_rules, **custom_cfg)
     open(output_path, "w", encoding="utf-8").write(
