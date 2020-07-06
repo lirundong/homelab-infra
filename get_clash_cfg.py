@@ -23,8 +23,8 @@ Custom rule format:
 import requests
 import yaml
 
-PG_T = "Proxy Group"
-RULE_T = "Rule"
+PG_T = "proxy-groups"
+RULE_T = "rules"
 
 
 def get_subscription(url, **kwargs):

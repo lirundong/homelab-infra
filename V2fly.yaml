@@ -1,4 +1,9 @@
-Proxy:
+allow-lan: true
+external-controller: 127.0.0.1:9090
+log-level: info
+mode: rule
+port: 10081
+proxies:
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港1
@@ -317,7 +322,7 @@ Proxy:
   tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-Proxy Group:
+proxy-groups:
 - name: 🎓 学术相关
   proxies:
   - DIRECT
@@ -726,7 +731,7 @@ Proxy Group:
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
   type: select
-Rule:
+rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
 - DOMAIN-SUFFIX,ieee.org,🎓 学术相关
 - DOMAIN-SUFFIX,ctan.org,🎓 学术相关
@@ -11043,9 +11048,4 @@ Rule:
 - DOMAIN-KEYWORD,XLLiveUD,🎯 全球直连
 - GEOIP,CN,🎯 全球直连
 - MATCH,,🐟 漏网之鱼,dns-failed
-allow-lan: true
-external-controller: 127.0.0.1:9090
-log-level: info
-mode: Rule
-port: 10081
 socks-port: 10080
