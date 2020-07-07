@@ -50,10 +50,14 @@ proxies:
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港6
+  network: ws
   port: 3006
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港7
@@ -85,17 +89,24 @@ proxies:
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港11
+  network: ws
   port: 3011
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港12
+  network: ws
   port: 3012
   server: lsb-v1.lanan.world
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港13
