@@ -103,6 +103,7 @@ proxies:
   network: ws
   port: 3012
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
   tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -328,11 +329,18 @@ proxies:
   cipher: auto
   name: 🇺🇸 美国7-小带宽直连「0.2x」
   port: 443
-  server: us8.lanan.world
+  server: happy-us.lanan.world
   skip-cert-verify: true
   tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+- name: Trojan-香港测试
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 3016
+  server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  sni: null
+  type: trojan
 proxy-groups:
 - name: 🎓 学术相关
   proxies:
@@ -387,8 +395,9 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
+  - Trojan-香港测试
   type: select
-- interval: 500
+- interval: 180000
   name: ♻️ 自动选择
   proxies:
   - 🇭🇰 香港1
@@ -435,6 +444,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
+  - Trojan-香港测试
   type: url-test
   url: http://www.gstatic.com/generate_204
 - name: 🌍 国外媒体
@@ -486,6 +496,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
+  - Trojan-香港测试
   type: select
 - name: 🇨🇳 国内媒体
   proxies:
@@ -535,6 +546,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
+  - Trojan-香港测试
   type: select
 - name: Ⓜ️ 微软服务
   proxies:
@@ -584,6 +596,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
+  - Trojan-香港测试
   type: select
 - name: 📲 电报信息
   proxies:
@@ -632,6 +645,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
+  - Trojan-香港测试
   type: select
 - name: 🍎 苹果服务
   proxies:
@@ -682,6 +696,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
+  - Trojan-香港测试
   type: select
 - name: 🎯 全球直连
   proxies:
@@ -741,6 +756,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
+  - Trojan-香港测试
   type: select
 rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
@@ -748,6 +764,8 @@ rules:
 - DOMAIN-SUFFIX,ctan.org,🎓 学术相关
 - DOMAIN-SUFFIX,cn.overleaf.com,🎓 学术相关
 - DOMAIN-SUFFIX,nas.rundong.me,🎯 全球直连
+- DOMAIN-SUFFIX,totheglory.im,🎯 全球直连
+- DOMAIN-KEYWORD,m-team,🎯 全球直连
 - DOMAIN-SUFFIX,local,🎯 全球直连
 - IP-CIDR,192.168.0.0/16,🎯 全球直连,no-resolve
 - IP-CIDR,10.0.0.0/8,🎯 全球直连,no-resolve
