@@ -1,5 +1,20 @@
 port: 10081
 socks-port: 10080
+proxies:
+  - name: 🇸🇬 gigs-sg
+    type: vmess
+    server: vps-sg.rundong.me
+    port: 443
+    uuid: bc4df042-e3dc-4c8b-b3d9-0e3e4677b74d
+    alterId: 4
+    cipher: none
+    tls: true
+    skip-cert-verify: false
+    network: ws
+    ws-path: /ray
+add-to-group:
+  - 🔰 节点选择
+  - ♻️ 自动选择
 rules:
   - name: 🎓 学术相关
     proxies:
