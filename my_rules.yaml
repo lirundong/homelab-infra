@@ -13,5 +13,6 @@ rules:
   - name: 🎯 全球直连
     rule:
       - DOMAIN-SUFFIX,nas.rundong.me
+      - DOMAIN-SUFFIX,v2ex.com
       - DOMAIN-SUFFIX,totheglory.im
       - DOMAIN-KEYWORD,m-team

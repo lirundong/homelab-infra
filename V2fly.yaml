@@ -764,6 +764,7 @@ rules:
 - DOMAIN-SUFFIX,ctan.org,🎓 学术相关
 - DOMAIN-SUFFIX,cn.overleaf.com,🎓 学术相关
 - DOMAIN-SUFFIX,nas.rundong.me,🎯 全球直连
+- DOMAIN-SUFFIX,v2ex.com,🎯 全球直连
 - DOMAIN-SUFFIX,totheglory.im,🎯 全球直连
 - DOMAIN-KEYWORD,m-team,🎯 全球直连
 - DOMAIN-SUFFIX,local,🎯 全球直连
