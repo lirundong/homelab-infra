@@ -282,13 +282,6 @@ proxies:
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
-  name: 🇺🇸 美国6
-  port: 5046
-  server: lsb-v1.lanan.world
-  type: vmess
-  uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
-  cipher: auto
   name: 🇨🇳 台湾1
   port: 5501
   server: lsb-v1.lanan.world
@@ -345,7 +338,7 @@ proxies:
   tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- name: Trojan-香港测试
+- name: Trojan-香港1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3016
   server: lsb-v1.lanan.world
@@ -398,7 +391,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇺🇸 美国6
   - 🇨🇳 台湾1
   - 🇨🇳 台湾2
   - 🇰🇷 韩国
@@ -407,7 +399,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试
+  - Trojan-香港1
   type: select
 - interval: 180000
   name: ♻️ 自动选择
@@ -448,7 +440,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇺🇸 美国6
   - 🇨🇳 台湾1
   - 🇨🇳 台湾2
   - 🇰🇷 韩国
@@ -457,7 +448,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试
+  - Trojan-香港1
   type: url-test
   url: http://www.gstatic.com/generate_204
 - name: 🌍 国外媒体
@@ -500,7 +491,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇺🇸 美国6
   - 🇨🇳 台湾1
   - 🇨🇳 台湾2
   - 🇰🇷 韩国
@@ -509,7 +499,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试
+  - Trojan-香港1
   type: select
 - name: 🇨🇳 国内媒体
   proxies:
@@ -550,7 +540,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇺🇸 美国6
   - 🇨🇳 台湾1
   - 🇨🇳 台湾2
   - 🇰🇷 韩国
@@ -559,7 +548,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试
+  - Trojan-香港1
   type: select
 - name: Ⓜ️ 微软服务
   proxies:
@@ -600,7 +589,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇺🇸 美国6
   - 🇨🇳 台湾1
   - 🇨🇳 台湾2
   - 🇰🇷 韩国
@@ -609,7 +597,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试
+  - Trojan-香港1
   type: select
 - name: 📲 电报信息
   proxies:
@@ -649,7 +637,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇺🇸 美国6
   - 🇨🇳 台湾1
   - 🇨🇳 台湾2
   - 🇰🇷 韩国
@@ -658,7 +645,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试
+  - Trojan-香港1
   type: select
 - name: 🍎 苹果服务
   proxies:
@@ -700,7 +687,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇺🇸 美国6
   - 🇨🇳 台湾1
   - 🇨🇳 台湾2
   - 🇰🇷 韩国
@@ -709,7 +695,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试
+  - Trojan-香港1
   type: select
 - name: 🎯 全球直连
   proxies:
@@ -760,7 +746,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇺🇸 美国6
   - 🇨🇳 台湾1
   - 🇨🇳 台湾2
   - 🇰🇷 韩国
@@ -769,7 +754,7 @@ proxy-groups:
   - 🇬🇧 英国
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
-  - Trojan-香港测试
+  - Trojan-香港1
   type: select
 rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
