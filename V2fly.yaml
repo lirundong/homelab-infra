@@ -40,24 +40,36 @@ proxies:
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港3
+  network: ws
   port: 3003
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港4
+  network: ws
   port: 3004
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港5
+  network: ws
   port: 3005
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港6
@@ -72,31 +84,47 @@ proxies:
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港7
+  network: ws
   port: 3007
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港8
+  network: ws
   port: 3008
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港9
+  network: ws
   port: 3009
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港10
+  network: ws
   port: 3010
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港11
@@ -122,24 +150,36 @@ proxies:
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港13
+  network: ws
   port: 3013
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港14
+  network: ws
   port: 3014
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港15
+  network: ws
   port: 3015
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇯🇵 日本1
@@ -343,7 +383,14 @@ proxies:
   port: 3016
   server: lsb-v1.lanan.world
   skip-cert-verify: false
-  sni: null
+  sni: lsb-v1.lanan.world
+  type: trojan
+- name: Trojan-美国1
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 5047
+  server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  sni: lsb-v1.lanan.world
   type: trojan
 proxy-groups:
 - name: 🎓 学术相关
@@ -400,6 +447,7 @@ proxy-groups:
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
   - Trojan-香港1
+  - Trojan-美国1
   type: select
 - interval: 180000
   name: ♻️ 自动选择
@@ -449,6 +497,7 @@ proxy-groups:
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
   - Trojan-香港1
+  - Trojan-美国1
   type: url-test
   url: http://www.gstatic.com/generate_204
 - name: 🌍 国外媒体
@@ -500,6 +549,7 @@ proxy-groups:
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
   - Trojan-香港1
+  - Trojan-美国1
   type: select
 - name: 🇨🇳 国内媒体
   proxies:
@@ -549,6 +599,7 @@ proxy-groups:
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
   - Trojan-香港1
+  - Trojan-美国1
   type: select
 - name: Ⓜ️ 微软服务
   proxies:
@@ -598,6 +649,7 @@ proxy-groups:
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
   - Trojan-香港1
+  - Trojan-美国1
   type: select
 - name: 📲 电报信息
   proxies:
@@ -646,6 +698,7 @@ proxy-groups:
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
   - Trojan-香港1
+  - Trojan-美国1
   type: select
 - name: 🍎 苹果服务
   proxies:
@@ -696,6 +749,7 @@ proxy-groups:
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
   - Trojan-香港1
+  - Trojan-美国1
   type: select
 - name: 🎯 全球直连
   proxies:
@@ -755,6 +809,7 @@ proxy-groups:
   - 🇷🇺 俄罗斯
   - 🇺🇸 美国7-小带宽直连「0.2x」
   - Trojan-香港1
+  - Trojan-美国1
   type: select
 rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
