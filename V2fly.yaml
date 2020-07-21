@@ -264,38 +264,58 @@ proxies:
 - alterId: 2
   cipher: auto
   name: 🇸🇬 新加坡1
+  network: ws
   port: 5001
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇸🇬 新加坡2
+  network: ws
   port: 5002
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇸🇬 新加坡3
+  network: ws
   port: 5003
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇸🇬 新加坡4
+  network: ws
   port: 5004
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇸🇬 新加坡5
+  network: ws
   port: 5005
   server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  tls: true
   type: vmess
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇺🇸 美国1
@@ -9940,6 +9960,7 @@ rules:
 - DOMAIN-SUFFIX,googlevideo.com,🌍 国外媒体
 - DOMAIN-SUFFIX,youtube.com,🌍 国外媒体
 - DOMAIN,youtubei.googleapis.com,🌍 国外媒体
+- DOMAIN,services.googleapis.cn,🌍 国外媒体
 - DOMAIN-KEYWORD,beplay,🇨🇳 国内媒体
 - DOMAIN,cdp.cloud.unity3d.com,🇨🇳 国内媒体
 - DOMAIN-SUFFIX,battle.net,🇨🇳 国内媒体
