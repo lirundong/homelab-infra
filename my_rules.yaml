@@ -12,6 +12,17 @@ proxies:
     skip-cert-verify: false
     network: ws
     ws-path: /ray
+  - name: 🇸🇬 gcloud-sg-01
+    type: vmess
+    server: google-sg-01.rundong.me
+    port: 443
+    uuid: dde15c76-2f90-42d7-99e2-bd4ce6d7cefb
+    alterId: 4
+    cipher: none
+    tls: true
+    skip-cert-verify: false
+    network: ws
+    ws-path: /ray
 add-to-group:
   - 🔰 节点选择
   - ♻️ 自动选择

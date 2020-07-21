@@ -15,6 +15,17 @@ proxies:
   type: vmess
   uuid: bc4df042-e3dc-4c8b-b3d9-0e3e4677b74d
   ws-path: /ray
+- alterId: 4
+  cipher: none
+  name: 🇸🇬 gcloud-sg-01
+  network: ws
+  port: 443
+  server: google-sg-01.rundong.me
+  skip-cert-verify: false
+  tls: true
+  type: vmess
+  uuid: dde15c76-2f90-42d7-99e2-bd4ce6d7cefb
+  ws-path: /ray
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港1
@@ -401,6 +412,7 @@ proxy-groups:
 - name: 🔰 节点选择
   proxies:
   - 🇸🇬 gigs-sg
+  - 🇸🇬 gcloud-sg-01
   - ♻️ 自动选择
   - 🎯 全球直连
   - 🇭🇰 香港1
@@ -453,6 +465,7 @@ proxy-groups:
   name: ♻️ 自动选择
   proxies:
   - 🇸🇬 gigs-sg
+  - 🇸🇬 gcloud-sg-01
   - 🇭🇰 香港1
   - 🇭🇰 香港2
   - 🇭🇰 香港3
