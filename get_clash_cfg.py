@@ -99,7 +99,7 @@ if __name__ == "__main__":
         },
     }
     custom_path = "my_rules.yaml"
-    output_path = "V2fly.yaml"
+    output_path = "V2Club.yaml"
 
     sub = get_subscription(url, **sub_args)
     custom_rules, custom_proxies, proxy_add_to, custom_cfg = get_custom_rule(custom_path)
