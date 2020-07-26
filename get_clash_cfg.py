@@ -74,9 +74,9 @@ def update_with_custom_rule(sub, custom_rules, custom_proxies, add_to_pg, **cust
     # update proxy groups
     proxy_groups = []
     custom_proxy_names = [p["name"] for p in custom_proxies]
-    for pg in chain(new_pg, sub[PG_T]):
+    for pg in chain(sub[PG_T], new_pg):
         if pg["name"] in add_to_pg:
-            pg["proxies"] = custom_proxy_names + pg["proxies"]
+            pg["proxies"] = pg["proxies"] + custom_proxy_names
         proxy_groups.append(pg)
     
     sub.update(custom_kv)

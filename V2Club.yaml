@@ -395,15 +395,8 @@ proxies:
   sni: lsb-v1.lanan.world
   type: trojan
 proxy-groups:
-- name: 🎓 学术相关
-  proxies:
-  - DIRECT
-  - 🔰 节点选择
-  type: select
 - name: 🔰 节点选择
   proxies:
-  - 🇸🇬 gigs-sg
-  - 🇸🇬 gcloud-sg-01
   - ♻️ 自动选择
   - 🎯 全球直连
   - 🇰🇷 韩国
@@ -450,12 +443,12 @@ proxy-groups:
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇺🇸 「Trojan」美国 0
+  - 🇸🇬 gigs-sg
+  - 🇸🇬 gcloud-sg-01
   type: select
 - interval: 180000
   name: ♻️ 自动选择
   proxies:
-  - 🇸🇬 gigs-sg
-  - 🇸🇬 gcloud-sg-01
   - 🇰🇷 韩国
   - 🇮🇳 印度
   - 🇩🇪 德国
@@ -500,6 +493,8 @@ proxy-groups:
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇺🇸 「Trojan」美国 0
+  - 🇸🇬 gigs-sg
+  - 🇸🇬 gcloud-sg-01
   type: url-test
   url: http://www.gstatic.com/generate_204
 - name: 🌍 国外媒体
@@ -806,6 +801,11 @@ proxy-groups:
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇺🇸 「Trojan」美国 0
+  type: select
+- name: 🎓 学术相关
+  proxies:
+  - 🎯 全球直连
+  - 🔰 节点选择
   type: select
 rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关

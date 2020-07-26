@@ -29,7 +29,7 @@ add-to-group:
 rules:
   - name: 🎓 学术相关
     proxies:
-      - DIRECT
+      - 🎯 全球直连
       - 🔰 节点选择
     rule:
       - DOMAIN-SUFFIX,arxiv.org
