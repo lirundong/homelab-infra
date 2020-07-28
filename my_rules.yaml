@@ -42,3 +42,7 @@ rules:
       - DOMAIN-SUFFIX,v2ex.com
       - DOMAIN-SUFFIX,totheglory.im
       - DOMAIN-KEYWORD,m-team
+  - name: 🌍 国外媒体
+    rule:
+      - DOMAIN-SUFFIX,edx.org
+      - DOMAIN-SUFFIX,edx-video.net
