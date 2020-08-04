@@ -43,6 +43,7 @@ proxies:
   port: 5603
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -50,6 +51,7 @@ proxies:
   port: 5605
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -57,6 +59,7 @@ proxies:
   port: 5604
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -64,6 +67,7 @@ proxies:
   port: 5601
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -71,6 +75,7 @@ proxies:
   port: 5602
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -78,9 +83,11 @@ proxies:
   network: ws
   port: 3006
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -89,9 +96,11 @@ proxies:
   network: ws
   port: 3007
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -100,9 +109,11 @@ proxies:
   network: ws
   port: 3008
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -111,9 +122,11 @@ proxies:
   network: ws
   port: 3009
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -122,9 +135,11 @@ proxies:
   network: ws
   port: 3010
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -133,9 +148,11 @@ proxies:
   network: ws
   port: 3011
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -144,9 +161,11 @@ proxies:
   network: ws
   port: 3012
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -155,9 +174,11 @@ proxies:
   network: ws
   port: 3013
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -166,9 +187,11 @@ proxies:
   network: ws
   port: 3014
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -177,9 +200,11 @@ proxies:
   network: ws
   port: 3015
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -188,6 +213,7 @@ proxies:
   port: 4001
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -195,6 +221,7 @@ proxies:
   port: 4002
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -202,6 +229,7 @@ proxies:
   port: 4003
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -209,6 +237,7 @@ proxies:
   port: 4004
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -216,6 +245,7 @@ proxies:
   port: 4005
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -223,6 +253,7 @@ proxies:
   port: 4006
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -230,6 +261,7 @@ proxies:
   port: 4007
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -237,6 +269,7 @@ proxies:
   port: 4008
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -244,6 +277,7 @@ proxies:
   port: 4009
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -251,6 +285,7 @@ proxies:
   port: 4010
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -258,9 +293,11 @@ proxies:
   network: ws
   port: 5001
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -269,9 +306,11 @@ proxies:
   network: ws
   port: 5002
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -280,9 +319,11 @@ proxies:
   network: ws
   port: 5003
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -291,9 +332,11 @@ proxies:
   network: ws
   port: 5004
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -302,9 +345,11 @@ proxies:
   network: ws
   port: 5005
   server: lsb-v1.lanan.world
+  servername: lsb-v1.lanan.world
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   ws-path: /
 - alterId: 2
@@ -313,6 +358,7 @@ proxies:
   port: 5041
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -320,6 +366,7 @@ proxies:
   port: 5042
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -327,6 +374,7 @@ proxies:
   port: 5043
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -334,6 +382,7 @@ proxies:
   port: 5044
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
@@ -341,6 +390,7 @@ proxies:
   port: 5045
   server: lsb-v1.lanan.world
   type: vmess
+  udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - name: 🇭🇰 「Trojan」香港 0
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -349,6 +399,7 @@ proxies:
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
+  udp: true
 - name: 🇭🇰 「Trojan」香港 1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3001
@@ -356,6 +407,7 @@ proxies:
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
+  udp: true
 - name: 🇭🇰 「Trojan」香港 2
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3002
@@ -363,6 +415,7 @@ proxies:
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
+  udp: true
 - name: 🇭🇰 「Trojan」香港 3
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3003
@@ -370,6 +423,7 @@ proxies:
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
+  udp: true
 - name: 🇭🇰 「Trojan」香港 4
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3004
@@ -377,6 +431,7 @@ proxies:
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
+  udp: true
 - name: 🇭🇰 「Trojan」香港 5
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3005
@@ -384,6 +439,7 @@ proxies:
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
+  udp: true
 - name: 🇨🇳 「Trojan」台湾 0
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5500
@@ -391,6 +447,7 @@ proxies:
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
+  udp: true
 - name: 🇨🇳 「Trojan」台湾 1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5501
@@ -398,6 +455,7 @@ proxies:
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
+  udp: true
 - name: 🇺🇸 「Trojan」美国 0
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5047
@@ -405,6 +463,7 @@ proxies:
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
+  udp: true
 proxy-groups:
 - name: 🔰 节点选择
   proxies:
