@@ -405,7 +405,7 @@ proxies:
   port: 3001
   server: lsb-v1.lanan.world
   skip-cert-verify: false
-  sni: lsb-v1.lanan.world
+  sni: null
   type: trojan
   udp: true
 - name: 🇭🇰 「Trojan」香港 2
@@ -413,7 +413,7 @@ proxies:
   port: 3002
   server: lsb-v1.lanan.world
   skip-cert-verify: false
-  sni: lsb-v1.lanan.world
+  sni: null
   type: trojan
   udp: true
 - name: 🇭🇰 「Trojan」香港 3
@@ -421,7 +421,7 @@ proxies:
   port: 3003
   server: lsb-v1.lanan.world
   skip-cert-verify: false
-  sni: lsb-v1.lanan.world
+  sni: null
   type: trojan
   udp: true
 - name: 🇭🇰 「Trojan」香港 4
@@ -429,7 +429,7 @@ proxies:
   port: 3004
   server: lsb-v1.lanan.world
   skip-cert-verify: false
-  sni: lsb-v1.lanan.world
+  sni: null
   type: trojan
   udp: true
 - name: 🇭🇰 「Trojan」香港 5
@@ -437,7 +437,7 @@ proxies:
   port: 3005
   server: lsb-v1.lanan.world
   skip-cert-verify: false
-  sni: lsb-v1.lanan.world
+  sni: null
   type: trojan
   udp: true
 - name: 🇨🇳 「Trojan」台湾 0
@@ -451,14 +451,6 @@ proxies:
 - name: 🇨🇳 「Trojan」台湾 1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5501
-  server: lsb-v1.lanan.world
-  skip-cert-verify: false
-  sni: lsb-v1.lanan.world
-  type: trojan
-  udp: true
-- name: 🇺🇸 「Trojan」美国 0
-  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 5047
   server: lsb-v1.lanan.world
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
@@ -512,7 +504,6 @@ proxy-groups:
   - 🇭🇰 「Trojan」香港 5
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
-  - 🇺🇸 「Trojan」美国 0
   - 🇸🇬 gigs-sg
   - 🇸🇬 gcloud-sg-01
   - 🇸🇬 qcloud-sg-01
@@ -563,7 +554,6 @@ proxy-groups:
   - 🇭🇰 「Trojan」香港 5
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
-  - 🇺🇸 「Trojan」美国 0
   - 🇸🇬 gigs-sg
   - 🇸🇬 gcloud-sg-01
   - 🇸🇬 qcloud-sg-01
@@ -617,7 +607,6 @@ proxy-groups:
   - 🇭🇰 「Trojan」香港 5
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🇨🇳 国内媒体
   proxies:
@@ -666,7 +655,6 @@ proxy-groups:
   - 🇭🇰 「Trojan」香港 5
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: Ⓜ️ 微软服务
   proxies:
@@ -715,7 +703,6 @@ proxy-groups:
   - 🇭🇰 「Trojan」香港 5
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 📲 电报信息
   proxies:
@@ -763,7 +750,6 @@ proxy-groups:
   - 🇭🇰 「Trojan」香港 5
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🍎 苹果服务
   proxies:
@@ -813,7 +799,6 @@ proxy-groups:
   - 🇭🇰 「Trojan」香港 5
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🎯 全球直连
   proxies:
@@ -872,7 +857,6 @@ proxy-groups:
   - 🇭🇰 「Trojan」香港 5
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🎓 学术相关
   proxies:
