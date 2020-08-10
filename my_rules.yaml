@@ -1,5 +1,6 @@
 port: 10081
 socks-port: 10080
+ipv6: true
 proxies:
   - name: 🇸🇬 gigs-sg
     type: vmess

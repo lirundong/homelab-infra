@@ -53,8 +53,9 @@ def get_custom_rule(path):
     return rules, proxies, add_to, info
 
 
-def update_with_custom_rule(sub, custom_rules, custom_proxies, add_to_pg, **custom_kv):
-    assert all(k in sub for k in custom_kv.keys())
+def update_with_custom_rule(sub, custom_rules, custom_proxies, add_to_pg, strict=False, **custom_kv):
+    if strict:
+        assert all(k in sub for k in custom_kv.keys())
 
     new_pg = []
     new_rules = []

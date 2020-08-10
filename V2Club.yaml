@@ -1,5 +1,6 @@
 allow-lan: true
 external-controller: 127.0.0.1:9090
+ipv6: true
 log-level: info
 mode: rule
 port: 10081
