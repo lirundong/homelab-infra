@@ -2,17 +2,6 @@ port: 10081
 socks-port: 10080
 ipv6: true
 proxies:
-  - name: 🇸🇬 gigs-sg
-    type: vmess
-    server: vps-sg.rundong.me
-    port: 443
-    uuid: bc4df042-e3dc-4c8b-b3d9-0e3e4677b74d
-    alterId: 4
-    cipher: none
-    tls: true
-    skip-cert-verify: false
-    network: ws
-    ws-path: /ray
   - name: 🇸🇬 gcloud-sg-01
     type: vmess
     server: google-sg-01.rundong.me
