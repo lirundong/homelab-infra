@@ -78,16 +78,11 @@ proxies:
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港6
-  network: ws
   port: 3006
   server: lsb-v1.lanan.world
-  servername: lsb-v1.lanan.world
-  skip-cert-verify: false
-  tls: true
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  ws-path: /
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港7
@@ -365,10 +360,18 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- name: 🇭🇰 「Trojan」香港 AGA/0.2倍率
+- name: 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 443
   server: a7ae6b3f55846ab81.awsglobalaccelerator.com
+  skip-cert-verify: true
+  sni: lsb-v1.lanan.world
+  type: trojan
+  udp: true
+- name: 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 443
+  server: aa9167d9da32bcdfa.awsglobalaccelerator.com
   skip-cert-verify: true
   sni: lsb-v1.lanan.world
   type: trojan
@@ -470,7 +473,8 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
   - 🇭🇰 「Trojan」香港 0
   - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
@@ -520,7 +524,8 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
   - 🇭🇰 「Trojan」香港 0
   - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
@@ -573,7 +578,8 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
   - 🇭🇰 「Trojan」香港 0
   - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
@@ -622,7 +628,8 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
   - 🇭🇰 「Trojan」香港 0
   - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
@@ -671,7 +678,8 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
   - 🇭🇰 「Trojan」香港 0
   - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
@@ -719,7 +727,8 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
   - 🇭🇰 「Trojan」香港 0
   - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
@@ -769,7 +778,8 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
   - 🇭🇰 「Trojan」香港 0
   - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
@@ -828,7 +838,8 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
   - 🇭🇰 「Trojan」香港 0
   - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
