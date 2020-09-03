@@ -360,15 +360,23 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- name: 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
+- name: 🇨🇳 「Trojan」台湾 0
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 443
-  server: a7ae6b3f55846ab81.awsglobalaccelerator.com
-  skip-cert-verify: true
+  port: 5500
+  server: lsb-v1.lanan.world
+  skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
   udp: true
-- name: 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
+- name: 🇨🇳 「Trojan」台湾 1
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 5501
+  server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  sni: lsb-v1.lanan.world
+  type: trojan
+  udp: true
+- name: 🇭🇰 「Trojan」香港 AGA/0.2倍率
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 443
   server: aa9167d9da32bcdfa.awsglobalaccelerator.com
@@ -392,22 +400,6 @@ proxies:
   sni: null
   type: trojan
   udp: true
-- name: 🇨🇳 「Trojan」台湾 0
-  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 5500
-  server: lsb-v1.lanan.world
-  skip-cert-verify: false
-  sni: lsb-v1.lanan.world
-  type: trojan
-  udp: true
-- name: 🇨🇳 「Trojan」台湾 1
-  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 5501
-  server: lsb-v1.lanan.world
-  skip-cert-verify: false
-  sni: lsb-v1.lanan.world
-  type: trojan
-  udp: true
 - name: 🇸🇬 「Trojan」新加坡0
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5006
@@ -416,9 +408,33 @@ proxies:
   sni: lsb-v1.lanan.world
   type: trojan
   udp: true
+- name: 🇸🇬 「Trojan」新加坡1
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 5007
+  server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  sni: lsb-v1.lanan.world
+  type: trojan
+  udp: true
 - name: 🇯🇵 「Trojan」日本0
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 4011
+  server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  sni: lsb-v1.lanan.world
+  type: trojan
+  udp: true
+- name: 🇯🇵 「Trojan」日本1
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 4012
+  server: lsb-v1.lanan.world
+  skip-cert-verify: false
+  sni: lsb-v1.lanan.world
+  type: trojan
+  udp: true
+- name: 🇯🇵 「Trojan」日本2
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 4013
   server: lsb-v1.lanan.world
   skip-cert-verify: false
   sni: lsb-v1.lanan.world
@@ -473,14 +489,16 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
-  - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 0
+  - 🇭🇰 「Trojan」香港 1
   - 🇸🇬 「Trojan」新加坡0
+  - 🇸🇬 「Trojan」新加坡1
   - 🇯🇵 「Trojan」日本0
+  - 🇯🇵 「Trojan」日本1
+  - 🇯🇵 「Trojan」日本2
   - 🇺🇸 「Trojan」美国 0
   - 🇸🇬 gcloud-sg-01
   - 🇸🇬 qcloud-sg-01
@@ -524,14 +542,16 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
-  - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 0
+  - 🇭🇰 「Trojan」香港 1
   - 🇸🇬 「Trojan」新加坡0
+  - 🇸🇬 「Trojan」新加坡1
   - 🇯🇵 「Trojan」日本0
+  - 🇯🇵 「Trojan」日本1
+  - 🇯🇵 「Trojan」日本2
   - 🇺🇸 「Trojan」美国 0
   - 🇸🇬 gcloud-sg-01
   - 🇸🇬 qcloud-sg-01
@@ -578,14 +598,16 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
-  - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 0
+  - 🇭🇰 「Trojan」香港 1
   - 🇸🇬 「Trojan」新加坡0
+  - 🇸🇬 「Trojan」新加坡1
   - 🇯🇵 「Trojan」日本0
+  - 🇯🇵 「Trojan」日本1
+  - 🇯🇵 「Trojan」日本2
   - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🇨🇳 国内媒体
@@ -628,14 +650,16 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
-  - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 0
+  - 🇭🇰 「Trojan」香港 1
   - 🇸🇬 「Trojan」新加坡0
+  - 🇸🇬 「Trojan」新加坡1
   - 🇯🇵 「Trojan」日本0
+  - 🇯🇵 「Trojan」日本1
+  - 🇯🇵 「Trojan」日本2
   - 🇺🇸 「Trojan」美国 0
   type: select
 - name: Ⓜ️ 微软服务
@@ -678,14 +702,16 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
-  - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 0
+  - 🇭🇰 「Trojan」香港 1
   - 🇸🇬 「Trojan」新加坡0
+  - 🇸🇬 「Trojan」新加坡1
   - 🇯🇵 「Trojan」日本0
+  - 🇯🇵 「Trojan」日本1
+  - 🇯🇵 「Trojan」日本2
   - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 📲 电报信息
@@ -727,14 +753,16 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
-  - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 0
+  - 🇭🇰 「Trojan」香港 1
   - 🇸🇬 「Trojan」新加坡0
+  - 🇸🇬 「Trojan」新加坡1
   - 🇯🇵 「Trojan」日本0
+  - 🇯🇵 「Trojan」日本1
+  - 🇯🇵 「Trojan」日本2
   - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🍎 苹果服务
@@ -778,14 +806,16 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
-  - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 0
+  - 🇭🇰 「Trojan」香港 1
   - 🇸🇬 「Trojan」新加坡0
+  - 🇸🇬 「Trojan」新加坡1
   - 🇯🇵 「Trojan」日本0
+  - 🇯🇵 「Trojan」日本1
+  - 🇯🇵 「Trojan」日本2
   - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🎯 全球直连
@@ -838,14 +868,16 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 1
-  - 🇭🇰 「Trojan」香港 AGA/0.2倍率 2
-  - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
   - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
+  - 🇭🇰 「Trojan」香港 AGA/0.2倍率
+  - 🇭🇰 「Trojan」香港 0
+  - 🇭🇰 「Trojan」香港 1
   - 🇸🇬 「Trojan」新加坡0
+  - 🇸🇬 「Trojan」新加坡1
   - 🇯🇵 「Trojan」日本0
+  - 🇯🇵 「Trojan」日本1
+  - 🇯🇵 「Trojan」日本2
   - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🎓 学术相关
