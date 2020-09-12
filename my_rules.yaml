@@ -1,5 +1,6 @@
 port: 10081
 socks-port: 10080
+external-controller: 0.0.0.0:9090
 ipv6: true
 proxies:
   - name: 🇸🇬 gcloud-sg-01
