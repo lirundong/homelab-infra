@@ -120,6 +120,9 @@ if __name__ == "__main__":
                         help="Path to out rule file, in YAML format")
     parser.add_argument("--additional-config", "-a",
                         type=loads,
+                        default='''
+                        {}
+                        ''',
                         help="Additional configurations to the final rules")
     args = parser.parse_args()
 
