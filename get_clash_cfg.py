@@ -25,6 +25,8 @@ Custom rule format:
 """
 
 from itertools import chain
+from argparse import ArgumentParser
+from json import loads
 
 import requests
 import yaml
@@ -90,21 +92,41 @@ def update_with_custom_rule(sub, custom_rules, custom_proxies, add_to_pg, strict
 
 if __name__ == "__main__":
     # V2fly, private
-    url = "https://sub.v2club.top/api/v1/client/subscribe"
-    sub_args = {
-        "params": {
-            "token":"90cc293a40e07f4387655fdf6722225f",
-        },
-        "proxies": {
-            "https": "http://127.0.0.1:10081",
-        },
-    }
-    custom_path = "my_rules.yaml"
-    output_path = "V2Club.yaml"
+    parser = ArgumentParser("CLI utility to merge Clash subscriptions with custom configurations.")
+    parser.add_argument("--url",
+                        default="https://sub.v2club.top/api/v1/client/subscribe",
+                        help="Clash subscription URL")
+    parser.add_argument("--params",
+                        type=loads,
+                        default='''
+                        {
+                            "token": "90cc293a40e07f4387655fdf6722225f"
+                        }
+                        ''',
+                        help="Subscription arguments (e.g. authorization token) in JSON format")
+    parser.add_argument("--proxies",
+                        type=loads,
+                        default='''
+                        {
+                            "https": "http://127.0.0.1:10081"
+                        }
+                        ''',
+                        help="Proxy when fetching subscription in JSON format")
+    parser.add_argument("--custom-rules", "-i",
+                        required=True,
+                        help="Path to custom rule file, in YAML format")
+    parser.add_argument("--output-rules", "-o",
+                        default="updated_clash_rules.yaml",
+                        help="Path to out rule file, in YAML format")
+    parser.add_argument("--additional-config", "-a",
+                        type=loads,
+                        help="Additional configurations to the final rules")
+    args = parser.parse_args()
 
-    sub = get_subscription(url, **sub_args)
-    custom_rules, custom_proxies, proxy_add_to, custom_cfg = get_custom_rule(custom_path)
+    sub = get_subscription(args.url, params=args.params, proxies=args.proxies)
+    custom_rules, custom_proxies, proxy_add_to, custom_cfg = get_custom_rule(args.custom_rules)
+    custom_cfg.update(args.additional_config)
     updated_sub = update_with_custom_rule(sub, custom_rules, custom_proxies, proxy_add_to, **custom_cfg)
-    open(output_path, "w", encoding="utf-8").write(
+    open(args.output_rules, "w", encoding="utf-8").write(
         yaml.dump(updated_sub, Dumper=yaml.SafeDumper, allow_unicode=True)
     )
