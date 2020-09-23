@@ -13,6 +13,13 @@ dns:
     - 210.22.70.3
   fallback:
     - 1.1.1.1
+tun:
+  enable: true
+  stack: system
+  dns-hijack:
+    - 8.8.8.8:53
+    - tcp://8.8.8.8:53
+interface-name: eth0
 proxies:
   - name: 🇸🇬 gcloud-sg-01
     type: vmess
