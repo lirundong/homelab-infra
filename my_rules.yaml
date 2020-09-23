@@ -1,20 +1,18 @@
 socks-port: 10080
 port: 10081
-redir-port: 10082
-external-controller: 0.0.0.0:9090
+external-controller: :9090
 external-ui: /root/clash-dashboard
-ipv6: true
 dns:
   enable: true
-  listen: 0.0.0.0:53
-  ipv6: true
+  listen: :53
+  ipv6: false
   enhanced-mode: redir-host
   nameserver:
     # from China Union Shanghai
     - 210.22.70.225
     - 210.22.70.3
-    # TUNA IPv6 DNS
-    - 2001:da8::666
+  fallback:
+    - 1.1.1.1
 proxies:
   - name: 🇸🇬 gcloud-sg-01
     type: vmess
