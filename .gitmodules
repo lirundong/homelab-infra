@@ -1,0 +1,4 @@
+[submodule "clash-dashboard"]
+	path = clash-dashboard
+	url = https://github.com/Dreamacro/clash-dashboard.git
+	branch = gh-pages
