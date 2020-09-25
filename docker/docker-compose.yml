@@ -1,0 +1,17 @@
+version: "3"
+services:
+  clash:
+    build: .
+    volumes:
+      - ../V2Club.yaml:/root/.config/clash/config.yaml:ro
+      - ../clash-dashboard:/root/clash-dashboard:ro
+    ports:
+      - 53:53        # DNS
+      - 9090:9090    # Restful API
+      - 10080:10080  # socks proxy
+      - 10081:10081  # http proxy
+      - 10082:10082  # redir port
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    network_mode: bridge
