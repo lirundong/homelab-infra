@@ -5,7 +5,7 @@ external-controller: :9090
 external-ui: /root/clash-dashboard
 dns:
   enable: true
-  listen: :53
+  listen: :10053
   ipv6: false
   enhanced-mode: redir-host
   nameserver:
@@ -13,7 +13,7 @@ dns:
     - 210.22.70.225
     - 210.22.70.3
   fallback:
-    - 1.1.1.1
+    - tls://1.1.1.1:853
 proxies:
   - name: 🇸🇬 gcloud-sg-01
     type: vmess

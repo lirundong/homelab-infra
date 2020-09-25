@@ -3,9 +3,9 @@ dns:
   enable: true
   enhanced-mode: redir-host
   fallback:
-  - 1.1.1.1
+  - tls://1.1.1.1:853
   ipv6: false
-  listen: :53
+  listen: :10053
   nameserver:
   - 210.22.70.225
   - 210.22.70.3
