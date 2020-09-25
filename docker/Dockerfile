@@ -1,7 +1,6 @@
 FROM alpine:latest
 
-ENV REDIR_PORT=10082 \
-  DNS_PORT=10053
+ENV REDIR_PORT=10082
 
 ARG CLASH_ROOT=/root/.config/clash
 ARG CLASH_RELEASE=v1.1.0
@@ -49,11 +48,6 @@ CMD local_ipv4=$( \
   iptables -t mangle -A CLASH -d 240.0.0.0/4 -j RETURN && \
   iptables -t mangle -A CLASH -d "$local_ipv4" -j RETURN && \
   iptables -t mangle -A CLASH -p udp -j TPROXY --on-port "$REDIR_PORT" --tproxy-mark 1 && \
-  iptables -t mangle -A PREROUTING -p udp -j CLASH && \
-  iptables -t nat -N CLASH_DNS && \
-  iptables -t nat -F CLASH_DNS  && \
-  iptables -t nat -A CLASH_DNS -p udp -j REDIRECT --to-port "$DNS_PORT" && \
-  iptables -t nat -I OUTPUT -p udp --dport 53 -j CLASH_DNS && \
-  iptables -t nat -I PREROUTING -p udp --dport 53 -j REDIRECT --to "$DNS_PORT"
+  iptables -t mangle -A PREROUTING -p udp -j CLASH
 
 ENTRYPOINT ["/usr/local/bin/clash"]

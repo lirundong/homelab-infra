@@ -5,7 +5,7 @@ external-controller: :9090
 external-ui: /root/clash-dashboard
 dns:
   enable: true
-  listen: :10053
+  listen: :53
   ipv6: false
   enhanced-mode: redir-host
   nameserver:
