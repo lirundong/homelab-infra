@@ -48,6 +48,5 @@ CMD local_ipv4=$( \
   iptables -t mangle -A CLASH -d 240.0.0.0/4 -j RETURN && \
   iptables -t mangle -A CLASH -d "$local_ipv4" -j RETURN && \
   iptables -t mangle -A CLASH -p udp -j TPROXY --on-port "$REDIR_PORT" --tproxy-mark 1 && \
-  iptables -t mangle -A PREROUTING -p udp -j CLASH
-
-ENTRYPOINT ["/usr/local/bin/clash"]
+  iptables -t mangle -A PREROUTING -p udp -j CLASH && \
+  /usr/local/bin/clash
