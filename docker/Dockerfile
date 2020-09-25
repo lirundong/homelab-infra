@@ -35,18 +35,4 @@ CMD local_ipv4=$( \
   iptables -t nat -I PREROUTING -p tcp -d 8.8.8.8 -j REDIRECT --to-port "$REDIR_PORT" && \
   iptables -t nat -I PREROUTING -p tcp -d 8.8.4.4 -j REDIRECT --to-port "$REDIR_PORT" && \
   iptables -t nat -A PREROUTING -p tcp -j CLASH && \
-  ip rule add fwmark 1 table 100 && \
-  ip route add local default dev lo table 100 && \
-  iptables -t mangle -N CLASH && \
-  iptables -t mangle -A CLASH -d 0.0.0.0/8 -j RETURN && \
-  iptables -t mangle -A CLASH -d 10.0.0.0/8 -j RETURN && \
-  iptables -t mangle -A CLASH -d 127.0.0.0/8 -j RETURN && \
-  iptables -t mangle -A CLASH -d 169.254.0.0/16 -j RETURN && \
-  iptables -t mangle -A CLASH -d 172.16.0.0/12 -j RETURN && \
-  iptables -t mangle -A CLASH -d 192.168.0.0/16 -j RETURN && \
-  iptables -t mangle -A CLASH -d 224.0.0.0/4 -j RETURN && \
-  iptables -t mangle -A CLASH -d 240.0.0.0/4 -j RETURN && \
-  iptables -t mangle -A CLASH -d "$local_ipv4" -j RETURN && \
-  iptables -t mangle -A CLASH -p udp -j TPROXY --on-port "$REDIR_PORT" --tproxy-mark 1 && \
-  iptables -t mangle -A PREROUTING -p udp -j CLASH && \
   /usr/local/bin/clash
