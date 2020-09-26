@@ -2,11 +2,12 @@ socks-port: 10080
 port: 10081
 redir-port: 10082
 external-controller: :9090
-external-ui: /root/clash-dashboard
+external-ui: clash-dashboard
+ipv6: true
 dns:
   enable: true
-  listen: :53
-  ipv6: false
+  listen: :10053
+  ipv6: true
   enhanced-mode: redir-host
   nameserver:
     # from China Union Shanghai
