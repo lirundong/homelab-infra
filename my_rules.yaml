@@ -15,6 +15,8 @@ dns:
     - 210.22.70.3
   fallback:
     - tls://1.1.1.1:853
+    - tls://8.8.8.8:853
+    - tls://8.8.4.4:853
 proxies:
   - name: 🇸🇬 gcloud-sg-01
     type: vmess

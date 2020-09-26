@@ -4,6 +4,8 @@ dns:
   enhanced-mode: redir-host
   fallback:
   - tls://1.1.1.1:853
+  - tls://8.8.8.8:853
+  - tls://8.8.4.4:853
   ipv6: true
   listen: :10053
   nameserver:
