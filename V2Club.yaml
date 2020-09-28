@@ -853,7 +853,6 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   type: select
-redir-port: 10082
 rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
 - DOMAIN-SUFFIX,ieee.org,🎓 学术相关
@@ -11178,3 +11177,8 @@ rules:
 - GEOIP,CN,🎯 全球直连
 - MATCH,,🐟 漏网之鱼,dns-failed
 socks-port: 10080
+tun:
+  dns-hijack:
+  - tcp://8.8.8.8:53
+  enable: true
+  stack: system
