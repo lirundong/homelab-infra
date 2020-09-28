@@ -1,9 +1,13 @@
 allow-lan: true
 dns:
   enable: true
-  enhanced-mode: redir-host
+  enhanced-mode: fake-ip
+  fake-ip-filter:
+  - '*.lan'
+  - localhost.ptlogin2.qq.com
+  - nas-lan.rundong.me
+  fake-ip-range: 198.18.0.1/16
   fallback:
-  - tls://1.1.1.1:853
   - tls://8.8.8.8:853
   - tls://8.8.4.4:853
   ipv6: true
@@ -853,6 +857,7 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   type: select
+redir-port: 10082
 rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
 - DOMAIN-SUFFIX,ieee.org,🎓 学术相关
@@ -11177,8 +11182,3 @@ rules:
 - GEOIP,CN,🎯 全球直连
 - MATCH,,🐟 漏网之鱼,dns-failed
 socks-port: 10080
-tun:
-  dns-hijack:
-  - tcp://8.8.8.8:53
-  enable: true
-  stack: system

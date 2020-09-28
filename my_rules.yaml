@@ -1,6 +1,6 @@
 socks-port: 10080
 port: 10081
-# redir-port: 10082
+redir-port: 10082
 external-controller: :9090
 external-ui: clash-dashboard
 ipv6: true
@@ -8,20 +8,19 @@ dns:
   enable: true
   listen: :10053
   ipv6: true
-  enhanced-mode: redir-host
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - "*.lan"
+    - localhost.ptlogin2.qq.com
+    - nas-lan.rundong.me
   nameserver:
     # from China Union Shanghai
     - 210.22.70.225
     - 210.22.70.3
   fallback:
-    - tls://1.1.1.1:853
     - tls://8.8.8.8:853
     - tls://8.8.4.4:853
-tun:
-  enable: true
-  stack: system
-  dns-hijack:
-    - tcp://8.8.8.8:53
 proxies:
   - name: 🇸🇬 gcloud-sg-01
     type: vmess
