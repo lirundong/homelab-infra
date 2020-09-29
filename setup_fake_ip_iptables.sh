@@ -10,6 +10,7 @@ fi
 REDIR_PORT="10082"
 DNS_PORT="10053"
 TPROXY_MARKER="0x01"
+ROUTING_TABLE="100"
 
 # TCP
 iptables -t nat -N CLASH_LOCAL
@@ -40,8 +41,8 @@ iptables -t nat -A CLASH_EXTERNAL -p tcp -j REDIRECT --to-ports ${REDIR_PORT}
 iptables -t nat -I PREROUTING -p tcp -j CLASH_EXTERNAL
 
 # UDP
-ip rule add fwmark ${TPROXY_MARKER} table 100
-ip route add local default dev lo table 100
+ip rule add fwmark ${TPROXY_MARKER} table ${ROUTING_TABLE}
+ip route add local default dev lo table ${ROUTING_TABLE}
 iptables -t mangle -N CLASH_UDP
 iptables -t mangle -A CLASH_UDP -m owner --uid-owner 1001 -j RETURN
 iptables -t mangle -A CLASH_UDP -d 0.0.0.0/8 -j RETURN
