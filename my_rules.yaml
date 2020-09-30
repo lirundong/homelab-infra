@@ -18,9 +18,6 @@ dns:
     # from China Union Shanghai
     - 210.22.70.225
     - 210.22.70.3
-  fallback:
-    - tls://8.8.8.8:853
-    - tls://8.8.4.4:853
 proxies:
   - name: 🇸🇬 gcloud-sg-01
     type: vmess
