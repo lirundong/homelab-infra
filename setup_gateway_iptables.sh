@@ -25,7 +25,6 @@ LOCAL_IPS=(
 for LOCAL_IP in ${LOCAL_IPS[@]}; do
   iptables -t mangle -A PREROUTING -d ${LOCAL_IP} -p udp -j RETURN
 done
-exit
 # 2. Do not touch DNS packets, as they will be handled by nat rules later.
 iptables -t mangle -A PREROUTING -p udp -m udp --dport 53 -j RETURN
 # 3. Redirect all other UDP packets to a localhost socket which is listening on 
