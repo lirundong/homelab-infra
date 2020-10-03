@@ -13,11 +13,13 @@ dns:
   fake-ip-filter:
     - "*.lan"
     - localhost.ptlogin2.qq.com
-    - nas-lan.rundong.me
+    - "*.rundong.me"
+    - "*.lanan.world"
   nameserver:
     # from China Union Shanghai
     - 210.22.70.225
     - 210.22.70.3
+    - "[2408:8026:480:112::6666]"
 proxies:
   - name: 🇸🇬 gcloud-sg-01
     type: vmess
