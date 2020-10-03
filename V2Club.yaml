@@ -5,15 +5,13 @@ dns:
   fake-ip-filter:
   - '*.lan'
   - localhost.ptlogin2.qq.com
-  - '*.rundong.me'
-  - '*.lanan.world'
+  - nas-lan.rundong.me
   fake-ip-range: 198.18.0.1/16
   ipv6: true
   listen: :10053
   nameserver:
   - 210.22.70.225
   - 210.22.70.3
-  - '[2408:8026:480:112::6666]'
 external-controller: :9090
 external-ui: clash-dashboard
 ipv6: true
