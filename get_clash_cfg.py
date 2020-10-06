@@ -106,11 +106,6 @@ if __name__ == "__main__":
                         help="Subscription arguments (e.g. authorization token) in JSON format")
     parser.add_argument("--proxies",
                         type=loads,
-                        default='''
-                        {
-                            "https": "http://127.0.0.1:10081"
-                        }
-                        ''',
                         help="Proxy when fetching subscription in JSON format")
     parser.add_argument("--custom-rules", "-i",
                         required=True,

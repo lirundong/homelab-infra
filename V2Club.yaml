@@ -52,54 +52,62 @@ proxies:
   type: vmess
   uuid: 99d29dd6-da61-4e6f-9394-c40dcd0604d9
   ws-path: /ray
-- alterId: 2
-  cipher: auto
-  name: 🇺🇸 美国0
-  port: 5046
+- cipher: chacha20-ietf-poly1305
+  name: 🇨🇳 「Shadowsocks」台湾 0
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 5500
   server: lsb-v1.lanan.world
-  type: vmess
+  type: ss
   udp: true
-  uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
-  cipher: auto
-  name: 🇰🇷 韩国
+- cipher: chacha20-ietf-poly1305
+  name: 🇰🇷 「Shadowsocks」韩国
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5606
   server: lsb-v1.lanan.world
-  type: vmess
+  type: ss
   udp: true
-  uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
-  cipher: auto
-  name: 🇮🇳 印度
+- cipher: chacha20-ietf-poly1305
+  name: 🇮🇳 「Shadowsocks」印度
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5605
   server: lsb-v1.lanan.world
-  type: vmess
+  type: ss
   udp: true
-  uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
-  cipher: auto
-  name: 🇩🇪 德国
+- cipher: chacha20-ietf-poly1305
+  name: 🇩🇪 「Shadowsocks」 德国
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5604
   server: lsb-v1.lanan.world
-  type: vmess
+  type: ss
   udp: true
-  uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
-  cipher: auto
-  name: 🇬🇧 英国
+- cipher: chacha20-ietf-poly1305
+  name: 🇬🇧 「Shadowsocks」 英国
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5601
   server: lsb-v1.lanan.world
-  type: vmess
+  type: ss
   udp: true
-  uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
-  cipher: auto
-  name: 🇷🇺 俄罗斯
+- cipher: chacha20-ietf-poly1305
+  name: 🇷🇺 「Shadowsocks」俄罗斯
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5602
   server: lsb-v1.lanan.world
-  type: vmess
+  type: ss
   udp: true
-  uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+- cipher: chacha20-ietf-poly1305
+  name: 🇺🇸 「Shadowsocks」美国0
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 5046
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
+  name: 🇺🇸 「Shadowsocks」美国1
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 5047
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
 - alterId: 2
   cipher: auto
   name: 🇭🇰 香港6
@@ -340,14 +348,6 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- name: 🇨🇳 「Trojan」台湾 0
-  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 5500
-  server: lsb-v1.lanan.world
-  skip-cert-verify: false
-  sni: lsb-v1.lanan.world
-  type: trojan
-  udp: true
 - name: 🇨🇳 「Trojan」台湾 1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5501
@@ -428,25 +428,19 @@ proxies:
   sni: lsb-v1.lanan.world
   type: trojan
   udp: true
-- name: 🇺🇸 「Trojan」美国 0
-  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 5047
-  server: lsb-v1.lanan.world
-  skip-cert-verify: false
-  sni: lsb-v1.lanan.world
-  type: trojan
-  udp: true
 proxy-groups:
 - name: 🔰 节点选择
   proxies:
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 🇺🇸 美国0
-  - 🇰🇷 韩国
-  - 🇮🇳 印度
-  - 🇩🇪 德国
-  - 🇬🇧 英国
-  - 🇷🇺 俄罗斯
+  - 🇨🇳 「Shadowsocks」台湾 0
+  - 🇰🇷 「Shadowsocks」韩国
+  - 🇮🇳 「Shadowsocks」印度
+  - 🇩🇪 「Shadowsocks」 德国
+  - 🇬🇧 「Shadowsocks」 英国
+  - 🇷🇺 「Shadowsocks」俄罗斯
+  - 🇺🇸 「Shadowsocks」美国0
+  - 🇺🇸 「Shadowsocks」美国1
   - 🇭🇰 香港6
   - 🇭🇰 香港7
   - 🇭🇰 香港8
@@ -477,7 +471,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇭🇰 「Trojan」香港 0
@@ -488,7 +481,6 @@ proxy-groups:
   - 🇯🇵 「Trojan」日本0
   - 🇯🇵 「Trojan」日本1
   - 🇯🇵 「Trojan」日本2
-  - 🇺🇸 「Trojan」美国 0
   - 🇸🇬 gcloud-sg-01
   - 🇨🇳 gcloud-tw-01
   - 🇸🇬 qcloud-sg-01
@@ -496,12 +488,14 @@ proxy-groups:
 - interval: 180000
   name: ♻️ 自动选择
   proxies:
-  - 🇺🇸 美国0
-  - 🇰🇷 韩国
-  - 🇮🇳 印度
-  - 🇩🇪 德国
-  - 🇬🇧 英国
-  - 🇷🇺 俄罗斯
+  - 🇨🇳 「Shadowsocks」台湾 0
+  - 🇰🇷 「Shadowsocks」韩国
+  - 🇮🇳 「Shadowsocks」印度
+  - 🇩🇪 「Shadowsocks」 德国
+  - 🇬🇧 「Shadowsocks」 英国
+  - 🇷🇺 「Shadowsocks」俄罗斯
+  - 🇺🇸 「Shadowsocks」美国0
+  - 🇺🇸 「Shadowsocks」美国1
   - 🇭🇰 香港6
   - 🇭🇰 香港7
   - 🇭🇰 香港8
@@ -532,7 +526,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇭🇰 「Trojan」香港 0
@@ -543,7 +536,6 @@ proxy-groups:
   - 🇯🇵 「Trojan」日本0
   - 🇯🇵 「Trojan」日本1
   - 🇯🇵 「Trojan」日本2
-  - 🇺🇸 「Trojan」美国 0
   - 🇸🇬 gcloud-sg-01
   - 🇨🇳 gcloud-tw-01
   - 🇸🇬 qcloud-sg-01
@@ -554,12 +546,14 @@ proxy-groups:
   - 🔰 节点选择
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 🇺🇸 美国0
-  - 🇰🇷 韩国
-  - 🇮🇳 印度
-  - 🇩🇪 德国
-  - 🇬🇧 英国
-  - 🇷🇺 俄罗斯
+  - 🇨🇳 「Shadowsocks」台湾 0
+  - 🇰🇷 「Shadowsocks」韩国
+  - 🇮🇳 「Shadowsocks」印度
+  - 🇩🇪 「Shadowsocks」 德国
+  - 🇬🇧 「Shadowsocks」 英国
+  - 🇷🇺 「Shadowsocks」俄罗斯
+  - 🇺🇸 「Shadowsocks」美国0
+  - 🇺🇸 「Shadowsocks」美国1
   - 🇭🇰 香港6
   - 🇭🇰 香港7
   - 🇭🇰 香港8
@@ -590,7 +584,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇭🇰 「Trojan」香港 0
@@ -601,18 +594,19 @@ proxy-groups:
   - 🇯🇵 「Trojan」日本0
   - 🇯🇵 「Trojan」日本1
   - 🇯🇵 「Trojan」日本2
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🇨🇳 国内媒体
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 🇺🇸 美国0
-  - 🇰🇷 韩国
-  - 🇮🇳 印度
-  - 🇩🇪 德国
-  - 🇬🇧 英国
-  - 🇷🇺 俄罗斯
+  - 🇨🇳 「Shadowsocks」台湾 0
+  - 🇰🇷 「Shadowsocks」韩国
+  - 🇮🇳 「Shadowsocks」印度
+  - 🇩🇪 「Shadowsocks」 德国
+  - 🇬🇧 「Shadowsocks」 英国
+  - 🇷🇺 「Shadowsocks」俄罗斯
+  - 🇺🇸 「Shadowsocks」美国0
+  - 🇺🇸 「Shadowsocks」美国1
   - 🇭🇰 香港6
   - 🇭🇰 香港7
   - 🇭🇰 香港8
@@ -643,7 +637,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇭🇰 「Trojan」香港 0
@@ -654,18 +647,19 @@ proxy-groups:
   - 🇯🇵 「Trojan」日本0
   - 🇯🇵 「Trojan」日本1
   - 🇯🇵 「Trojan」日本2
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: Ⓜ️ 微软服务
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 🇺🇸 美国0
-  - 🇰🇷 韩国
-  - 🇮🇳 印度
-  - 🇩🇪 德国
-  - 🇬🇧 英国
-  - 🇷🇺 俄罗斯
+  - 🇨🇳 「Shadowsocks」台湾 0
+  - 🇰🇷 「Shadowsocks」韩国
+  - 🇮🇳 「Shadowsocks」印度
+  - 🇩🇪 「Shadowsocks」 德国
+  - 🇬🇧 「Shadowsocks」 英国
+  - 🇷🇺 「Shadowsocks」俄罗斯
+  - 🇺🇸 「Shadowsocks」美国0
+  - 🇺🇸 「Shadowsocks」美国1
   - 🇭🇰 香港6
   - 🇭🇰 香港7
   - 🇭🇰 香港8
@@ -696,7 +690,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇭🇰 「Trojan」香港 0
@@ -707,17 +700,18 @@ proxy-groups:
   - 🇯🇵 「Trojan」日本0
   - 🇯🇵 「Trojan」日本1
   - 🇯🇵 「Trojan」日本2
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 📲 电报信息
   proxies:
   - 🔰 节点选择
-  - 🇺🇸 美国0
-  - 🇰🇷 韩国
-  - 🇮🇳 印度
-  - 🇩🇪 德国
-  - 🇬🇧 英国
-  - 🇷🇺 俄罗斯
+  - 🇨🇳 「Shadowsocks」台湾 0
+  - 🇰🇷 「Shadowsocks」韩国
+  - 🇮🇳 「Shadowsocks」印度
+  - 🇩🇪 「Shadowsocks」 德国
+  - 🇬🇧 「Shadowsocks」 英国
+  - 🇷🇺 「Shadowsocks」俄罗斯
+  - 🇺🇸 「Shadowsocks」美国0
+  - 🇺🇸 「Shadowsocks」美国1
   - 🇭🇰 香港6
   - 🇭🇰 香港7
   - 🇭🇰 香港8
@@ -748,7 +742,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇭🇰 「Trojan」香港 0
@@ -759,19 +752,20 @@ proxy-groups:
   - 🇯🇵 「Trojan」日本0
   - 🇯🇵 「Trojan」日本1
   - 🇯🇵 「Trojan」日本2
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🍎 苹果服务
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
   - ♻️ 自动选择
-  - 🇺🇸 美国0
-  - 🇰🇷 韩国
-  - 🇮🇳 印度
-  - 🇩🇪 德国
-  - 🇬🇧 英国
-  - 🇷🇺 俄罗斯
+  - 🇨🇳 「Shadowsocks」台湾 0
+  - 🇰🇷 「Shadowsocks」韩国
+  - 🇮🇳 「Shadowsocks」印度
+  - 🇩🇪 「Shadowsocks」 德国
+  - 🇬🇧 「Shadowsocks」 英国
+  - 🇷🇺 「Shadowsocks」俄罗斯
+  - 🇺🇸 「Shadowsocks」美国0
+  - 🇺🇸 「Shadowsocks」美国1
   - 🇭🇰 香港6
   - 🇭🇰 香港7
   - 🇭🇰 香港8
@@ -802,7 +796,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇭🇰 「Trojan」香港 0
@@ -813,7 +806,6 @@ proxy-groups:
   - 🇯🇵 「Trojan」日本0
   - 🇯🇵 「Trojan」日本1
   - 🇯🇵 「Trojan」日本2
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🎯 全球直连
   proxies:
@@ -829,12 +821,14 @@ proxy-groups:
   - 🔰 节点选择
   - 🎯 全球直连
   - ♻️ 自动选择
-  - 🇺🇸 美国0
-  - 🇰🇷 韩国
-  - 🇮🇳 印度
-  - 🇩🇪 德国
-  - 🇬🇧 英国
-  - 🇷🇺 俄罗斯
+  - 🇨🇳 「Shadowsocks」台湾 0
+  - 🇰🇷 「Shadowsocks」韩国
+  - 🇮🇳 「Shadowsocks」印度
+  - 🇩🇪 「Shadowsocks」 德国
+  - 🇬🇧 「Shadowsocks」 英国
+  - 🇷🇺 「Shadowsocks」俄罗斯
+  - 🇺🇸 「Shadowsocks」美国0
+  - 🇺🇸 「Shadowsocks」美国1
   - 🇭🇰 香港6
   - 🇭🇰 香港7
   - 🇭🇰 香港8
@@ -865,7 +859,6 @@ proxy-groups:
   - 🇺🇸 美国3
   - 🇺🇸 美国4
   - 🇺🇸 美国5
-  - 🇨🇳 「Trojan」台湾 0
   - 🇨🇳 「Trojan」台湾 1
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇭🇰 「Trojan」香港 0
@@ -876,7 +869,6 @@ proxy-groups:
   - 🇯🇵 「Trojan」日本0
   - 🇯🇵 「Trojan」日本1
   - 🇯🇵 「Trojan」日本2
-  - 🇺🇸 「Trojan」美国 0
   type: select
 - name: 🎓 学术相关
   proxies:
