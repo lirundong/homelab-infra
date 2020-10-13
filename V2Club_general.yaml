@@ -102,6 +102,20 @@ proxies:
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
+  name: 🇭🇰 「SS」香港1
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 3001
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
+  name: 🇭🇰 「SS」香港2
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 3002
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
   name: 🇰🇷 「SS」韩国
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5606
@@ -384,22 +398,6 @@ proxies:
   sni: lsb-v1.lanan.world
   type: trojan
   udp: true
-- name: 🇭🇰 「Trojan」香港 1
-  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 3001
-  server: lsb-v1.lanan.world
-  skip-cert-verify: false
-  sni: null
-  type: trojan
-  udp: true
-- name: 🇭🇰 「Trojan」香港 2
-  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 3002
-  server: lsb-v1.lanan.world
-  skip-cert-verify: false
-  sni: null
-  type: trojan
-  udp: true
 - name: 🇭🇰 「Trojan」香港 AGA/0.5倍率
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 443
@@ -422,6 +420,8 @@ proxy-groups:
   - 🇯🇵 「SS」日本3
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
+  - 🇭🇰 「SS」香港1
+  - 🇭🇰 「SS」香港2
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -458,8 +458,6 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
-  - 🇭🇰 「Trojan」香港 2
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇸🇬 gcloud-sg-01
   - 🇨🇳 gcloud-tw-01
@@ -477,6 +475,8 @@ proxy-groups:
   - 🇯🇵 「SS」日本3
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
+  - 🇭🇰 「SS」香港1
+  - 🇭🇰 「SS」香港2
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -513,8 +513,6 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
-  - 🇭🇰 「Trojan」香港 2
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   - 🇸🇬 gcloud-sg-01
   - 🇨🇳 gcloud-tw-01
@@ -535,6 +533,8 @@ proxy-groups:
   - 🇯🇵 「SS」日本3
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
+  - 🇭🇰 「SS」香港1
+  - 🇭🇰 「SS」香港2
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -571,8 +571,6 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
-  - 🇭🇰 「Trojan」香港 2
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   type: select
 - name: 🇨🇳 国内媒体
@@ -588,6 +586,8 @@ proxy-groups:
   - 🇯🇵 「SS」日本3
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
+  - 🇭🇰 「SS」香港1
+  - 🇭🇰 「SS」香港2
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -624,8 +624,6 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
-  - 🇭🇰 「Trojan」香港 2
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   type: select
 - name: Ⓜ️ 微软服务
@@ -641,6 +639,8 @@ proxy-groups:
   - 🇯🇵 「SS」日本3
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
+  - 🇭🇰 「SS」香港1
+  - 🇭🇰 「SS」香港2
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -677,8 +677,6 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
-  - 🇭🇰 「Trojan」香港 2
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   type: select
 - name: 📲 电报信息
@@ -693,6 +691,8 @@ proxy-groups:
   - 🇯🇵 「SS」日本3
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
+  - 🇭🇰 「SS」香港1
+  - 🇭🇰 「SS」香港2
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -729,8 +729,6 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
-  - 🇭🇰 「Trojan」香港 2
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   type: select
 - name: 🍎 苹果服务
@@ -747,6 +745,8 @@ proxy-groups:
   - 🇯🇵 「SS」日本3
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
+  - 🇭🇰 「SS」香港1
+  - 🇭🇰 「SS」香港2
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -783,8 +783,6 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
-  - 🇭🇰 「Trojan」香港 2
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   type: select
 - name: 🎯 全球直连
@@ -810,6 +808,8 @@ proxy-groups:
   - 🇯🇵 「SS」日本3
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
+  - 🇭🇰 「SS」香港1
+  - 🇭🇰 「SS」香港2
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -846,8 +846,6 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇭🇰 「Trojan」香港 0
-  - 🇭🇰 「Trojan」香港 1
-  - 🇭🇰 「Trojan」香港 2
   - 🇭🇰 「Trojan」香港 AGA/0.5倍率
   type: select
 - name: 🎓 学术相关
