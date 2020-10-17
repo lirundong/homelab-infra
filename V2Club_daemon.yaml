@@ -10,8 +10,7 @@ dns:
   ipv6: true
   listen: :10053
   nameserver:
-  - 210.22.70.225
-  - 210.22.70.3
+  - 192.168.50.1
 external-controller: :9090
 external-ui: clash-dashboard
 ipv6: true
