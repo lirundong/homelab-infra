@@ -32,17 +32,6 @@ proxies:
     skip-cert-verify: false
     network: ws
     ws-path: /ray
-  - name: 🇨🇳 gcloud-tw-01
-    type: vmess
-    server: gcloud-tw-01.rundong.me
-    port: 443
-    uuid: 56274bd7-4b6c-495b-b31a-eaa79954a3f9
-    alterId: 4
-    cipher: none
-    tls: true
-    skip-cert-verify: false
-    network: ws
-    ws-path: /ray
   - name: 🇸🇬 qcloud-sg-01
     type: vmess
     server: qcloud-sg-01.rundong.me
