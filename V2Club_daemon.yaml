@@ -6,6 +6,9 @@ dns:
   - '*.lan'
   - localhost.ptlogin2.qq.com
   - nas-lan.rundong.me
+  - dns.msftncsi.com
+  - www.msftncsi.com
+  - www.msftconnecttest.com
   fake-ip-range: 198.18.0.1/16
   ipv6: true
   listen: :10053
