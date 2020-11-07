@@ -105,6 +105,27 @@ proxies:
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
+  name: 🇭🇰 「SS」香港3
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 3003
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
+  name: 🇭🇰 「SS」香港4
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 3004
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
+  name: 🇭🇰 「SS」香港5
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 3005
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
   name: 🇰🇷 「SS」韩国
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5606
@@ -383,7 +404,6 @@ proxies:
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3016
   server: lsb-v1.lanan.world
-  skip-cert-verify: false
   sni: lsb-v1.lanan.world
   type: trojan
   udp: true
@@ -411,6 +431,9 @@ proxy-groups:
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
+  - 🇭🇰 「SS」香港3
+  - 🇭🇰 「SS」香港4
+  - 🇭🇰 「SS」香港5
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -465,6 +488,9 @@ proxy-groups:
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
+  - 🇭🇰 「SS」香港3
+  - 🇭🇰 「SS」香港4
+  - 🇭🇰 「SS」香港5
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -522,6 +548,9 @@ proxy-groups:
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
+  - 🇭🇰 「SS」香港3
+  - 🇭🇰 「SS」香港4
+  - 🇭🇰 「SS」香港5
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -575,6 +604,9 @@ proxy-groups:
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
+  - 🇭🇰 「SS」香港3
+  - 🇭🇰 「SS」香港4
+  - 🇭🇰 「SS」香港5
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -628,6 +660,9 @@ proxy-groups:
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
+  - 🇭🇰 「SS」香港3
+  - 🇭🇰 「SS」香港4
+  - 🇭🇰 「SS」香港5
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -680,6 +715,9 @@ proxy-groups:
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
+  - 🇭🇰 「SS」香港3
+  - 🇭🇰 「SS」香港4
+  - 🇭🇰 「SS」香港5
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -734,6 +772,9 @@ proxy-groups:
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
+  - 🇭🇰 「SS」香港3
+  - 🇭🇰 「SS」香港4
+  - 🇭🇰 「SS」香港5
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
@@ -797,6 +838,9 @@ proxy-groups:
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
+  - 🇭🇰 「SS」香港3
+  - 🇭🇰 「SS」香港4
+  - 🇭🇰 「SS」香港5
   - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
   - 🇩🇪 「SS」 德国
