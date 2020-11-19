@@ -162,7 +162,7 @@ proxies:
   udp: true
 - alterId: 2
   cipher: auto
-  name: 🇭🇰 「V2ray」香港6 - 维护
+  name: 🇭🇰 「V2ray」香港6
   port: 3006
   server: lsb-v1.lanan.world
   type: vmess
@@ -424,7 +424,7 @@ proxy-groups:
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
-  - 🇭🇰 「V2ray」香港6 - 维护
+  - 🇭🇰 「V2ray」香港6
   - 🇭🇰 「V2ray」香港7
   - 🇭🇰 「V2ray」香港8
   - 🇭🇰 「V2ray」香港9
@@ -479,7 +479,7 @@ proxy-groups:
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
-  - 🇭🇰 「V2ray」香港6 - 维护
+  - 🇭🇰 「V2ray」香港6
   - 🇭🇰 「V2ray」香港7
   - 🇭🇰 「V2ray」香港8
   - 🇭🇰 「V2ray」香港9
@@ -537,7 +537,7 @@ proxy-groups:
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
-  - 🇭🇰 「V2ray」香港6 - 维护
+  - 🇭🇰 「V2ray」香港6
   - 🇭🇰 「V2ray」香港7
   - 🇭🇰 「V2ray」香港8
   - 🇭🇰 「V2ray」香港9
@@ -591,7 +591,7 @@ proxy-groups:
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
-  - 🇭🇰 「V2ray」香港6 - 维护
+  - 🇭🇰 「V2ray」香港6
   - 🇭🇰 「V2ray」香港7
   - 🇭🇰 「V2ray」香港8
   - 🇭🇰 「V2ray」香港9
@@ -645,7 +645,7 @@ proxy-groups:
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
-  - 🇭🇰 「V2ray」香港6 - 维护
+  - 🇭🇰 「V2ray」香港6
   - 🇭🇰 「V2ray」香港7
   - 🇭🇰 「V2ray」香港8
   - 🇭🇰 「V2ray」香港9
@@ -698,7 +698,7 @@ proxy-groups:
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
-  - 🇭🇰 「V2ray」香港6 - 维护
+  - 🇭🇰 「V2ray」香港6
   - 🇭🇰 「V2ray」香港7
   - 🇭🇰 「V2ray」香港8
   - 🇭🇰 「V2ray」香港9
@@ -753,7 +753,7 @@ proxy-groups:
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
-  - 🇭🇰 「V2ray」香港6 - 维护
+  - 🇭🇰 「V2ray」香港6
   - 🇭🇰 「V2ray」香港7
   - 🇭🇰 「V2ray」香港8
   - 🇭🇰 「V2ray」香港9
@@ -817,7 +817,7 @@ proxy-groups:
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
-  - 🇭🇰 「V2ray」香港6 - 维护
+  - 🇭🇰 「V2ray」香港6
   - 🇭🇰 「V2ray」香港7
   - 🇭🇰 「V2ray」香港8
   - 🇭🇰 「V2ray」香港9
