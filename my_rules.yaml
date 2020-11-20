@@ -6,6 +6,7 @@ general_options:
   allow-lan: false
 daemon_only_options:
   redir-port: 10082
+  tproxy-port: 10083
   external-ui: clash-dashboard
   allow-lan: true
   dns:
@@ -59,13 +60,13 @@ rules:
       - DOMAIN-SUFFIX,arxiv.org
       - DOMAIN-SUFFIX,ieee.org
       - DOMAIN-SUFFIX,ctan.org
-      - DOMAIN-SUFFIX,cn.overleaf.com
   - name: 🎯 全球直连
     rule:
       - DOMAIN-SUFFIX,rundong.me
       - DOMAIN-SUFFIX,v2ex.com
       - DOMAIN-SUFFIX,totheglory.im
       - DOMAIN-KEYWORD,m-team
+      - DOMAIN-SUFFIX,cn.overleaf.com
   - name: 🌍 国外媒体
     rule:
       - DOMAIN-SUFFIX,edx.org

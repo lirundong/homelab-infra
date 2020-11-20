@@ -242,7 +242,7 @@ proxies:
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
-  name: 🇯🇵 「V2ray」日本1
+  name: 🇯🇵 「V2ray」日本1-触发版权/下线整顿
   port: 4001
   server: lsb-v1.lanan.world
   type: vmess
@@ -434,7 +434,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1
+  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -489,7 +489,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1
+  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -547,7 +547,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1
+  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -601,7 +601,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1
+  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -655,7 +655,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1
+  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -708,7 +708,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1
+  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -763,7 +763,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1
+  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -827,7 +827,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1
+  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -857,11 +857,11 @@ rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
 - DOMAIN-SUFFIX,ieee.org,🎓 学术相关
 - DOMAIN-SUFFIX,ctan.org,🎓 学术相关
-- DOMAIN-SUFFIX,cn.overleaf.com,🎓 学术相关
 - DOMAIN-SUFFIX,rundong.me,🎯 全球直连
 - DOMAIN-SUFFIX,v2ex.com,🎯 全球直连
 - DOMAIN-SUFFIX,totheglory.im,🎯 全球直连
 - DOMAIN-KEYWORD,m-team,🎯 全球直连
+- DOMAIN-SUFFIX,cn.overleaf.com,🎯 全球直连
 - DOMAIN-SUFFIX,edx.org,🌍 国外媒体
 - DOMAIN-SUFFIX,edx-video.net,🌍 国外媒体
 - DOMAIN-SUFFIX,local,🎯 全球直连
