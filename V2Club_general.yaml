@@ -77,6 +77,13 @@ proxies:
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
+  name: 🇯🇵 「SS」日本4
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 4014
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
   name: 🇸🇬 「SS」新加坡1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5006
@@ -242,7 +249,7 @@ proxies:
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
 - alterId: 2
   cipher: auto
-  name: 🇯🇵 「V2ray」日本1-触发版权/下线整顿
+  name: 🇯🇵 「V2ray」日本1
   port: 4001
   server: lsb-v1.lanan.world
   type: vmess
@@ -412,6 +419,7 @@ proxy-groups:
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
+  - 🇯🇵 「SS」日本4
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
@@ -434,7 +442,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
+  - 🇯🇵 「V2ray」日本1
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -467,6 +475,7 @@ proxy-groups:
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
+  - 🇯🇵 「SS」日本4
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
@@ -489,7 +498,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
+  - 🇯🇵 「V2ray」日本1
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -525,6 +534,7 @@ proxy-groups:
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
+  - 🇯🇵 「SS」日本4
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
@@ -547,7 +557,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
+  - 🇯🇵 「V2ray」日本1
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -579,6 +589,7 @@ proxy-groups:
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
+  - 🇯🇵 「SS」日本4
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
@@ -601,7 +612,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
+  - 🇯🇵 「V2ray」日本1
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -633,6 +644,7 @@ proxy-groups:
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
+  - 🇯🇵 「SS」日本4
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
@@ -655,7 +667,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
+  - 🇯🇵 「V2ray」日本1
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -686,6 +698,7 @@ proxy-groups:
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
+  - 🇯🇵 「SS」日本4
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
@@ -708,7 +721,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
+  - 🇯🇵 「V2ray」日本1
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -741,6 +754,7 @@ proxy-groups:
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
+  - 🇯🇵 「SS」日本4
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
@@ -763,7 +777,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
+  - 🇯🇵 「V2ray」日本1
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
@@ -805,6 +819,7 @@ proxy-groups:
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
+  - 🇯🇵 「SS」日本4
   - 🇸🇬 「SS」新加坡1
   - 🇸🇬 「SS」新加坡2
   - 🇭🇰 「SS」香港1
@@ -827,7 +842,7 @@ proxy-groups:
   - 🇭🇰 「V2ray」香港13
   - 🇭🇰 「V2ray」香港14
   - 🇭🇰 「V2ray」香港15
-  - 🇯🇵 「V2ray」日本1-触发版权/下线整顿
+  - 🇯🇵 「V2ray」日本1
   - 🇯🇵 「V2ray」日本2
   - 🇯🇵 「V2ray」日本3
   - 🇯🇵 「V2ray」日本4
