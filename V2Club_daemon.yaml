@@ -34,10 +34,10 @@ proxies:
   ws-path: /ray
 - alterId: 4
   cipher: none
-  name: 🇯🇵 gcloud-jp-01
+  name: 🇯🇵 qcloud-jp-01
   network: ws
   port: 443
-  server: google-jp-01.rundong.me
+  server: qcloud-jp-01.rundong.me
   skip-cert-verify: false
   tls: true
   type: vmess
@@ -490,7 +490,7 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇸🇬 gcloud-sg-01
-  - 🇯🇵 gcloud-jp-01
+  - 🇯🇵 qcloud-jp-01
   - 🇸🇬 qcloud-sg-01
   type: select
 - interval: 180000
@@ -547,7 +547,7 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇸🇬 gcloud-sg-01
-  - 🇯🇵 gcloud-jp-01
+  - 🇯🇵 qcloud-jp-01
   - 🇸🇬 qcloud-sg-01
   type: url-test
   url: http://www.gstatic.com/generate_204
