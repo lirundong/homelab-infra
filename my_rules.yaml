@@ -37,6 +37,17 @@ proxies:
     skip-cert-verify: false
     network: ws
     ws-path: /ray
+  - name: 🇯🇵 gcloud-jp-01
+    type: vmess
+    server: google-jp-01.rundong.me
+    port: 443
+    uuid: 55d2e257-f9ba-4500-9d4c-bb90db3bdc5f
+    alterId: 4
+    cipher: none
+    tls: true
+    skip-cert-verify: false
+    network: ws
+    ws-path: /ray
   - name: 🇸🇬 qcloud-sg-01
     type: vmess
     server: qcloud-sg-01.rundong.me
@@ -71,3 +82,4 @@ rules:
     rule:
       - DOMAIN-SUFFIX,edx.org
       - DOMAIN-SUFFIX,edx-video.net
+      - DOMAIN-SUFFIX,shankumi.com
