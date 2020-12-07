@@ -83,6 +83,20 @@ proxies:
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
+  name: 🇸🇬 「SS」新加坡1
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 5006
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
+  name: 🇸🇬 「SS」新加坡2
+  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
+  port: 5007
+  server: lsb-v1.lanan.world
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
   name: 🇯🇵 「SS」日本1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 4011
@@ -111,16 +125,9 @@ proxies:
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
-  name: 🇸🇬 「SS」新加坡1
+  name: 🇯🇵 「SS」日本5
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 5006
-  server: lsb-v1.lanan.world
-  type: ss
-  udp: true
-- cipher: chacha20-ietf-poly1305
-  name: 🇸🇬 「SS」新加坡2
-  password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 5007
+  port: 4015
   server: lsb-v1.lanan.world
   type: ss
   udp: true
@@ -160,16 +167,16 @@ proxies:
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
-  name: 🇰🇷 「SS」韩国
+  name: 🇮🇳 「SS」印度
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 5606
+  port: 5605
   server: lsb-v1.lanan.world
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
-  name: 🇮🇳 「SS」印度
+  name: 🇰🇷 「SS」韩国
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-  port: 5605
+  port: 5606
   server: lsb-v1.lanan.world
   type: ss
   udp: true
@@ -194,7 +201,7 @@ proxies:
   server: lsb-v1.lanan.world
   type: ss
   udp: true
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港6
   port: 3006
@@ -202,7 +209,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港7
   port: 3007
@@ -210,7 +217,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港8
   port: 3008
@@ -218,7 +225,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港9
   port: 3009
@@ -226,7 +233,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港10
   port: 3010
@@ -234,7 +241,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港11
   port: 3011
@@ -242,7 +249,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港12
   port: 3012
@@ -250,7 +257,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港13
   port: 3013
@@ -258,7 +265,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港14
   port: 3014
@@ -266,7 +273,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇭🇰 「V2ray」香港15
   port: 3015
@@ -274,7 +281,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本1
   port: 4001
@@ -282,7 +289,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本2
   port: 4002
@@ -290,7 +297,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本3
   port: 4003
@@ -298,7 +305,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本4
   port: 4004
@@ -306,7 +313,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本5
   port: 4005
@@ -314,7 +321,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本6
   port: 4006
@@ -322,7 +329,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本7
   port: 4007
@@ -330,7 +337,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本8
   port: 4008
@@ -338,7 +345,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本9
   port: 4009
@@ -346,7 +353,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇯🇵 「V2ray」日本10
   port: 4010
@@ -354,7 +361,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡1
   port: 5001
@@ -362,7 +369,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡2
   port: 5002
@@ -370,7 +377,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡3
   port: 5003
@@ -378,7 +385,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡4
   port: 5004
@@ -386,7 +393,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡5
   port: 5005
@@ -394,7 +401,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇺🇸 「V2ray」美国1
   port: 5041
@@ -402,7 +409,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇺🇸 「V2ray」美国2
   port: 5042
@@ -410,7 +417,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇺🇸 「V2ray」美国3
   port: 5043
@@ -418,7 +425,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇺🇸 「V2ray」美国4
   port: 5044
@@ -426,7 +433,7 @@ proxies:
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
-- alterId: 2
+- alterId: 1
   cipher: auto
   name: 🇺🇸 「V2ray」美国5
   port: 5045
@@ -443,19 +450,20 @@ proxy-groups:
   - 🇺🇸 「SS」美国2
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
+  - 🇸🇬 「SS」新加坡1
+  - 🇸🇬 「SS」新加坡2
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
   - 🇯🇵 「SS」日本4
-  - 🇸🇬 「SS」新加坡1
-  - 🇸🇬 「SS」新加坡2
+  - 🇯🇵 「SS」日本5
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
   - 🇭🇰 「SS」香港3
   - 🇭🇰 「SS」香港4
   - 🇭🇰 「SS」香港5
-  - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
+  - 🇰🇷 「SS」韩国
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
@@ -500,19 +508,20 @@ proxy-groups:
   - 🇺🇸 「SS」美国2
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
+  - 🇸🇬 「SS」新加坡1
+  - 🇸🇬 「SS」新加坡2
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
   - 🇯🇵 「SS」日本4
-  - 🇸🇬 「SS」新加坡1
-  - 🇸🇬 「SS」新加坡2
+  - 🇯🇵 「SS」日本5
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
   - 🇭🇰 「SS」香港3
   - 🇭🇰 「SS」香港4
   - 🇭🇰 「SS」香港5
-  - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
+  - 🇰🇷 「SS」韩国
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
@@ -560,19 +569,20 @@ proxy-groups:
   - 🇺🇸 「SS」美国2
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
+  - 🇸🇬 「SS」新加坡1
+  - 🇸🇬 「SS」新加坡2
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
   - 🇯🇵 「SS」日本4
-  - 🇸🇬 「SS」新加坡1
-  - 🇸🇬 「SS」新加坡2
+  - 🇯🇵 「SS」日本5
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
   - 🇭🇰 「SS」香港3
   - 🇭🇰 「SS」香港4
   - 🇭🇰 「SS」香港5
-  - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
+  - 🇰🇷 「SS」韩国
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
@@ -615,19 +625,20 @@ proxy-groups:
   - 🇺🇸 「SS」美国2
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
+  - 🇸🇬 「SS」新加坡1
+  - 🇸🇬 「SS」新加坡2
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
   - 🇯🇵 「SS」日本4
-  - 🇸🇬 「SS」新加坡1
-  - 🇸🇬 「SS」新加坡2
+  - 🇯🇵 「SS」日本5
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
   - 🇭🇰 「SS」香港3
   - 🇭🇰 「SS」香港4
   - 🇭🇰 「SS」香港5
-  - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
+  - 🇰🇷 「SS」韩国
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
@@ -670,19 +681,20 @@ proxy-groups:
   - 🇺🇸 「SS」美国2
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
+  - 🇸🇬 「SS」新加坡1
+  - 🇸🇬 「SS」新加坡2
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
   - 🇯🇵 「SS」日本4
-  - 🇸🇬 「SS」新加坡1
-  - 🇸🇬 「SS」新加坡2
+  - 🇯🇵 「SS」日本5
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
   - 🇭🇰 「SS」香港3
   - 🇭🇰 「SS」香港4
   - 🇭🇰 「SS」香港5
-  - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
+  - 🇰🇷 「SS」韩国
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
@@ -724,19 +736,20 @@ proxy-groups:
   - 🇺🇸 「SS」美国2
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
+  - 🇸🇬 「SS」新加坡1
+  - 🇸🇬 「SS」新加坡2
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
   - 🇯🇵 「SS」日本4
-  - 🇸🇬 「SS」新加坡1
-  - 🇸🇬 「SS」新加坡2
+  - 🇯🇵 「SS」日本5
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
   - 🇭🇰 「SS」香港3
   - 🇭🇰 「SS」香港4
   - 🇭🇰 「SS」香港5
-  - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
+  - 🇰🇷 「SS」韩国
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
@@ -780,19 +793,20 @@ proxy-groups:
   - 🇺🇸 「SS」美国2
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
+  - 🇸🇬 「SS」新加坡1
+  - 🇸🇬 「SS」新加坡2
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
   - 🇯🇵 「SS」日本4
-  - 🇸🇬 「SS」新加坡1
-  - 🇸🇬 「SS」新加坡2
+  - 🇯🇵 「SS」日本5
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
   - 🇭🇰 「SS」香港3
   - 🇭🇰 「SS」香港4
   - 🇭🇰 「SS」香港5
-  - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
+  - 🇰🇷 「SS」韩国
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
@@ -845,19 +859,20 @@ proxy-groups:
   - 🇺🇸 「SS」美国2
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
+  - 🇸🇬 「SS」新加坡1
+  - 🇸🇬 「SS」新加坡2
   - 🇯🇵 「SS」日本1
   - 🇯🇵 「SS」日本2
   - 🇯🇵 「SS」日本3
   - 🇯🇵 「SS」日本4
-  - 🇸🇬 「SS」新加坡1
-  - 🇸🇬 「SS」新加坡2
+  - 🇯🇵 「SS」日本5
   - 🇭🇰 「SS」香港1
   - 🇭🇰 「SS」香港2
   - 🇭🇰 「SS」香港3
   - 🇭🇰 「SS」香港4
   - 🇭🇰 「SS」香港5
-  - 🇰🇷 「SS」韩国
   - 🇮🇳 「SS」印度
+  - 🇰🇷 「SS」韩国
   - 🇩🇪 「SS」 德国
   - 🇬🇧 「SS」 英国
   - 🇷🇺 「SS」俄罗斯
@@ -897,11 +912,26 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   type: select
+- name: 📺 哔哩哔哩
+  proxies:
+  - 🎯 全球直连
+  - 🔰 节点选择
+  type: select
 redir-port: 10082
 rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
 - DOMAIN-SUFFIX,ieee.org,🎓 学术相关
 - DOMAIN-SUFFIX,ctan.org,🎓 学术相关
+- DOMAIN-SUFFIX,bilibili.com,📺 哔哩哔哩
+- DOMAIN-SUFFIX,bilibili.tv,📺 哔哩哔哩
+- DOMAIN-SUFFIX,biliapi.net,📺 哔哩哔哩
+- DOMAIN-SUFFIX,biliapi.com,📺 哔哩哔哩
+- DOMAIN-SUFFIX,acgvideo.com,📺 哔哩哔哩
+- DOMAIN-SUFFIX,acg.tv,📺 哔哩哔哩
+- DOMAIN-SUFFIX,hdslb.com,📺 哔哩哔哩
+- DOMAIN,upos-hz-mirrorakam.akamaized.net,📺 哔哩哔哩
+- DOMAIN-KEYWORD,bilibili,📺 哔哩哔哩
+- DOMAIN,apiintl.biliapi.net,📺 哔哩哔哩
 - DOMAIN-SUFFIX,rundong.me,🎯 全球直连
 - DOMAIN-SUFFIX,v2ex.com,🎯 全球直连
 - DOMAIN-SUFFIX,totheglory.im,🎯 全球直连

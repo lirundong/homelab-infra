@@ -71,6 +71,23 @@ rules:
       - DOMAIN-SUFFIX,arxiv.org
       - DOMAIN-SUFFIX,ieee.org
       - DOMAIN-SUFFIX,ctan.org
+  - name: 📺 哔哩哔哩
+    proxies:
+      - 🎯 全球直连
+      - 🔰 节点选择
+    rule:
+      - DOMAIN-SUFFIX,bilibili.com
+      - DOMAIN-SUFFIX,bilibili.tv
+      - DOMAIN-SUFFIX,biliapi.net
+      - DOMAIN-SUFFIX,biliapi.com
+      - DOMAIN-SUFFIX,acgvideo.com
+      - DOMAIN-SUFFIX,acg.tv
+      - DOMAIN-SUFFIX,hdslb.com
+      - DOMAIN,upos-hz-mirrorakam.akamaized.net
+      - DOMAIN-KEYWORD,bilibili
+      # > 港台版 Bilibili App
+      # USER-AGENT,bili-inter*
+      - DOMAIN,apiintl.biliapi.net
   - name: 🎯 全球直连
     rule:
       - DOMAIN-SUFFIX,rundong.me
