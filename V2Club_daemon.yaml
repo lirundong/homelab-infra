@@ -3,7 +3,7 @@ dns:
   enable: true
   enhanced-mode: fake-ip
   fake-ip-filter:
-  - '*.local'
+  - '*.rundong.local'
   - localhost.ptlogin2.qq.com
   - dns.msftncsi.com
   - www.msftncsi.com
@@ -54,14 +54,14 @@ proxies:
   uuid: 99d29dd6-da61-4e6f-9394-c40dcd0604d9
   ws-path: /ray
 - cipher: chacha20-ietf-poly1305
-  name: 🇺🇸 「SS」美国1
+  name: 各节点禁止下载盗版资源
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5046
   server: slb-v1.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
-  name: 🇺🇸 「SS」美国2
+  name: 否则直接封号不退款
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5047
   server: slb-v1.v2clubnode.com
@@ -431,8 +431,8 @@ proxy-groups:
   proxies:
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 🇺🇸 「SS」美国1
-  - 🇺🇸 「SS」美国2
+  - 各节点禁止下载盗版资源
+  - 否则直接封号不退款
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
   - 🇸🇬 「SS」新加坡1
@@ -487,8 +487,8 @@ proxy-groups:
 - interval: 180000
   name: ♻️ 自动选择
   proxies:
-  - 🇺🇸 「SS」美国1
-  - 🇺🇸 「SS」美国2
+  - 各节点禁止下载盗版资源
+  - 否则直接封号不退款
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
   - 🇸🇬 「SS」新加坡1
@@ -546,8 +546,8 @@ proxy-groups:
   - 🔰 节点选择
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 🇺🇸 「SS」美国1
-  - 🇺🇸 「SS」美国2
+  - 各节点禁止下载盗版资源
+  - 否则直接封号不退款
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
   - 🇸🇬 「SS」新加坡1
@@ -600,8 +600,8 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 🇺🇸 「SS」美国1
-  - 🇺🇸 「SS」美国2
+  - 各节点禁止下载盗版资源
+  - 否则直接封号不退款
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
   - 🇸🇬 「SS」新加坡1
@@ -654,8 +654,8 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 🇺🇸 「SS」美国1
-  - 🇺🇸 「SS」美国2
+  - 各节点禁止下载盗版资源
+  - 否则直接封号不退款
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
   - 🇸🇬 「SS」新加坡1
@@ -707,8 +707,8 @@ proxy-groups:
 - name: 📲 电报信息
   proxies:
   - 🔰 节点选择
-  - 🇺🇸 「SS」美国1
-  - 🇺🇸 「SS」美国2
+  - 各节点禁止下载盗版资源
+  - 否则直接封号不退款
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
   - 🇸🇬 「SS」新加坡1
@@ -762,8 +762,8 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   - ♻️ 自动选择
-  - 🇺🇸 「SS」美国1
-  - 🇺🇸 「SS」美国2
+  - 各节点禁止下载盗版资源
+  - 否则直接封号不退款
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
   - 🇸🇬 「SS」新加坡1
@@ -826,8 +826,8 @@ proxy-groups:
   - 🔰 节点选择
   - 🎯 全球直连
   - ♻️ 自动选择
-  - 🇺🇸 「SS」美国1
-  - 🇺🇸 「SS」美国2
+  - 各节点禁止下载盗版资源
+  - 否则直接封号不退款
   - 🇨🇳 「SS」台湾1
   - 🇨🇳 「SS」台湾2
   - 🇸🇬 「SS」新加坡1
