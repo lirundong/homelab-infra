@@ -36,6 +36,17 @@ proxies:
     skip-cert-verify: false
     network: ws
     ws-path: /ray
+  - name: 🇸🇬 qcloud-sg-01
+    type: vmess
+    server: qcloud-sg-01.rundong.me
+    port: 443
+    uuid: 99d29dd6-da61-4e6f-9394-c40dcd0604d9
+    alterId: 4
+    cipher: none
+    tls: true
+    skip-cert-verify: false
+    network: ws
+    ws-path: /ray
   - name: 🇯🇵 qcloud-jp-01
     type: vmess
     server: qcloud-jp-01.rundong.me
@@ -47,11 +58,11 @@ proxies:
     skip-cert-verify: false
     network: ws
     ws-path: /ray
-  - name: 🇸🇬 qcloud-sg-01
+  - name: 🇯🇵 bwh-jp-01
     type: vmess
-    server: qcloud-sg-01.rundong.me
+    server: bwh-jp-01.rundong.me
     port: 443
-    uuid: 99d29dd6-da61-4e6f-9394-c40dcd0604d9
+    uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
     alterId: 4
     cipher: none
     tls: true
