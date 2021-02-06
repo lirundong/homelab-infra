@@ -65,14 +65,14 @@ proxies:
   uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
   ws-path: /ray
 - cipher: chacha20-ietf-poly1305
-  name: ⛔ 各节点禁止P2P下载 ⛔
+  name: ⛔ 请勿使用P2P下载 ⛔
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 110
   server: slb-v1.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
-  name: ⛔ 发现直接封号不退款 ⛔
+  name: ⛔ 违者封号无退款 ⛔
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 110
   server: slb-v1.v2clubnode.com
@@ -477,8 +477,8 @@ proxy-groups:
   proxies:
   - ♻️ 自动选择
   - 🎯 全球直连
-  - ⛔ 各节点禁止P2P下载 ⛔
-  - ⛔ 发现直接封号不退款 ⛔
+  - ⛔ 请勿使用P2P下载 ⛔
+  - ⛔ 违者封号无退款 ⛔
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -539,8 +539,8 @@ proxy-groups:
 - interval: 180000
   name: ♻️ 自动选择
   proxies:
-  - ⛔ 各节点禁止P2P下载 ⛔
-  - ⛔ 发现直接封号不退款 ⛔
+  - ⛔ 请勿使用P2P下载 ⛔
+  - ⛔ 违者封号无退款 ⛔
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -604,8 +604,8 @@ proxy-groups:
   - 🔰 节点选择
   - ♻️ 自动选择
   - 🎯 全球直连
-  - ⛔ 各节点禁止P2P下载 ⛔
-  - ⛔ 发现直接封号不退款 ⛔
+  - ⛔ 请勿使用P2P下载 ⛔
+  - ⛔ 违者封号无退款 ⛔
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -663,8 +663,8 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - ⛔ 各节点禁止P2P下载 ⛔
-  - ⛔ 发现直接封号不退款 ⛔
+  - ⛔ 请勿使用P2P下载 ⛔
+  - ⛔ 违者封号无退款 ⛔
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -722,8 +722,8 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - ⛔ 各节点禁止P2P下载 ⛔
-  - ⛔ 发现直接封号不退款 ⛔
+  - ⛔ 请勿使用P2P下载 ⛔
+  - ⛔ 违者封号无退款 ⛔
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -780,8 +780,8 @@ proxy-groups:
 - name: 📲 电报信息
   proxies:
   - 🔰 节点选择
-  - ⛔ 各节点禁止P2P下载 ⛔
-  - ⛔ 发现直接封号不退款 ⛔
+  - ⛔ 请勿使用P2P下载 ⛔
+  - ⛔ 违者封号无退款 ⛔
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -840,8 +840,8 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   - ♻️ 自动选择
-  - ⛔ 各节点禁止P2P下载 ⛔
-  - ⛔ 发现直接封号不退款 ⛔
+  - ⛔ 请勿使用P2P下载 ⛔
+  - ⛔ 违者封号无退款 ⛔
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -909,8 +909,8 @@ proxy-groups:
   - 🔰 节点选择
   - 🎯 全球直连
   - ♻️ 自动选择
-  - ⛔ 各节点禁止P2P下载 ⛔
-  - ⛔ 发现直接封号不退款 ⛔
+  - ⛔ 请勿使用P2P下载 ⛔
+  - ⛔ 违者封号无退款 ⛔
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -990,7 +990,6 @@ rules:
 - DOMAIN-KEYWORD,bilibili,📺 哔哩哔哩
 - DOMAIN,apiintl.biliapi.net,📺 哔哩哔哩
 - DOMAIN-SUFFIX,rundong.me,🎯 全球直连
-- DOMAIN-SUFFIX,v2ex.com,🎯 全球直连
 - DOMAIN-SUFFIX,totheglory.im,🎯 全球直连
 - DOMAIN-KEYWORD,m-team,🎯 全球直连
 - DOMAIN-SUFFIX,cn.overleaf.com,🎯 全球直连
