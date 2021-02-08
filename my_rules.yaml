@@ -25,17 +25,6 @@ daemon_only_options:
     nameserver:
       - 192.168.50.1
 proxies:
-  - name: 🇸🇬 gcloud-sg-01
-    type: vmess
-    server: google-sg-01.rundong.me
-    port: 443
-    uuid: dde15c76-2f90-42d7-99e2-bd4ce6d7cefb
-    alterId: 4
-    cipher: none
-    tls: true
-    skip-cert-verify: false
-    network: ws
-    ws-path: /ray
   - name: 🇸🇬 qcloud-sg-01
     type: vmess
     server: qcloud-sg-01.rundong.me
