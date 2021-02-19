@@ -85,7 +85,12 @@ def update_with_custom_rule(sub,
             }
             new_pg.append(pg)
         for r in rule["rule"]:
-            r += f",{rule['name']}"
+            if r.endswith(",no-resolve"):
+                tokens = r.split(",")[:-1]  # eliminate tailing `,no-resolve`
+                assert len(tokens) == 2, f"Invalid custom rule: {r}"
+                r = f"{tokens[0]},{tokens[1]},{rule['name']},no-resolve"
+            else:
+                r += f",{rule['name']}"
             new_rules.append(r)
 
     # update proxy groups
