@@ -205,6 +205,7 @@ def update_qcloud_subdomain_record(
         update_record["domain"] = domain
         update_record["subDomain"] = subdomain
         update_record.update(record)
+        update_record["value"] = ipv4 if record["recordType"] == "A" else ipv6
         update_record = normalize_dict(update_record)
         updating_records.append(update_record)
     
