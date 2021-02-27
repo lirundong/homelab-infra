@@ -142,6 +142,7 @@ rules:
       - DOMAIN-SUFFIX,cn.overleaf.com
   - name: 🌍 国外媒体
     rule:
+      - DOMAIN-SUFFIX,v2ex.com
       - DOMAIN-SUFFIX,edx.org
       - DOMAIN-SUFFIX,edx-video.net
       - DOMAIN-SUFFIX,shankumi.com

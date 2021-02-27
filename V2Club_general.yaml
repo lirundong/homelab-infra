@@ -1013,6 +1013,7 @@ rules:
 - DOMAIN-SUFFIX,totheglory.im,🎯 全球直连
 - DOMAIN-KEYWORD,m-team,🎯 全球直连
 - DOMAIN-SUFFIX,cn.overleaf.com,🎯 全球直连
+- DOMAIN-SUFFIX,v2ex.com,🌍 国外媒体
 - DOMAIN-SUFFIX,edx.org,🌍 国外媒体
 - DOMAIN-SUFFIX,edx-video.net,🌍 国外媒体
 - DOMAIN-SUFFIX,shankumi.com,🌍 国外媒体
