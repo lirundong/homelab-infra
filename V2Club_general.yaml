@@ -1013,7 +1013,7 @@ rules:
 - DOMAIN-SUFFIX,totheglory.im,🎯 全球直连
 - DOMAIN-KEYWORD,m-team,🎯 全球直连
 - DOMAIN-SUFFIX,cn.overleaf.com,🎯 全球直连
-- DOMAIN-SUFFIX,v2ex.com,🌍 国外媒体
+- DOMAIN-KEYWORD,v2ex,🌍 国外媒体
 - DOMAIN-SUFFIX,edx.org,🌍 国外媒体
 - DOMAIN-SUFFIX,edx-video.net,🌍 国外媒体
 - DOMAIN-SUFFIX,shankumi.com,🌍 国外媒体
@@ -4526,7 +4526,6 @@ rules:
 - DOMAIN-SUFFIX,g1.0573ren.com,🛑 全球拦截
 - DOMAIN-SUFFIX,g1.08160.cn,🛑 全球拦截
 - DOMAIN-SUFFIX,g1.163.com,🛑 全球拦截
-- DOMAIN-SUFFIX,g1.tagtic.cn,🛑 全球拦截
 - DOMAIN-SUFFIX,g1.taijuba.com,🛑 全球拦截
 - DOMAIN-SUFFIX,g1c5.com,🛑 全球拦截
 - DOMAIN-SUFFIX,g1f5.com,🛑 全球拦截
@@ -9053,7 +9052,6 @@ rules:
 - DOMAIN-SUFFIX,zuimeitianqi.inveno.com,🛑 全球拦截
 - DOMAIN-SUFFIX,zws.avvo.com,🛑 全球拦截
 - DOMAIN-SUFFIX,img.adnyg.com.w.kunlungr.com,🛑 全球拦截
-- DOMAIN-SUFFIX,log.tagtic.cn,🛑 全球拦截
 - DOMAIN-SUFFIX,ulogs.umeng.com,🛑 全球拦截
 - DOMAIN-SUFFIX,zx.baosmx.com,🛑 全球拦截
 - DOMAIN-SUFFIX,zxcs.ggwan.com,🛑 全球拦截
@@ -9142,7 +9140,6 @@ rules:
 - DOMAIN-SUFFIX,smaato.net,🛑 全球拦截
 - DOMAIN-SUFFIX,smartadserver.com,🛑 全球拦截
 - DOMAIN-SUFFIX,smartnews-ads.com,🛑 全球拦截
-- DOMAIN-SUFFIX,tagtic.cn,🛑 全球拦截
 - DOMAIN-SUFFIX,tanv.com,🛑 全球拦截
 - DOMAIN-SUFFIX,tanx.com,🛑 全球拦截
 - DOMAIN-SUFFIX,trafficjunky.net,🛑 全球拦截
