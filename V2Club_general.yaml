@@ -14,6 +14,7 @@ proxies:
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: 99d29dd6-da61-4e6f-9394-c40dcd0604d9
   ws-path: /ray
 - alterId: 4
@@ -25,6 +26,7 @@ proxies:
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: 55d2e257-f9ba-4500-9d4c-bb90db3bdc5f
   ws-path: /ray
 - alterId: 4
@@ -36,6 +38,7 @@ proxies:
   skip-cert-verify: false
   tls: true
   type: vmess
+  udp: true
   uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
   ws-path: /ray
 - cipher: chacha20-ietf-poly1305
@@ -10123,6 +10126,7 @@ rules:
 - DOMAIN,youtubei.googleapis.com,🌍 国外媒体
 - DOMAIN,services.googleapis.cn,🌍 国外媒体
 - DOMAIN-KEYWORD,beplay,🇨🇳 国内媒体
+- DOMAIN-SUFFIX,alibabacloud.com,🇨🇳 国内媒体
 - DOMAIN,cdp.cloud.unity3d.com,🇨🇳 国内媒体
 - DOMAIN-SUFFIX,battle.net,🇨🇳 国内媒体
 - DOMAIN-SUFFIX,battlenet.com,🇨🇳 国内媒体
@@ -10159,7 +10163,6 @@ rules:
 - DOMAIN-SUFFIX,air-matters.io,🇨🇳 国内媒体
 - DOMAIN-SUFFIX,aixifan.com,🇨🇳 国内媒体
 - DOMAIN-SUFFIX,akadns.net,🇨🇳 国内媒体
-- DOMAIN-SUFFIX,alibabacloud.com,🇨🇳 国内媒体
 - DOMAIN-SUFFIX,alicdn.com,🇨🇳 国内媒体
 - DOMAIN-SUFFIX,alipay.com,🇨🇳 国内媒体
 - DOMAIN-SUFFIX,alipayobjects.com,🇨🇳 国内媒体

@@ -36,6 +36,7 @@ proxies:
     skip-cert-verify: false
     network: ws
     ws-path: /ray
+    udp: true
   - name: 🇯🇵 qcloud-jp-01
     type: vmess
     server: qcloud-jp-01.rundong.me
@@ -47,6 +48,7 @@ proxies:
     skip-cert-verify: false
     network: ws
     ws-path: /ray
+    udp: true
   - name: 🇯🇵 bwh-jp-01
     type: vmess
     server: bwh-jp-01.rundong.me
@@ -58,6 +60,7 @@ proxies:
     skip-cert-verify: false
     network: ws
     ws-path: /ray
+    udp: true
 add-to-group:
   - 🔰 节点选择
   - ♻️ 自动选择
