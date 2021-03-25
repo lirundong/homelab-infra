@@ -1032,8 +1032,9 @@ rules:
 - DOMAIN-SUFFIX,edx.org,🌍 国外媒体
 - DOMAIN-SUFFIX,edx-video.net,🌍 国外媒体
 - DOMAIN-SUFFIX,shankumi.com,🌍 国外媒体
-- DOMAIN-SUFFIX,nvidia.ai,💼 Work@NVIDIA
+- DOMAIN-SUFFIX,nvda.ai,💼 Work@NVIDIA
 - DOMAIN-KEYWORD,nvidia,💼 Work@NVIDIA
+- DOMAIN-KEYWORD,nvda,💼 Work@NVIDIA
 - DOMAIN-SUFFIX,local,🎯 全球直连
 - IP-CIDR,192.168.0.0/16,🎯 全球直连,no-resolve
 - IP-CIDR,10.0.0.0/8,🎯 全球直连,no-resolve

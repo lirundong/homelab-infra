@@ -154,5 +154,6 @@ rules:
       - 🎯 全球直连
       - 🔰 节点选择
     rule:
-      - DOMAIN-SUFFIX,nvidia.ai
+      - DOMAIN-SUFFIX,nvda.ai
       - DOMAIN-KEYWORD,nvidia
+      - DOMAIN-KEYWORD,nvda
