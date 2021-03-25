@@ -951,6 +951,11 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   type: select
+- name: 💼 Work@NVIDIA
+  proxies:
+  - 🎯 全球直连
+  - 🔰 节点选择
+  type: select
 redir-port: 10082
 rules:
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
@@ -1023,6 +1028,8 @@ rules:
 - DOMAIN-SUFFIX,edx.org,🌍 国外媒体
 - DOMAIN-SUFFIX,edx-video.net,🌍 国外媒体
 - DOMAIN-SUFFIX,shankumi.com,🌍 国外媒体
+- DOMAIN-SUFFIX,nvidia.ai,💼 Work@NVIDIA
+- DOMAIN-KEYWORD,nvidia,💼 Work@NVIDIA
 - DOMAIN-SUFFIX,local,🎯 全球直连
 - IP-CIDR,192.168.0.0/16,🎯 全球直连,no-resolve
 - IP-CIDR,10.0.0.0/8,🎯 全球直连,no-resolve

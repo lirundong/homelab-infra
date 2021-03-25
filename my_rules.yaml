@@ -149,3 +149,10 @@ rules:
       - DOMAIN-SUFFIX,edx.org
       - DOMAIN-SUFFIX,edx-video.net
       - DOMAIN-SUFFIX,shankumi.com
+  - name: 💼 Work@NVIDIA
+    proxies:
+      - 🎯 全球直连
+      - 🔰 节点选择
+    rule:
+      - DOMAIN-SUFFIX,nvidia.ai
+      - DOMAIN-KEYWORD,nvidia
