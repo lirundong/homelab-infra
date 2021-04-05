@@ -50,7 +50,7 @@ proxies:
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
-  name: 🈵 「香港拥挤」请切换其他节点使用
+  name: 🈵 「香港拥挤」请切换其他节点
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 111
   server: slb-v1.v2clubnode.com
@@ -456,7 +456,7 @@ proxy-groups:
   - ♻️ 自动选择
   - 🎯 全球直连
   - 📢 「公告」请定时更新订阅
-  - 🈵 「香港拥挤」请切换其他节点使用
+  - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -517,7 +517,7 @@ proxy-groups:
   name: ♻️ 自动选择
   proxies:
   - 📢 「公告」请定时更新订阅
-  - 🈵 「香港拥挤」请切换其他节点使用
+  - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -581,7 +581,7 @@ proxy-groups:
   - ♻️ 自动选择
   - 🎯 全球直连
   - 📢 「公告」请定时更新订阅
-  - 🈵 「香港拥挤」请切换其他节点使用
+  - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -640,7 +640,7 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   - 📢 「公告」请定时更新订阅
-  - 🈵 「香港拥挤」请切换其他节点使用
+  - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -699,7 +699,7 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   - 📢 「公告」请定时更新订阅
-  - 🈵 「香港拥挤」请切换其他节点使用
+  - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -757,7 +757,7 @@ proxy-groups:
   proxies:
   - 🔰 节点选择
   - 📢 「公告」请定时更新订阅
-  - 🈵 「香港拥挤」请切换其他节点使用
+  - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -817,7 +817,7 @@ proxy-groups:
   - 🔰 节点选择
   - ♻️ 自动选择
   - 📢 「公告」请定时更新订阅
-  - 🈵 「香港拥挤」请切换其他节点使用
+  - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -886,7 +886,7 @@ proxy-groups:
   - 🎯 全球直连
   - ♻️ 自动选择
   - 📢 「公告」请定时更新订阅
-  - 🈵 「香港拥挤」请切换其他节点使用
+  - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -1019,10 +1019,10 @@ rules:
 - IP-CIDR,203.107.1.65/32,📺 哔哩哔哩,no-resolve
 - IP-CIDR,203.107.1.66/32,📺 哔哩哔哩,no-resolve
 - DOMAIN-SUFFIX,rundong.me,🎯 全球直连
-- DOMAIN-SUFFIX,totheglory.im,🎯 全球直连
-- DOMAIN-KEYWORD,m-team,🎯 全球直连
 - DOMAIN-SUFFIX,cn.overleaf.com,🎯 全球直连
 - DOMAIN-KEYWORD,v2ex,🌍 国外媒体
+- DOMAIN-KEYWORD,totheglory,🌍 国外媒体
+- DOMAIN-KEYWORD,m-team,🌍 国外媒体
 - DOMAIN-SUFFIX,edx.org,🌍 国外媒体
 - DOMAIN-SUFFIX,edx-video.net,🌍 国外媒体
 - DOMAIN-SUFFIX,shankumi.com,🌍 国外媒体

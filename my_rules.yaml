@@ -140,12 +140,12 @@ rules:
   - name: 🎯 全球直连
     rule:
       - DOMAIN-SUFFIX,rundong.me
-      - DOMAIN-SUFFIX,totheglory.im
-      - DOMAIN-KEYWORD,m-team
       - DOMAIN-SUFFIX,cn.overleaf.com
   - name: 🌍 国外媒体
     rule:
       - DOMAIN-KEYWORD,v2ex
+      - DOMAIN-KEYWORD,totheglory
+      - DOMAIN-KEYWORD,m-team
       - DOMAIN-SUFFIX,edx.org
       - DOMAIN-SUFFIX,edx-video.net
       - DOMAIN-SUFFIX,shankumi.com
