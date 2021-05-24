@@ -17,6 +17,7 @@ daemon_only_options:
     fake-ip-range: 198.18.0.1/16
     fake-ip-filter:
       - '*.rundong.local'
+      - '*.rundong.me'
       - localhost.ptlogin2.qq.com
       # otherwise MS apps and network manager will not operate properly
       - 'dns.msftncsi.com'
@@ -24,6 +25,7 @@ daemon_only_options:
       - 'www.msftconnecttest.com'
     nameserver:
       - 192.168.50.1
+      - 192.168.1.1
 proxies:
   - name: 🇸🇬 qcloud-sg-01
     type: vmess

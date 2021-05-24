@@ -5,6 +5,7 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-filter:
   - '*.rundong.local'
+  - '*.rundong.me'
   - localhost.ptlogin2.qq.com
   - dns.msftncsi.com
   - www.msftncsi.com
@@ -59,7 +60,7 @@ proxies:
   uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
   ws-path: /ray
 - cipher: chacha20-ietf-poly1305
-  name: 📢 「公告」请定时更新订阅
+  name: 📢 「新官网」join.v2fly.club
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 110
   server: slb-v1.v2clubnode.com
@@ -471,7 +472,7 @@ proxy-groups:
   proxies:
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 📢 「公告」请定时更新订阅
+  - 📢 「新官网」join.v2fly.club
   - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
@@ -532,7 +533,7 @@ proxy-groups:
 - interval: 180000
   name: ♻️ 自动选择
   proxies:
-  - 📢 「公告」请定时更新订阅
+  - 📢 「新官网」join.v2fly.club
   - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
@@ -596,7 +597,7 @@ proxy-groups:
   - 🔰 节点选择
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 📢 「公告」请定时更新订阅
+  - 📢 「新官网」join.v2fly.club
   - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
@@ -655,7 +656,7 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 📢 「公告」请定时更新订阅
+  - 📢 「新官网」join.v2fly.club
   - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
@@ -714,7 +715,7 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 📢 「公告」请定时更新订阅
+  - 📢 「新官网」join.v2fly.club
   - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
@@ -772,7 +773,7 @@ proxy-groups:
 - name: 📲 电报信息
   proxies:
   - 🔰 节点选择
-  - 📢 「公告」请定时更新订阅
+  - 📢 「新官网」join.v2fly.club
   - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
@@ -832,7 +833,7 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   - ♻️ 自动选择
-  - 📢 「公告」请定时更新订阅
+  - 📢 「新官网」join.v2fly.club
   - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
@@ -901,7 +902,7 @@ proxy-groups:
   - 🔰 节点选择
   - 🎯 全球直连
   - ♻️ 自动选择
-  - 📢 「公告」请定时更新订阅
+  - 📢 「新官网」join.v2fly.club
   - 🈵 「香港拥挤」请切换其他节点
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
