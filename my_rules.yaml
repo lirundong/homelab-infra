@@ -27,30 +27,6 @@ daemon_only_options:
       - 192.168.50.1
       - 192.168.1.1
 proxies:
-  - name: 🇸🇬 qcloud-sg-01
-    type: vmess
-    server: qcloud-sg-01.rundong.me
-    port: 443
-    uuid: 99d29dd6-da61-4e6f-9394-c40dcd0604d9
-    alterId: 4
-    cipher: none
-    tls: true
-    skip-cert-verify: false
-    network: ws
-    ws-path: /ray
-    udp: true
-  - name: 🇯🇵 qcloud-jp-01
-    type: vmess
-    server: qcloud-jp-01.rundong.me
-    port: 443
-    uuid: 55d2e257-f9ba-4500-9d4c-bb90db3bdc5f
-    alterId: 4
-    cipher: none
-    tls: true
-    skip-cert-verify: false
-    network: ws
-    ws-path: /ray
-    udp: true
   - name: 🇯🇵 bwh-jp-01
     type: vmess
     server: bwh-jp-01.rundong.me
