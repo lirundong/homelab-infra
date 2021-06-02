@@ -127,6 +127,7 @@ rules:
       - DOMAIN-SUFFIX,edx.org
       - DOMAIN-SUFFIX,edx-video.net
       - DOMAIN-SUFFIX,shankumi.com
+      - DOMAIN-SUFFIX,s1s1s1.com
   - name: 💼 Work@NVIDIA
     proxies:
       - 🎯 全球直连
