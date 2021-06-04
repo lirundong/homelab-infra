@@ -43,6 +43,8 @@ ip route add local default dev lo table ${ROUTING_TABLE}
 #    on localhost so clients can get fake-ip responses.
 iptables -t nat -A PREROUTING -p udp -m udp --dport 53 \
   -j REDIRECT --to-ports ${DNS_PORT}
+ip6tables -t nat -A PREROUTING -p udp -m udp --dport 53 \
+  -j REDIRECT --to-ports ${DNS_PORT}
 # 2. Do not touch TCP packets which destinate to other LAN devices.
 for LOCAL_IP in ${LOCAL_IPS[@]}; do
   iptables -t nat -A PREROUTING -d ${LOCAL_IP} -p tcp -j RETURN
