@@ -16,13 +16,14 @@ daemon_only_options:
     enhanced-mode: fake-ip
     fake-ip-range: 198.18.0.1/16
     fake-ip-filter:
-      - '*.rundong.local'
-      - '*.rundong.me'
+      - '*.local'
       - localhost.ptlogin2.qq.com
       # otherwise MS apps and network manager will not operate properly
-      - 'dns.msftncsi.com'
-      - 'www.msftncsi.com'
-      - 'www.msftconnecttest.com'
+      - dns.msftncsi.com
+      - www.msftncsi.com
+      - www.msftconnecttest.com
+      # otherwise IPv6 address acquisition will not operate properly
+      - api6.ipify.org
     nameserver:
       - 192.168.50.1
       - 192.168.1.1
@@ -128,11 +129,11 @@ rules:
       - DOMAIN-SUFFIX,edx-video.net
       - DOMAIN-SUFFIX,shankumi.com
       - DOMAIN-SUFFIX,s1s1s1.com
+      - DOMAIN-SUFFIX,sehuatang.net
   - name: 💼 Work@NVIDIA
     proxies:
       - 🎯 全球直连
       - 🔰 节点选择
     rule:
-      - DOMAIN-SUFFIX,nvda.ai
       - DOMAIN-KEYWORD,nvidia
       - DOMAIN-KEYWORD,nvda
