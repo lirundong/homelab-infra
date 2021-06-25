@@ -4,7 +4,8 @@ dns:
   enable: true
   enhanced-mode: fake-ip
   fake-ip-filter:
-  - '*.local'
+  - '*.rundong.local'
+  - '*.rundong.me'
   - localhost.ptlogin2.qq.com
   - dns.msftncsi.com
   - www.msftncsi.com

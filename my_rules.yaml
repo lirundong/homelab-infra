@@ -16,7 +16,8 @@ daemon_only_options:
     enhanced-mode: fake-ip
     fake-ip-range: 198.18.0.1/16
     fake-ip-filter:
-      - '*.local'
+      - '*.rundong.local'
+      - '*.rundong.me'
       - localhost.ptlogin2.qq.com
       # otherwise MS apps and network manager will not operate properly
       - dns.msftncsi.com
