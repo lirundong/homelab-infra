@@ -37,178 +37,178 @@ proxies:
   uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
   ws-path: /ray
 - cipher: chacha20-ietf-poly1305
-  name: 📢 「新官网」join.v2fly.club
+  name: 📢「建党百年」禁访问赌博/金融类网址
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 110
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
-  name: 🈵 「香港拥挤」请切换其他节点
+  name: 🚫 禁讨论政治/传播国内时势音视频
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 111
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇺🇸 「SS」美国 1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5046
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇺🇸 「SS」美国 2
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5047
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇺🇸 「SS」美国 3
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5048
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇺🇸 「SS」美国 4
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5049
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇺🇸 「SS」美国 5
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5050
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇨🇳 「SS」台湾1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5500
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇨🇳 「SS」台湾2
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5501
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇸🇬 「SS」新加坡1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5006
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇸🇬 「SS」新加坡2
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5007
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇯🇵 「SS」日本1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 4011
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇯🇵 「SS」日本2
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 4012
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇯🇵 「SS」日本3
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 4013
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇯🇵 「SS」日本4
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 4014
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇯🇵 「SS」日本5
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 4015
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇰🇷 「SS」韩国
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5606
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇮🇳 「SS」印度
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5605
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇬🇧 「SS」 英国
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 5601
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🈵 「SS」香港1
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3001
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🈵 「SS」香港2
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3002
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🈵 「SS」香港3
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3003
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🈵 「SS」香港4
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3004
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🈵 「SS」香港5
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 3005
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: ss
   udp: true
 - alterId: 1
   cipher: auto
   name: 🈵 「V2ray」香港6
   port: 3006
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -216,7 +216,7 @@ proxies:
   cipher: auto
   name: 🈵 「V2ray」香港7
   port: 3007
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -224,7 +224,7 @@ proxies:
   cipher: auto
   name: 🈵 「V2ray」香港8
   port: 3008
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -232,7 +232,7 @@ proxies:
   cipher: auto
   name: 🈵 「V2ray」香港9
   port: 3009
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -240,7 +240,7 @@ proxies:
   cipher: auto
   name: 🈵 「V2ray」香港10
   port: 3010
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -248,7 +248,7 @@ proxies:
   cipher: auto
   name: 🈵 「V2ray」香港11
   port: 3011
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -256,7 +256,7 @@ proxies:
   cipher: auto
   name: 🈵 「V2ray」香港12
   port: 3012
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -264,7 +264,7 @@ proxies:
   cipher: auto
   name: 🈵 「V2ray」香港13
   port: 3013
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -272,7 +272,7 @@ proxies:
   cipher: auto
   name: 🈵 「V2ray」香港14
   port: 3014
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -280,7 +280,7 @@ proxies:
   cipher: auto
   name: 🈵 「V2ray」香港15
   port: 3015
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -288,7 +288,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本1
   port: 4001
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -296,7 +296,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本2
   port: 4002
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -304,7 +304,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本3
   port: 4003
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -312,7 +312,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本4
   port: 4004
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -320,7 +320,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本5
   port: 4005
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -328,7 +328,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本6
   port: 4006
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -336,7 +336,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本7
   port: 4007
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -344,7 +344,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本8
   port: 4008
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -352,7 +352,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本9
   port: 4009
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -360,7 +360,7 @@ proxies:
   cipher: auto
   name: 🇯🇵 「V2ray」日本10
   port: 4010
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -368,7 +368,7 @@ proxies:
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡1
   port: 5001
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -376,7 +376,7 @@ proxies:
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡2
   port: 5002
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -384,7 +384,7 @@ proxies:
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡3
   port: 5003
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -392,7 +392,7 @@ proxies:
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡4
   port: 5004
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -400,7 +400,7 @@ proxies:
   cipher: auto
   name: 🇸🇬 「V2ray」新加坡5
   port: 5005
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -408,7 +408,7 @@ proxies:
   cipher: auto
   name: 🇺🇸 「V2ray」美国1
   port: 5041
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -416,7 +416,7 @@ proxies:
   cipher: auto
   name: 🇺🇸 「V2ray」美国2
   port: 5042
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -424,7 +424,7 @@ proxies:
   cipher: auto
   name: 🇺🇸 「V2ray」美国3
   port: 5043
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -432,7 +432,7 @@ proxies:
   cipher: auto
   name: 🇺🇸 「V2ray」美国4
   port: 5044
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -440,7 +440,7 @@ proxies:
   cipher: auto
   name: 🇺🇸 「V2ray」美国5
   port: 5045
-  server: slb-v1.v2clubnode.com
+  server: yyds.v2clubnode.com
   type: vmess
   udp: true
   uuid: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -449,8 +449,8 @@ proxy-groups:
   proxies:
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 📢 「新官网」join.v2fly.club
-  - 🈵 「香港拥挤」请切换其他节点
+  - 📢「建党百年」禁访问赌博/金融类网址
+  - 🚫 禁讨论政治/传播国内时势音视频
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -508,8 +508,8 @@ proxy-groups:
 - interval: 180000
   name: ♻️ 自动选择
   proxies:
-  - 📢 「新官网」join.v2fly.club
-  - 🈵 「香港拥挤」请切换其他节点
+  - 📢「建党百年」禁访问赌博/金融类网址
+  - 🚫 禁讨论政治/传播国内时势音视频
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -570,8 +570,8 @@ proxy-groups:
   - 🔰 节点选择
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 📢 「新官网」join.v2fly.club
-  - 🈵 「香港拥挤」请切换其他节点
+  - 📢「建党百年」禁访问赌博/金融类网址
+  - 🚫 禁讨论政治/传播国内时势音视频
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -629,8 +629,8 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 📢 「新官网」join.v2fly.club
-  - 🈵 「香港拥挤」请切换其他节点
+  - 📢「建党百年」禁访问赌博/金融类网址
+  - 🚫 禁讨论政治/传播国内时势音视频
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -688,8 +688,8 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 📢 「新官网」join.v2fly.club
-  - 🈵 「香港拥挤」请切换其他节点
+  - 📢「建党百年」禁访问赌博/金融类网址
+  - 🚫 禁讨论政治/传播国内时势音视频
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -746,8 +746,8 @@ proxy-groups:
 - name: 📲 电报信息
   proxies:
   - 🔰 节点选择
-  - 📢 「新官网」join.v2fly.club
-  - 🈵 「香港拥挤」请切换其他节点
+  - 📢「建党百年」禁访问赌博/金融类网址
+  - 🚫 禁讨论政治/传播国内时势音视频
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -806,8 +806,8 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   - ♻️ 自动选择
-  - 📢 「新官网」join.v2fly.club
-  - 🈵 「香港拥挤」请切换其他节点
+  - 📢「建党百年」禁访问赌博/金融类网址
+  - 🚫 禁讨论政治/传播国内时势音视频
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -875,8 +875,8 @@ proxy-groups:
   - 🔰 节点选择
   - 🎯 全球直连
   - ♻️ 自动选择
-  - 📢 「新官网」join.v2fly.club
-  - 🈵 「香港拥挤」请切换其他节点
+  - 📢「建党百年」禁访问赌博/金融类网址
+  - 🚫 禁讨论政治/传播国内时势音视频
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
