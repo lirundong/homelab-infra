@@ -25,7 +25,7 @@ mode: rule
 port: 10081
 proxies:
 - alterId: 0
-  cipher: zero
+  cipher: none
   name: 🇯🇵 bwh-jp-01
   network: ws
   port: 443
