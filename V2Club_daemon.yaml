@@ -24,8 +24,8 @@ log-level: info
 mode: rule
 port: 10081
 proxies:
-- alterId: 4
-  cipher: none
+- alterId: 0
+  cipher: zero
   name: 🇯🇵 bwh-jp-01
   network: ws
   port: 443

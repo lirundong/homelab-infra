@@ -34,8 +34,8 @@ proxies:
     server: bwh-jp-01.rundong.me
     port: 443
     uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
-    alterId: 4
-    cipher: none
+    alterId: 0
+    cipher: zero
     tls: true
     skip-cert-verify: false
     network: ws
