@@ -35,7 +35,7 @@ proxies:
     port: 443
     uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
     alterId: 0
-    cipher: none
+    cipher: auto
     tls: true
     skip-cert-verify: false
     network: ws
