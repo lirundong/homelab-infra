@@ -121,10 +121,11 @@ rules:
       - DOMAIN-KEYWORD,v2ex
       - DOMAIN-KEYWORD,totheglory
       - DOMAIN-KEYWORD,m-team
+      - DOMAIN-KEYWORD,s1s1s1
+      - DOMAIN-KEYWORD,s-cute
       - DOMAIN-SUFFIX,edx.org
       - DOMAIN-SUFFIX,edx-video.net
       - DOMAIN-SUFFIX,shankumi.com
-      - DOMAIN-SUFFIX,s1s1s1.com
       - DOMAIN-SUFFIX,sehuatang.net
   - name: 💼 Work@NVIDIA
     proxies:

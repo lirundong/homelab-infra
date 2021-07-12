@@ -990,10 +990,11 @@ rules:
 - DOMAIN-KEYWORD,v2ex,🌍 国外媒体
 - DOMAIN-KEYWORD,totheglory,🌍 国外媒体
 - DOMAIN-KEYWORD,m-team,🌍 国外媒体
+- DOMAIN-KEYWORD,s1s1s1,🌍 国外媒体
+- DOMAIN-KEYWORD,s-cute,🌍 国外媒体
 - DOMAIN-SUFFIX,edx.org,🌍 国外媒体
 - DOMAIN-SUFFIX,edx-video.net,🌍 国外媒体
 - DOMAIN-SUFFIX,shankumi.com,🌍 国外媒体
-- DOMAIN-SUFFIX,s1s1s1.com,🌍 国外媒体
 - DOMAIN-SUFFIX,sehuatang.net,🌍 国外媒体
 - DOMAIN-KEYWORD,nvidia,💼 Work@NVIDIA
 - DOMAIN-KEYWORD,nvda,💼 Work@NVIDIA
