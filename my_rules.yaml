@@ -33,7 +33,7 @@ proxies:
     type: ss
     server: bwh-jp-01.rundong.me
     port: 17639
-    cipher: chacha20-ietf-poly1305
+    cipher: aes-256-gcm
     password: '67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3'
     udp: true
 add-to-group:

@@ -6,7 +6,7 @@ log-level: info
 mode: rule
 port: 10081
 proxies:
-- cipher: chacha20-ietf-poly1305
+- cipher: aes-256-gcm
   name: 🇯🇵 bwh-jp-01
   password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
   port: 17639
