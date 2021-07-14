@@ -25,7 +25,7 @@ port: 10081
 proxies:
 - alterId: 0
   cipher: none
-  name: 🇯🇵 bwh-jp-01
+  name: 🇯🇵「V2ray」bwh-jp-01
   network: ws
   port: 443
   server: bwh-jp-01.rundong.me
@@ -35,6 +35,13 @@ proxies:
   udp: true
   uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
   ws-path: /ray
+- cipher: aes-256-gcm
+  name: 🇯🇵「SS」bwh-jp-01
+  password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
+  port: 17639
+  server: bwh-jp-01.rundong.me
+  type: ss
+  udp: true
 - cipher: chacha20-ietf-poly1305
   name: 📢「建党百年」禁访问赌博/金融类网址
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
@@ -502,7 +509,8 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国3
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
-  - 🇯🇵 bwh-jp-01
+  - 🇯🇵「V2ray」bwh-jp-01
+  - 🇯🇵「SS」bwh-jp-01
   type: select
 - interval: 180000
   name: ♻️ 自动选择
@@ -561,7 +569,8 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国3
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
-  - 🇯🇵 bwh-jp-01
+  - 🇯🇵「V2ray」bwh-jp-01
+  - 🇯🇵「SS」bwh-jp-01
   type: url-test
   url: http://www.gstatic.com/generate_204
 - name: 🌍 国外媒体
