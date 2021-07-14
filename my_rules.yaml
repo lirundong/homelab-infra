@@ -27,7 +27,6 @@ daemon_only_options:
       - api6.ipify.org
     nameserver:
       - 192.168.50.1
-      - 192.168.1.1
 proxies:
   - name: 🇯🇵 bwh-jp-01
     type: vmess
