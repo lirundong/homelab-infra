@@ -121,6 +121,7 @@ rules:
     rule:
       - DOMAIN-SUFFIX,rundong.me
       - DOMAIN-SUFFIX,cn.overleaf.com
+      - DOMAIN-KEYWORD,nga
   - name: 🌍 国外媒体
     rule:
       - DOMAIN-KEYWORD,v2ex

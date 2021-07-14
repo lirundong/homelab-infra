@@ -1011,6 +1011,7 @@ rules:
 - IP-CIDR,203.107.1.66/32,📺 哔哩哔哩,no-resolve
 - DOMAIN-SUFFIX,rundong.me,🎯 全球直连
 - DOMAIN-SUFFIX,cn.overleaf.com,🎯 全球直连
+- DOMAIN-KEYWORD,nga,🎯 全球直连
 - DOMAIN-KEYWORD,v2ex,🌍 国外媒体
 - DOMAIN-KEYWORD,totheglory,🌍 国外媒体
 - DOMAIN-KEYWORD,m-team,🌍 国外媒体
