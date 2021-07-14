@@ -6,13 +6,18 @@ log-level: info
 mode: rule
 port: 10081
 proxies:
-- cipher: aes-256-gcm
+- alterId: 0
+  cipher: none
   name: 🇯🇵 bwh-jp-01
-  password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
-  port: 17639
+  network: ws
+  port: 443
   server: bwh-jp-01.rundong.me
-  type: ss
+  skip-cert-verify: false
+  tls: true
+  type: vmess
   udp: true
+  uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
+  ws-path: /ray
 - cipher: chacha20-ietf-poly1305
   name: 📢「建党百年」禁访问赌博/金融类网址
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567

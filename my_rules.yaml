@@ -30,11 +30,16 @@ daemon_only_options:
       - 192.168.1.1
 proxies:
   - name: 🇯🇵 bwh-jp-01
-    type: ss
+    type: vmess
     server: bwh-jp-01.rundong.me
-    port: 17639
-    cipher: aes-256-gcm
-    password: '67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3'
+    port: 443
+    uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
+    alterId: 0
+    cipher: none
+    tls: true
+    skip-cert-verify: false
+    network: ws
+    ws-path: /ray
     udp: true
 add-to-group:
   - 🔰 节点选择
