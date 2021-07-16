@@ -52,7 +52,7 @@ proxies:
     server: bwh-jp-01.rundong.me
     port: 22855
     cipher: chacha20-ietf-poly1305
-    password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
+    password: mkATX*dRrTwX8gVJxdfVyeh3.79xj36P
     udp: true
 add-to-group:
   - 🔰 节点选择

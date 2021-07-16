@@ -27,7 +27,7 @@ proxies:
   udp: true
 - cipher: chacha20-ietf-poly1305
   name: 🇯🇵「SS-ChaCha」bwh-jp-01
-  password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
+  password: mkATX*dRrTwX8gVJxdfVyeh3.79xj36P
   port: 22855
   server: bwh-jp-01.rundong.me
   type: ss
