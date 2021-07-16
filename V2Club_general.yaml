@@ -17,23 +17,30 @@ proxies:
   type: vmess
   udp: true
   uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
-  ws-path: /ray
+  ws-path: /whyHkPwvBjUaPBU3vmZaFcy4vgdd3Xrs
 - cipher: aes-256-gcm
-  name: 🇯🇵「SS」bwh-jp-01
+  name: 🇯🇵「SS-AES」bwh-jp-01
   password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
   port: 17639
   server: bwh-jp-01.rundong.me
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
-  name: 📢「建党百年」禁访问赌博/金融类网址
+  name: 🇯🇵「SS-ChaCha」bwh-jp-01
+  password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
+  port: 22855
+  server: bwh-jp-01.rundong.me
+  type: ss
+  udp: true
+- cipher: chacha20-ietf-poly1305
+  name: 📢「公告」保持定时更新订阅
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 110
   server: yyds.v2clubnode.com
   type: ss
   udp: true
 - cipher: chacha20-ietf-poly1305
-  name: 🚫 禁讨论政治/传播国内时势音视频
+  name: 🚫 禁政治相关/下载版权资源
   password: c61a1cbc-22db-4dd3-a727-98bf0d91c567
   port: 111
   server: yyds.v2clubnode.com
@@ -438,8 +445,8 @@ proxy-groups:
   proxies:
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 📢「建党百年」禁访问赌博/金融类网址
-  - 🚫 禁讨论政治/传播国内时势音视频
+  - 📢「公告」保持定时更新订阅
+  - 🚫 禁政治相关/下载版权资源
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -493,13 +500,14 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇯🇵「V2ray」bwh-jp-01
-  - 🇯🇵「SS」bwh-jp-01
+  - 🇯🇵「SS-AES」bwh-jp-01
+  - 🇯🇵「SS-ChaCha」bwh-jp-01
   type: select
 - interval: 180000
   name: ♻️ 自动选择
   proxies:
-  - 📢「建党百年」禁访问赌博/金融类网址
-  - 🚫 禁讨论政治/传播国内时势音视频
+  - 📢「公告」保持定时更新订阅
+  - 🚫 禁政治相关/下载版权资源
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -553,7 +561,8 @@ proxy-groups:
   - 🇺🇸 「V2ray」美国4
   - 🇺🇸 「V2ray」美国5
   - 🇯🇵「V2ray」bwh-jp-01
-  - 🇯🇵「SS」bwh-jp-01
+  - 🇯🇵「SS-AES」bwh-jp-01
+  - 🇯🇵「SS-ChaCha」bwh-jp-01
   type: url-test
   url: http://www.gstatic.com/generate_204
 - name: 🌍 国外媒体
@@ -561,8 +570,8 @@ proxy-groups:
   - 🔰 节点选择
   - ♻️ 自动选择
   - 🎯 全球直连
-  - 📢「建党百年」禁访问赌博/金融类网址
-  - 🚫 禁讨论政治/传播国内时势音视频
+  - 📢「公告」保持定时更新订阅
+  - 🚫 禁政治相关/下载版权资源
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -620,8 +629,8 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 📢「建党百年」禁访问赌博/金融类网址
-  - 🚫 禁讨论政治/传播国内时势音视频
+  - 📢「公告」保持定时更新订阅
+  - 🚫 禁政治相关/下载版权资源
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -679,8 +688,8 @@ proxy-groups:
   proxies:
   - 🎯 全球直连
   - 🔰 节点选择
-  - 📢「建党百年」禁访问赌博/金融类网址
-  - 🚫 禁讨论政治/传播国内时势音视频
+  - 📢「公告」保持定时更新订阅
+  - 🚫 禁政治相关/下载版权资源
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -737,8 +746,8 @@ proxy-groups:
 - name: 📲 电报信息
   proxies:
   - 🔰 节点选择
-  - 📢「建党百年」禁访问赌博/金融类网址
-  - 🚫 禁讨论政治/传播国内时势音视频
+  - 📢「公告」保持定时更新订阅
+  - 🚫 禁政治相关/下载版权资源
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -797,8 +806,8 @@ proxy-groups:
   - 🎯 全球直连
   - 🔰 节点选择
   - ♻️ 自动选择
-  - 📢「建党百年」禁访问赌博/金融类网址
-  - 🚫 禁讨论政治/传播国内时势音视频
+  - 📢「公告」保持定时更新订阅
+  - 🚫 禁政治相关/下载版权资源
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
@@ -866,8 +875,8 @@ proxy-groups:
   - 🔰 节点选择
   - 🎯 全球直连
   - ♻️ 自动选择
-  - 📢「建党百年」禁访问赌博/金融类网址
-  - 🚫 禁讨论政治/传播国内时势音视频
+  - 📢「公告」保持定时更新订阅
+  - 🚫 禁政治相关/下载版权资源
   - 🇺🇸 「SS」美国 1
   - 🇺🇸 「SS」美国 2
   - 🇺🇸 「SS」美国 3
