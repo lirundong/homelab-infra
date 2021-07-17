@@ -7,7 +7,7 @@ mode: rule
 port: 10081
 proxies:
 - alterId: 0
-  cipher: none
+  cipher: auto
   name: 🇯🇵「V2ray」bwh-jp-01
   network: ws
   port: 443
@@ -28,7 +28,7 @@ proxies:
 - cipher: chacha20-ietf-poly1305
   name: 🇯🇵「SS-ChaCha」bwh-jp-01
   password: mkATX*dRrTwX8gVJxdfVyeh3.79xj36P
-  port: 22855
+  port: 10423
   server: bwh-jp-01.rundong.me
   type: ss
   udp: true

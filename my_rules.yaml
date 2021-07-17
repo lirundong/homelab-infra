@@ -34,7 +34,7 @@ proxies:
     port: 443
     uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
     alterId: 0
-    cipher: none
+    cipher: auto
     tls: true
     skip-cert-verify: false
     network: ws
@@ -50,7 +50,7 @@ proxies:
   - name: 🇯🇵「SS-ChaCha」bwh-jp-01
     type: ss
     server: bwh-jp-01.rundong.me
-    port: 22855
+    port: 10423
     cipher: chacha20-ietf-poly1305
     password: mkATX*dRrTwX8gVJxdfVyeh3.79xj36P
     udp: true
