@@ -153,3 +153,8 @@ rules:
     rule:
       - DOMAIN-KEYWORD,nvidia
       - DOMAIN-KEYWORD,nvda
+      # NGVPN servers
+      - IP-CIDR,203.18.50.27/32,no-resolve
+      - IP-CIDR,43.254.66.35/32,no-resolve
+      - IP-CIDR,103.74.125.164/32,no-resolve
+      - IP-CIDR,120.31.162.35/32,no-resolve

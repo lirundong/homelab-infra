@@ -1040,6 +1040,10 @@ rules:
 - DOMAIN-SUFFIX,sehuatang.net,🌍 国外媒体
 - DOMAIN-KEYWORD,nvidia,💼 Work@NVIDIA
 - DOMAIN-KEYWORD,nvda,💼 Work@NVIDIA
+- IP-CIDR,203.18.50.27/32,💼 Work@NVIDIA,no-resolve
+- IP-CIDR,43.254.66.35/32,💼 Work@NVIDIA,no-resolve
+- IP-CIDR,103.74.125.164/32,💼 Work@NVIDIA,no-resolve
+- IP-CIDR,120.31.162.35/32,💼 Work@NVIDIA,no-resolve
 - DOMAIN-SUFFIX,local,🎯 全球直连
 - IP-CIDR,192.168.0.0/16,🎯 全球直连,no-resolve
 - IP-CIDR,10.0.0.0/8,🎯 全球直连,no-resolve
