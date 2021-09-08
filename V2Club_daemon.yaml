@@ -1,15 +1,17 @@
 allow-lan: true
 bind-address: '*'
 dns:
-  default-nameserver:
-  - 192.168.50.1
   enable: true
-  enhanced-mode: redir-host
-  fallback:
-  - tls://one.one.one.one:853
-  - tls://dns.google:853
-  fallback-filter:
-    geoip: true
+  enhanced-mode: fake-ip
+  fake-ip-filter:
+  - '*.rundong.local'
+  - '*.rundong.me'
+  - localhost.ptlogin2.qq.com
+  - dns.msftncsi.com
+  - www.msftncsi.com
+  - www.msftconnecttest.com
+  - api6.ipify.org
+  fake-ip-range: 198.18.0.1/16
   ipv6: true
   listen: :10053
   nameserver:
@@ -32,7 +34,10 @@ proxies:
   type: vmess
   udp: true
   uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
-  ws-path: /whyHkPwvBjUaPBU3vmZaFcy4vgdd3Xrs
+  ws-opts:
+    early-data-header-name: Sec-WebSocket-Protocol
+    max-early-data: 2048
+    path: /whyHkPwvBjUaPBU3vmZaFcy4vgdd3Xrs
 - cipher: aes-256-gcm
   name: 🇯🇵「SS-AES」bwh-jp-01
   password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3

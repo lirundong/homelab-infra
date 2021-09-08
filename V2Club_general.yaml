@@ -17,7 +17,10 @@ proxies:
   type: vmess
   udp: true
   uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
-  ws-path: /whyHkPwvBjUaPBU3vmZaFcy4vgdd3Xrs
+  ws-opts:
+    early-data-header-name: Sec-WebSocket-Protocol
+    max-early-data: 2048
+    path: /whyHkPwvBjUaPBU3vmZaFcy4vgdd3Xrs
 - cipher: aes-256-gcm
   name: 🇯🇵「SS-AES」bwh-jp-01
   password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
