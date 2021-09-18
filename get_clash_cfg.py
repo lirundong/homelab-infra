@@ -100,6 +100,17 @@ def update_with_custom_rule(sub,
         if pg["name"] in add_to_pg:
             pg["proxies"] = pg["proxies"] + custom_proxy_names
         proxy_groups.append(pg)
+    # Unroll proxy name references.
+    for pg in proxy_groups:
+        for i, proxy in enumerate(pg[PROXY_T]):
+            if proxy.startswith("@"):
+                proxy_refname = proxy.split("@")[1]
+                if proxy_refname == pg["name"]:
+                    raise ValueError(f"Proxy reference name cannot be {proxy_refname} itself")
+                real_proxies = next(g[PROXY_T] for g in proxy_groups if g["name"] == proxy_refname)
+                del pg[PROXY_T][i]
+                # See: https://stackoverflow.com/a/7376026
+                pg[PROXY_T][i:i] = real_proxies
 
     sub.update(custom_kv[GENERAL_T])
     sub[PG_T] = proxy_groups
