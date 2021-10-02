@@ -1051,6 +1051,8 @@ rules:
 - DOMAIN-SUFFIX,nflximg.net,🍿 Netflix
 - DOMAIN-SUFFIX,nflxso.net,🍿 Netflix
 - DOMAIN-SUFFIX,nflxvideo.net,🍿 Netflix
+- DOMAIN-SUFFIX,cookielaw.org,🍿 Netflix
+- DOMAIN-SUFFIX,onetrust.com,🍿 Netflix
 - IP-CIDR,103.87.204.0/22,🍿 Netflix,no-resolve
 - IP-CIDR,108.175.32.0/20,🍿 Netflix,no-resolve
 - IP-CIDR,185.2.0.0/16,🍿 Netflix,no-resolve

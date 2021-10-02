@@ -87,6 +87,8 @@ rules:
   - DOMAIN-SUFFIX,nflximg.net
   - DOMAIN-SUFFIX,nflxso.net
   - DOMAIN-SUFFIX,nflxvideo.net
+  - DOMAIN-SUFFIX,cookielaw.org
+  - DOMAIN-SUFFIX,onetrust.com
   # > BGP AS Search
   - IP-CIDR,103.87.204.0/22,no-resolve
   - IP-CIDR,108.175.32.0/20,no-resolve
