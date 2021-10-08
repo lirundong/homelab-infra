@@ -1063,6 +1063,7 @@ rules:
 - IP-CIDR,34.210.42.111/32,🍿 Netflix,no-resolve
 - IP-CIDR,52.89.124.203/32,🍿 Netflix,no-resolve
 - IP-CIDR,54.148.37.5/32,🍿 Netflix,no-resolve
+- IP-CIDR,203.116.0.0/16,🍿 Netflix,no-resolve
 - DOMAIN-SUFFIX,arxiv.org,🎓 学术相关
 - DOMAIN-SUFFIX,ieee.org,🎓 学术相关
 - DOMAIN-SUFFIX,ctan.org,🎓 学术相关
