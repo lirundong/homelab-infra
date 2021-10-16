@@ -1,0 +1,163 @@
+# Source configuration that generates Clash and Quantumult X configs.
+subscriptions:
+- name: V2Club
+  type: clash
+  url: https://sub.v2club.top/api/v1/client/subscribe?token=90cc293a40e07f4387655fdf6722225f 
+proxies:
+- name: 🇯🇵「V2ray」bwh-jp-01
+  type: vmess
+  server: bwh-jp-01.rundong.me
+  port: 443
+  uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
+  alterId: 0
+  cipher: none
+  tls: true
+  skip-cert-verify: false
+  network: ws
+  ws-opts:
+    path: /whyHkPwvBjUaPBU3vmZaFcy4vgdd3Xrs
+    max-early-data: 2048
+    early-data-header-name: Sec-WebSocket-Protocol
+  udp: true
+- name: 🇯🇵「SS-AES」bwh-jp-01
+  type: ss
+  server: bwh-jp-01.rundong.me
+  port: 17639
+  cipher: aes-256-gcm
+  password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
+  udp: true
+- name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
+  type: ss
+  server: bwh-jp-01.rundong.me
+  port: 10423
+  cipher: chacha20-ietf-poly1305
+  password: mkATX*dRrTwX8gVJxdfVyeh3.79xj36P
+  udp: true
+rules:
+- name: AdBlock
+  type: select
+  filters:
+  - type: quantumult
+    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/AdBlock.list
+  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/AdBlock.png
+  proxies:
+  - REJECT
+  - Mainland
+- name: Netflix
+  type: select
+  filters:
+  - type: quantumult
+    url: https://cdn.jsdelivr.net/gh/DivineEngine/Profiles@master/Quantumult/Filter/StreamingMedia/Video/Netflix.list
+  - type: clash-ipcidr
+    url: https://raw.githubusercontent.com/snapei/clash-pro-rules/release/netflixcidr.txt
+  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Netflix.png
+  proxies:
+  - Outside
+  - type: regex
+    pattern: SG|Singapore|新加坡|🇸🇬
+- name: Microsoft
+  type: select
+  filters:
+  - type: quantumult
+    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/Optional/Microsoft.list
+  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Microsoft.png
+  proxies:
+  - Mainland
+  - Outside
+- name: Speedtest
+  type: select
+  filters:
+  - type: quantumult
+    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/Speedtest.list
+  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Speedtest.png
+  proxies:
+  - Mainland
+  - Outside
+- name: Outside
+  type: select
+  filters:
+  - type: quantumult
+    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/Outside.list
+  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Outside.png
+  proxies:
+  - PROXY
+- name: Mainland
+  type: select
+  filters:
+  - type: quantumult
+    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/Mainland.list
+  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Mainland.png
+  proxies:
+  - DIRECT
+- name: Others
+  type: select
+  filters:
+  - type: match
+  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Others.png
+  proxies:
+  - PROXY
+  - DIRECT
+rewrites:
+- name: General
+  type: quantumult
+  url: https://cdn.jsdelivr.net/gh/DivineEngine/Profiles@master/Quantumult/Rewrite/General.conf
+- name: AdBlock
+  type: quantumult
+  url: https://cdn.jsdelivr.net/gh/DivineEngine/Profiles@master/Quantumult/Rewrite/Block/Advertising.conf
+generates:
+- name: clash
+  type: clash
+  allow-lan: false
+  ipv6: true
+  socks-port: 10080
+  port: 10081
+  external-controller: :9090
+- name: clash-daemon
+  type: clash
+  allow-lan: true
+  ipv6: true
+  socks-port: 10080
+  port: 10081
+  redir-port: 10082
+  tproxy-port: 10083
+  external-ui: clash-dashboard
+  dns:
+    enable: true
+    listen: :10053
+    ipv6: true
+    enhanced-mode: fake-ip
+    fake-ip-range: 198.18.0.1/16
+    fake-ip-filter:
+    - '*.rundong.local'
+    - '*.rundong.me'
+    - localhost.ptlogin2.qq.com
+    # Otherwise MS apps and network manager will not operate properly.
+    - dns.msftncsi.com
+    - www.msftncsi.com
+    - www.msftconnecttest.com
+    # Otherwise IPv6 address acquisition will not operate properly.
+    - api6.ipify.org
+    nameserver:
+    - 192.168.50.1
+- name: quantumult-x
+  type: quantumult
+  general:
+    excluded_routes:
+    - 192.168.0.0/16
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 100.64.0.0/10
+    - 17.0.0.0/8
+    geo_location_checker:
+    - http://ip-api.com/json/?lang=zh-CN
+    - https://cdn.jsdelivr.net/gh/KOP-XIAO/QuantumultX@master/Scripts/IP_API.js
+    server_check_url: http://cp.cloudflare.com/generate_204
+    ssid_suspended_list:
+    - Rundong's AP
+    - Rundong's AP 5GHz
+    fallback_udp_policy: *ss-chacha-jp-01
+  dns: null
+  server_remote: null
+  filter_remote: null
+  rewrite_remote: null
+  mitm: null
