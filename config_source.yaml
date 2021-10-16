@@ -111,7 +111,6 @@ generates:
   ipv6: true
   socks-port: 10080
   port: 10081
-  external-controller: :9090
 - name: clash-daemon
   type: clash
   allow-lan: true
@@ -121,6 +120,7 @@ generates:
   redir-port: 10082
   tproxy-port: 10083
   external-ui: clash-dashboard
+  external-controller: :9090
   dns:
     enable: true
     listen: :10053
