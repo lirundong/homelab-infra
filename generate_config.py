@@ -3,8 +3,8 @@
 from argparse import ArgumentParser
 from copy import copy
 from datetime import datetime
-from itertools import chain
 import os
+from pytz import timezone
 import re
 
 import requests
@@ -579,9 +579,8 @@ class GeneratorBase:
     @property
     def header(self):
         info = "# " + "=" * 78 + "\n"
-        info += f"# THIS FILE IS AUTO-GENERATED FROM:\n"
-        info += f"# {self.src_file}\n"
-        info += f"# AT {datetime.now().strftime('%Y/%m/%d %H:%M')}.\n"
+        info += f"# THIS FILE IS AUTO-GENERATED FROM: {self.src_file}\n"
+        info += f"# AT {datetime.now(timezone('Asia/Shanghai')).strftime('%Y/%m/%d %H:%M')}.\n"
         info += "# " + "=" * 78
         return info
 
@@ -621,42 +620,88 @@ class ClashGenerator(GeneratorBase):
 
 
 class QuantumultGenerator(GeneratorBase):
+
+    _MANDATORY_SECTIONS = (
+        "dns",
+        "general",
+        "filter_local",
+        "filter_remote",
+        "policy",
+        "server_local",
+        "server_remote",
+        "rewrite_local",
+        "rewrite_remote",
+        "task_local",
+        "mitm",
+    )
+
     def __init__(self, src_file, proxies, proxy_groups, rewrites, **additional_sections):
         super().__init__(src_file, proxies, proxy_groups)
         self._rewrites = rewrites
         self._additional_sections = additional_sections
+    
+    @staticmethod
+    def parse_tasks(tasks_info):
+        ret = []
+        for t in tasks_info:
+            if t["type"] == "event-interaction":
+                task = [
+                    f"event-interaction {t['url']}",
+                    f"tag={t['name']}",
+                    f"img-url={t['img-url']}",
+                    "enabled=true",
+                ]
+                task = ",".join(task)
+                ret.append(task)
+            else:
+                raise ValueError(f"Unsupported task type: {t['type']}.")
+
+        return ret
 
     def generate(self, file):
         base, _ = os.path.split(file)
         os.makedirs(base, exist_ok=True)
+        missing_sections = set(self._MANDATORY_SECTIONS)
         with open(file, "w", encoding="utf-8") as f:
             # Header.
             f.write(f"{self.header}\n")
             # Additional key-value items.
             for section, content in self._additional_sections.items():
                 f.write(f"[{section}]\n")
+                missing_sections.remove(section)
                 if content is None:
                     continue
-                for k, v in content.items():
-                    if isinstance(v, (list, tuple)):
-                        v = ",".join(v)
-                    f.write(f"{k}={v}\n")
+                elif section == "task_local":
+                    for task in self.parse_tasks(content):
+                        f.write(f"{task}\n")
+                else:
+                    for k, v in content.items():
+                        if isinstance(v, (list, tuple)):
+                            v = ",".join(v)
+                        f.write(f"{k}={v}\n")
             # Server.
             f.write("[server_local]\n")
+            missing_sections.remove("server_local")
             for p in self._proxies:
                 f.write(f"{p.quantumult_proxy}\n")
             # Policy.
             f.write("[policy]\n")
+            missing_sections.remove("policy")
             for g in self._proxy_groups:
                 f.write(f"{g.quantumult_policy}\n")
             # Filter.
             f.write("[filter_local]\n")
+            missing_sections.remove("filter_local")
             for g in self._proxy_groups:
                 f.write("\n".join(g.quantumult_filters) + "\n")
             # Rewrite.
             f.write("[rewrite_local]\n")
+            missing_sections.remove("rewrite_local")
             for r in self._rewrites:
                 f.write("\n".join(r.quantumult_rewrite) + "\n")
+            # Other missing sections.
+            for section in missing_sections:
+                f.write(f"[{section}]\n")
 
 
 def generate_conf(generate_info, src, dst, proxies, proxy_groups, rewrites=None):
@@ -706,4 +751,4 @@ if __name__ == "__main__":
     proxy_groups = parse_proxy_groups(src_conf["rules"], available_proxies=proxies)
     rewrites = parse_rewrites(src_conf["rewrites"])
 
-    generate_conf(src_conf["generates"], src_file, args.dst, proxies, proxy_groups, rewrites=rewrites)
+    generate_conf(src_conf["generates"], src_file, args.dst, proxies, proxy_groups, rewrites)

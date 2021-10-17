@@ -156,8 +156,12 @@ generates:
     - Rundong's AP
     - Rundong's AP 5GHz
     fallback_udp_policy: *ss-chacha-jp-01
-  dns: null
-  server_remote: null
-  filter_remote: null
-  rewrite_remote: null
-  mitm: null
+  task_local:
+  - name: 流媒体-解锁查询
+    type: event-interaction
+    url: https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/streaming-ui-check.js
+    img-url: checkmark.seal.system
+  - name: GeoIP 查询
+    type: event-interaction
+    url: https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/geo_location.js
+    img-url: location.fill.viewfinder.system
