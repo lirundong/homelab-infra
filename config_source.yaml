@@ -34,11 +34,19 @@ proxies:
   password: mkATX*dRrTwX8gVJxdfVyeh3.79xj36P
   udp: true
 rules:
+- name: Guard
+  type: select
+  filters:
+  - type: quantumult
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Unbreak.list
+  img-url: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Hijacking.png
+  proxies:
+  - DIRECT
 - name: AdBlock
   type: select
   filters:
   - type: quantumult
-    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/AdBlock.list
+    url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/AdBlock.list
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/AdBlock.png
   proxies:
   - REJECT
@@ -47,7 +55,7 @@ rules:
   type: select
   filters:
   - type: quantumult
-    url: https://cdn.jsdelivr.net/gh/DivineEngine/Profiles@master/Quantumult/Filter/StreamingMedia/Video/Netflix.list
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/StreamingMedia/Video/Netflix.list
   - type: clash-ipcidr
     url: https://raw.githubusercontent.com/snapei/clash-pro-rules/release/netflixcidr.txt
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Netflix.png
@@ -55,11 +63,21 @@ rules:
   - Outside
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
+- name: Bilibili & iQIYI
+  type: select
+  filters:
+  - type: clash-classic
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/StreamingMedia/StreamingSE.yaml
+  img-url: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/iQIYI%26bilibili.png
+  proxies:
+  - Mainland
+  - type: regex
+    pattern: HK|HongKong|香港|🇭🇰
 - name: Microsoft
   type: select
   filters:
   - type: quantumult
-    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/Optional/Microsoft.list
+    url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/Optional/Microsoft.list
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Microsoft.png
   proxies:
   - Mainland
@@ -68,7 +86,7 @@ rules:
   type: select
   filters:
   - type: quantumult
-    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/Speedtest.list
+    url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/Speedtest.list
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Speedtest.png
   proxies:
   - Mainland
@@ -77,7 +95,7 @@ rules:
   type: select
   filters:
   - type: quantumult
-    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/Outside.list
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Global.list
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Outside.png
   proxies:
   - PROXY
@@ -85,7 +103,9 @@ rules:
   type: select
   filters:
   - type: quantumult
-    url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/Filter/Mainland.list
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/China.list
+  - type: geoip
+    location: CN
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Mainland.png
   proxies:
   - DIRECT
