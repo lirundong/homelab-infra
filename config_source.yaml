@@ -54,6 +54,10 @@ rules:
 - name: Netflix
   type: select
   filters:
+  - type: DOMAIN-SUFFIX
+    arg: cookielaw.org
+  - type: DOMAIN
+    arg: geolocation.onetrust.com
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/StreamingMedia/Video/Netflix.list
   - type: clash-ipcidr
@@ -72,7 +76,7 @@ rules:
   proxies:
   - Mainland
   - type: regex
-    pattern: HK|HongKong|香港|🇭🇰
+    pattern: HK|HongKong|香港|🇭🇰|TW|Taiwan|台湾|🇹🇼
 - name: Microsoft
   type: select
   filters:
@@ -94,6 +98,10 @@ rules:
 - name: Outside
   type: select
   filters:
+  - type: DOMAIN-SUFFIX
+    arg: s1s1s1.com
+  - type: DOMAIN-SUFFIX
+    arg: sehuatang.net
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Global.list
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Outside.png
@@ -105,7 +113,7 @@ rules:
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/China.list
   - type: geoip
-    location: CN
+    arg: CN
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Mainland.png
   proxies:
   - DIRECT
@@ -120,10 +128,10 @@ rules:
 rewrites:
 - name: General
   type: quantumult
-  url: https://cdn.jsdelivr.net/gh/DivineEngine/Profiles@master/Quantumult/Rewrite/General.conf
+  url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Rewrite/General.conf
 - name: AdBlock
   type: quantumult
-  url: https://cdn.jsdelivr.net/gh/DivineEngine/Profiles@master/Quantumult/Rewrite/Block/Advertising.conf
+  url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Rewrite/Block/Advertising.conf
 generates:
 - name: clash
   type: clash
@@ -179,9 +187,9 @@ generates:
   task_local:
   - name: 流媒体-解锁查询
     type: event-interaction
-    url: https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/streaming-ui-check.js
+    url: https://cdn.jsdelivr.net/gh/KOP-XIAO/QuantumultX@master/Scripts/streaming-ui-check.js
     img-url: checkmark.seal.system
   - name: GeoIP 查询
     type: event-interaction
-    url: https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/geo_location.js
+    url: https://cdn.jsdelivr.net/gh/KOP-XIAO/QuantumultX@master/Scripts/geo_location.js
     img-url: location.fill.viewfinder.system

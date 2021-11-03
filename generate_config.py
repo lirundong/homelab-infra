@@ -236,6 +236,12 @@ class IRRegistry:
             return cls
 
         return _do_register
+    
+    def __contains__(self, key):
+        if key.lower() in self._registry or key.upper() in self._registry:
+            return True
+        else:
+            return False
 
     def __getitem__(self, key):
         if key.lower() in self._registry:
@@ -408,12 +414,11 @@ def parse_filter(type, **kwargs):
         return parse_clash_classic_filter(**kwargs)
     elif type == "clash-ipcidr":
         return parse_clash_ipcidr_filter(**kwargs)
-    elif type == "geoip":
-        if "location" not in kwargs:
-            raise ValueError(f"Requires `location` argument for GeoIP, but got {kwargs}.")
-        return [GeoIP(kwargs["location"])]
-    elif type == "match":
-        return [Match()]
+    elif type in _IR_REGISTRY:
+        if "arg" in kwargs:
+            return [_IR_REGISTRY[type](kwargs["arg"])]
+        else:
+            return [_IR_REGISTRY[type]()]
     else:
         raise ValueError(f"Unsupported filter type: {type}")
 
