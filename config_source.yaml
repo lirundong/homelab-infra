@@ -167,6 +167,9 @@ generates:
     - api6.ipify.org
     nameserver:
     - 192.168.50.1
+  profile:
+    store-selected: true
+    store-fake-ip: true
 - name: quantumult-x
   type: quantumult
   general:
