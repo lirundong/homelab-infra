@@ -455,7 +455,17 @@ class ProxyGroupBase:
 
     @property
     def quantumult_filters(self):
-        return [f"{filter.quantumult_rule},{self.name}" for filter in self._filters]
+        filters = []
+        for filter in self._filters:
+            try:
+                filter = f"{filter.quantumult_rule},{self.name}"
+            except ValueError as e:
+                if str(e).endswith("is not supported by quantumult x."):
+                    continue
+                else:
+                    raise e
+            filters.append(filter)
+        return filters
 
     @property
     def clash_proxy_group(self):

@@ -54,10 +54,13 @@ rules:
 - name: Netflix
   type: select
   filters:
+  # Sony TV at bedroom.
+  - type: SRC-IP-CIDR
+    arg: 192.168.50.27/32
   - type: DOMAIN-SUFFIX
     arg: cookielaw.org
-  - type: DOMAIN
-    arg: geolocation.onetrust.com
+  - type: DOMAIN-SUFFIX
+    arg: onetrust.com
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/StreamingMedia/Video/Netflix.list
   - type: clash-ipcidr
@@ -156,8 +159,8 @@ generates:
     enhanced-mode: fake-ip
     fake-ip-range: 198.18.0.1/16
     fake-ip-filter:
-    - '*.rundong.local'
-    - '*.rundong.me'
+    - '+.local'
+    - '+.rundong.me'
     - localhost.ptlogin2.qq.com
     # Otherwise MS apps and network manager will not operate properly.
     - dns.msftncsi.com
