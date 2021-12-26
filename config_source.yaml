@@ -54,15 +54,22 @@ rules:
 - name: Netflix
   type: select
   filters:
-  # Sony TV at bedroom.
-  - type: SRC-IP-CIDR
-    arg: 192.168.50.27/32
+  - type: USER-AGENT
+    arg: 'Argo*'
+  - type: domain-list
+    url: https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/netflix
   - type: DOMAIN-SUFFIX
     arg: cookielaw.org
   - type: DOMAIN-SUFFIX
     arg: onetrust.com
-  - type: quantumult
-    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/StreamingMedia/Video/Netflix.list
+  - type: DOMAIN-KEYWORD
+    arg: netflix
+  - type: DOMAIN-KEYWORD
+    arg: nflx
+  - type: DOMAIN-KEYWORD
+    arg: dualstack.apiproxy
+  - type: DOMAIN-KEYWORD
+    arg: dualstack.ichnaea-web
   - type: clash-ipcidr
     url: https://raw.githubusercontent.com/snapei/clash-pro-rules/release/netflixcidr.txt
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Netflix.png

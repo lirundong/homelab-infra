@@ -407,6 +407,21 @@ def parse_clash_ipcidr_filter(url):
     return ret
 
 
+def parse_domain_list(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        raise requests.HTTPError(r.reason)
+
+    ret = []
+    for l in r.text.splitlines():
+        l = l.strip()
+        if not l or any(l.startswith(prefix) for prefix in _QUANTUMULT_COMMENT_BEGINS):
+            continue
+        rule_ir = DomainSuffix(l)
+        ret.append(rule_ir)
+    return ret
+
+
 def parse_filter(type, **kwargs):
     if type == "quantumult":
         return parse_quantumult_filter(**kwargs)
@@ -414,6 +429,8 @@ def parse_filter(type, **kwargs):
         return parse_clash_classic_filter(**kwargs)
     elif type == "clash-ipcidr":
         return parse_clash_ipcidr_filter(**kwargs)
+    elif type == "domain-list":
+        return parse_domain_list(**kwargs)
     elif type in _IR_REGISTRY:
         if "arg" in kwargs:
             return [_IR_REGISTRY[type](kwargs["arg"])]
