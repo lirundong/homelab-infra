@@ -152,7 +152,7 @@ generates:
   tproxy-port: 10083
   external-ui: clash-dashboard
   external-controller: :9090
-  dns:
+  dns: &DNS_CONF
     enable: true
     listen: :10053
     ipv6: true
@@ -173,6 +173,13 @@ generates:
   profile:
     store-selected: true
     store-fake-ip: true
+- name: clash-android
+  type: clash
+  allow-lan: false
+  ipv6: true
+  socks-port: 10080
+  port: 10081
+  dns: *DNS_CONF
 - name: quantumult-x
   type: quantumult
   general:
