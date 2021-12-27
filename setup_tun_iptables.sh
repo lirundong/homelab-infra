@@ -1,34 +1,46 @@
 #!/bin/bash
-set -xe
+set -ex
+if [ ${EUID} -ne 0 ]; then
+  echo "Please run as root"
+  exit -1
+fi
 
-LOCAL_IPV4="192.168.50.2"
-REDIR_PORT="10082"
-DNS_PORT="10053"
+LOCAL_IPS=(
+  "0.0.0.0/8"
+  "10.0.0.0/8"
+  "127.0.0.0/8"
+  "169.254.0.0/16"
+  "172.16.0.0/12"
+  "192.168.0.0/16"
+  "224.0.0.0/4"
+  "240.0.0.0/4"
+)
+LOCAL_IPSET="localnetwork"
+TUN_DEV="utun0"
+TUN_TABLE="101" # 100 was for TProxy routes.
+TUN_MARK="0x02"
 
-ipset create localnetwork hash:net
-ipset add localnetwork 127.0.0.0/8
-ipset add localnetwork 10.0.0.0/8
-ipset add localnetwork 169.254.0.0/16
-ipset add localnetwork 192.168.0.0/16
-ipset add localnetwork 224.0.0.0/4
-ipset add localnetwork 240.0.0.0/4
-ipset add localnetwork 172.16.0.0/12
-ip tuntap add user root mode tun utun0
-ip link set utun0 up
-ip address replace 172.31.255.253/30 dev utun0
-ip route replace default dev utun0 table 0x162
-ip rule add fwmark 0x162 lookup 0x162
+# 1. Create local IP addresses set.
+ipset create ${LOCAL_IPSET} hash:net
+for LOCAL_IP in ${LOCAL_IPS[@]}; do
+  ipset add ${LOCAL_IPSET} ${LOCAL_IP}
+done
+# 2. Bringup TUN device.
+ip tuntap add user root mode tun ${TUN_DEV}
+ip link set ${TUN_DEV} up
+# 3. Setup iptables to mark traffic that requires filtering.
 iptables -t mangle -N CLASH
 iptables -t mangle -F CLASH
-iptables -t mangle -A CLASH -d 198.18.0.0/16 -j MARK --set-mark 0x162
+iptables -t mangle -A CLASH -p tcp --dport 53 -j MARK --set-mark ${TUN_MARK}
+iptables -t mangle -A CLASH -p udp --dport 53 -j MARK --set-mark ${TUN_MARK}
 iptables -t mangle -A CLASH -m addrtype --dst-type BROADCAST -j RETURN
-iptables -t mangle -A CLASH -m set --match-set localnetwork dst -j RETURN
-iptables -t mangle -A CLASH -j MARK --set-mark 0x162
-iptables -t nat -N CLASH_DNS
-iptables -t nat -F CLASH_DNS 
-iptables -t nat -A CLASH_DNS -p udp -j REDIRECT --to-port "$DNS_PORT"
+for LOCAL_IP in ${LOCAL_IPS[@]}; do
+  iptables -t mangle -A CLASH -d ${LOCAL_IP} -j RETURN
+done
+iptables -t mangle -A CLASH -j MARK --set-mark ${TUN_MARK}
+
 iptables -t mangle -I OUTPUT -j CLASH
-iptables -t mangle -I PREROUTING -m set ! --match-set localnetwork dst -j MARK --set-mark 0x162
-iptables -t nat -I OUTPUT -p udp --dport 53 -j CLASH_DNS
-iptables -t nat -I PREROUTING -p udp --dport 53 -j REDIRECT --to "$DNS_PORT"
-iptables -t filter -I OUTPUT -d 172.31.255.253/30 -j REJECT
+iptables -t mangle -I PREROUTING -m set ! --match-set ${LOCAL_IPSET} dst -j MARK --set-mark ${TUN_MARK}
+# 4. Setup ip rules to route marked traffic to the TUN device.
+ip route add default dev ${TUN_DEV} table ${TUN_TABLE}
+ip rule add fwmark ${TUN_MARK} table ${TUN_TABLE}

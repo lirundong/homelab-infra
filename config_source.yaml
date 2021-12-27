@@ -37,6 +37,8 @@ rules:
 - name: Guard
   type: select
   filters:
+  - type: DOMAIN
+    arg: bwh-jp-01.rundong.me
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Unbreak.list
   img-url: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Hijacking.png
@@ -177,6 +179,13 @@ generates:
     - api6.ipify.org
     nameserver:
     - 192.168.50.1
+  tun:
+    enable: true
+    stack: system
+    dns-hijack:
+    - tcp://8.8.8.8:53
+    - tcp://8.8.4.4:53
+  interface-name: enp1s0
   profile:
     store-selected: true
     store-fake-ip: true
