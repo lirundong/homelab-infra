@@ -5,6 +5,7 @@ if [ ${EUID} -ne 0 ]; then
   exit -1
 fi
 
+DNS_PORT="10053"
 LOCAL_IPS=(
   "0.0.0.0/8"
   "10.0.0.0/8"
@@ -15,32 +16,44 @@ LOCAL_IPS=(
   "224.0.0.0/4"
   "240.0.0.0/4"
 )
-LOCAL_IPSET="localnetwork"
-TUN_DEV="utun0"
+LOCAL_IP6S=(
+  "::/128"
+  "::1/128"
+  "::ffff:0:0/96"
+  "::ffff:0:0:0/96"
+  "64:ff9b::/96"
+  "100::/64"
+  "2001::/32"
+  "2001:20::/28"
+  "2001:db8::/32"
+  "2002::/16"
+  "fc00::/7"
+  "fe80::/10"
+  "ff00::/8"
+)
 TUN_TABLE="101" # 100 was for TProxy routes.
 TUN_MARK="0x02"
 
-# 1. Create local IP addresses set.
-ipset create ${LOCAL_IPSET} hash:net
+# I. IPv4 config.
+#
+# 1. Bypass local connectons.
 for LOCAL_IP in ${LOCAL_IPS[@]}; do
-  ipset add ${LOCAL_IPSET} ${LOCAL_IP}
+  iptables -t mangle -A PREROUTING -d ${LOCAL_IP} -j RETURN
 done
-# 2. Bringup TUN device.
-ip tuntap add user root mode tun ${TUN_DEV}
-ip link set ${TUN_DEV} up
-# 3. Setup iptables to mark traffic that requires filtering.
-iptables -t mangle -N CLASH
-iptables -t mangle -F CLASH
-iptables -t mangle -A CLASH -p tcp --dport 53 -j MARK --set-mark ${TUN_MARK}
-iptables -t mangle -A CLASH -p udp --dport 53 -j MARK --set-mark ${TUN_MARK}
-iptables -t mangle -A CLASH -m addrtype --dst-type BROADCAST -j RETURN
-for LOCAL_IP in ${LOCAL_IPS[@]}; do
-  iptables -t mangle -A CLASH -d ${LOCAL_IP} -j RETURN
-done
-iptables -t mangle -A CLASH -j MARK --set-mark ${TUN_MARK}
+# 2. Do not touch DNS packets, as they will be handled by nat rules later.
+iptables -t mangle -A PREROUTING -p udp --dport 53 -j RETURN
+# 3. Mark all remaining connections and packets.
+iptables -t mangle -A PREROUTING -j MARK --set-mark ${TUN_MARK}
+# 4. Finally, take care of DNS packets.
+iptables -t nat -A PREROUTING -p udp -m udp --dport 53 \
+  -j REDIRECT --to-ports ${DNS_PORT}
+# Routing configs are handled by clash_{start | stop}_post.sh scripts.
 
-iptables -t mangle -I OUTPUT -j CLASH
-iptables -t mangle -I PREROUTING -m set ! --match-set ${LOCAL_IPSET} dst -j MARK --set-mark ${TUN_MARK}
-# 4. Setup ip rules to route marked traffic to the TUN device.
-ip route add default dev ${TUN_DEV} table ${TUN_TABLE}
-ip rule add fwmark ${TUN_MARK} table ${TUN_TABLE}
+# II. IPv6 config.
+for LOCAL_IP6 in ${LOCAL_IP6S[@]}; do
+  ip6tables -t mangle -A PREROUTING -d ${LOCAL_IP6} -j RETURN
+done
+ip6tables -t mangle -A PREROUTING -p udp --dport 53 -j RETURN
+ip6tables -t mangle -A PREROUTING -j MARK --set-mark ${TUN_MARK}
+ip6tables -t nat -A PREROUTING -p udp -m udp --dport 53 \
+  -j REDIRECT --to-ports ${DNS_PORT}
