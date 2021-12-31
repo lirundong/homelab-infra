@@ -39,6 +39,8 @@ rules:
   filters:
   - type: DOMAIN
     arg: bwh-jp-01.rundong.me
+  - type: DOMAIN
+    arg: yyds.v2clubnode.com
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Unbreak.list
   img-url: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Hijacking.png
