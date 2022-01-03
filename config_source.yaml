@@ -66,6 +66,8 @@ rules:
     arg: cookielaw.org
   - type: DOMAIN-SUFFIX
     arg: onetrust.com
+  - type: DOMAIN-SUFFIX
+    arg: ndmdhs.com
   - type: DOMAIN-KEYWORD
     arg: netflix
   - type: DOMAIN-KEYWORD
@@ -180,14 +182,14 @@ generates:
     # Otherwise IPv6 address acquisition will not operate properly.
     - api6.ipify.org
     nameserver:
-    - 192.168.50.1
+    - 127.0.0.1
   tun:
     enable: true
     stack: system
     dns-hijack:
     - tcp://8.8.8.8:53
     - tcp://8.8.4.4:53
-  interface-name: enp1s0
+    - tcp://1.1.1.1:53
   profile:
     store-selected: true
     store-fake-ip: true
