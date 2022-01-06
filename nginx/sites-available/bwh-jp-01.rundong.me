@@ -1,0 +1,46 @@
+# Copy to: /etc/nginx/sites-available/bwh-jp-01.rundong.me
+server {
+  root /var/www/bwh-jp-01.rundong.me/html;
+  index index.html index.htm index.nginx-debian.html;
+
+  server_name bwh-jp-01.rundong.me;
+
+  listen [::]:443 ssl ipv6only=on; # managed by Certbot
+  listen 443 ssl; # managed by Certbot
+  ssl_certificate /etc/letsencrypt/live/bwh-jp-01.rundong.me/fullchain.pem; # managed by Certbot
+  ssl_certificate_key /etc/letsencrypt/live/bwh-jp-01.rundong.me/privkey.pem; # managed by Certbot
+  include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+  ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+  location / {
+    try_files $uri $uri/ =404;
+  }
+
+  # Reverse proxy for V2Ray WebSocket.
+  location /wgc2QbJoCLjiq {
+    if ($http_upgrade != "websocket") { # WebSocket 协商失败时返回 404
+        return 404;
+    }
+    proxy_redirect off;
+    proxy_pass http://127.0.0.1:15610; # 假设 WebSocket 监听在环回地址的 15610 端口上
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    # Show real IP in v2ray access.log
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+
+server {
+  if ($host = bwh-jp-01.rundong.me) {
+      return 301 https://$host$request_uri;
+  } # managed by Certbot
+
+  listen 80;
+  listen [::]:80;
+
+  server_name bwh-jp-01.rundong.me;
+  return 404; # managed by Certbot
+}

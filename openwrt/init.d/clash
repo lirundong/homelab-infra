@@ -28,7 +28,7 @@ reload_service() {
 }
 
 service_started() {
-    # Handle TUN traffic.
+    # Handle TUN traffic for IPv4.
     local utun_dev=${TUN_DEV:-"utun"}
     local utun_mark=${TUN_MARK:-"0x02"}
     local utun_table=${TUN_TABLE:-"101"}
@@ -40,9 +40,14 @@ service_started() {
     done
     # Now setup routes and rules.
     /sbin/ip route replace default dev ${utun_dev} table ${utun_table}
-    /sbin/ip -6 route replace default dev ${utun_dev} table ${utun_table}
     /sbin/ip rule add fwmark ${utun_mark} table ${utun_table}
-    /sbin/ip -6 rule add fwmark ${utun_mark} table ${utun_table}
+    # Handle TProxy traffic for IPv6.
+    local tproxy_mark=${TPROXY_MARK:-"0x01"}
+    local tproxy_table=${TPROXY_TABLE:-"100"}
+    /sbin/ip -6 route replace local default dev lo table ${tproxy_table}
+    /sbin/ip -6 rule add fwmark ${tproxy_mark} table ${tproxy_table}
+    # Setup other iptables rules.
+    /bin/bash /etc/setup_clash_tun.user
 }
 
 service_stopped() {
@@ -50,9 +55,13 @@ service_stopped() {
     local utun_dev=${TUN_DEV:-"utun"}
     local utun_mark=${TUN_MARK:-"0x02"}
     local utun_table=${TUN_TABLE:-"101"}
-
     /sbin/ip rule delete fwmark ${utun_mark} table ${utun_table}
-    /sbin/ip -6 rule delete fwmark ${utun_mark} table ${utun_table}
     /sbin/ip route flush table ${utun_table}
-    /sbin/ip -6 route flush table ${utun_table}
+    # Cleanup TProxy routes and rules.
+    local tproxy_mark=${TPROXY_MARK:-"0x01"}
+    local tproxy_table=${TPROXY_TABLE:-"100"}
+    /sbin/ip -6 rule delete fwmark ${tproxy_mark} table ${tproxy_table}
+    /sbin/ip -6 route flush table ${tproxy_table}
+    # Flush iptables rules.
+    /bin/bash /etc/flush_clash_tun.user
 }

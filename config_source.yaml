@@ -8,30 +8,30 @@ proxies:
   type: vmess
   server: bwh-jp-01.rundong.me
   port: 443
-  uuid: 58f8ac73-d0ea-4e34-bdeb-fdc1f99742fe
+  uuid: 2640da45-1e86-4c05-a13b-51f1276506b3
   alterId: 0
   cipher: none
   tls: true
   skip-cert-verify: false
   network: ws
   ws-opts:
-    path: /whyHkPwvBjUaPBU3vmZaFcy4vgdd3Xrs
+    path: /wgc2QbJoCLjiq
     max-early-data: 2048
     early-data-header-name: Sec-WebSocket-Protocol
   udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
   server: bwh-jp-01.rundong.me
-  port: 17639
-  cipher: aes-256-gcm
-  password: 67ZByw@MG93HCW@WnbYwfL2ZwbpNHKG3
+  port: 31514
+  cipher: aes-128-gcm
+  password: GY*6WsEDdvvm_
   udp: true
 - name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
   type: ss
   server: bwh-jp-01.rundong.me
-  port: 10423
+  port: 32527
   cipher: chacha20-ietf-poly1305
-  password: mkATX*dRrTwX8gVJxdfVyeh3.79xj36P
+  password: W97iHM_4MMQGU
   udp: true
 rules:
 - name: Guard
@@ -102,6 +102,16 @@ rules:
   proxies:
   - Mainland
   - Outside
+- name: Telegram
+  type: select
+  filters:
+  - type: quantumult
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Extra/Telegram/Telegram.list
+  img-url: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Telegram.png
+  proxies:
+  - Outside
+  - type: regex
+    pattern: SG|Singapore|新加坡|🇸🇬
 - name: Speedtest
   type: select
   filters:
@@ -187,9 +197,10 @@ generates:
     enable: true
     stack: system
     dns-hijack:
-    - tcp://8.8.8.8:53
-    - tcp://8.8.4.4:53
     - tcp://1.1.1.1:53
+    - tcp://8.8.4.4:53
+    - tcp://8.8.8.8:53
+    - tcp://9.9.9.9:53
   profile:
     store-selected: true
     store-fake-ip: true

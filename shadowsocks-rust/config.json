@@ -1,0 +1,17 @@
+{
+    "servers": [
+        {
+            "address": "::",
+            "port": 31514,
+            "method": "aes-128-gcm",
+            "password": "GY*6WsEDdvvm_"
+        },
+        {
+            "address": "::",
+            "port": 32527,
+            "method": "chacha20-ietf-poly1305",
+            "password": "W97iHM_4MMQGU"
+        }
+    ],
+    "mode": "tcp_and_udp"
+}
