@@ -4,9 +4,9 @@ from argparse import ArgumentParser
 from copy import copy
 from datetime import datetime
 import os
-from pytz import timezone
 import re
 
+from pytz import timezone
 import requests
 import yaml
 
@@ -775,7 +775,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--dst", required=True, help="Directory of generated files.")
     args = parser.parse_args()
 
-    src_conf = yaml.load(open(args.src, "r"), Loader=yaml.SafeLoader)
+    src_conf = yaml.load(open(args.src, "r", encoding="utf-8"), Loader=yaml.SafeLoader)
     src_file = os.path.split(args.src)[-1]
 
     proxies = parse_clash_proxies(src_conf["proxies"])
