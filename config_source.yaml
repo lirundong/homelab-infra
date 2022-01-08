@@ -67,7 +67,7 @@ rules:
   - type: DOMAIN-SUFFIX
     arg: onetrust.com
   - type: DOMAIN-SUFFIX
-    arg: ndmdhs.com
+    arg: bugsnag.com
   - type: DOMAIN-KEYWORD
     arg: netflix
   - type: DOMAIN-KEYWORD
@@ -203,6 +203,7 @@ generates:
     - tcp://8.8.8.8:53
     - tcp://9.9.9.9:53
     - tcp://149.112.112.112:53
+    - tcp://35.190.88.7:53
     - tcp://[2001:4860:4860::8888]:53
     - tcp://[2001:4860:4860::8844]:53
     - tcp://[2606:4700:4700::1111]:53
