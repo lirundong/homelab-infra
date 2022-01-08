@@ -36,6 +36,7 @@ LOCAL_IP6S=(
 DIRECT_MACS=(
   "00:11:32:ac:77:2e" # synonas eth0
   "64:ff:0a:4b:8c:c1" # Sony-TV WiFi
+  "00:e4:21:6a:eb:a3" # PS5
 )
 TPROXY_MARK="0x01"
 TUN_MARK="0x02"
