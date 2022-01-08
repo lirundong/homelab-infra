@@ -20,7 +20,7 @@
                 "wsSettings": {
                     "path": "/wgc2QbJoCLjiq",
                     "maxEarlyData": 2048,
-                    "earlyDataHeaderName":"Sec-WebSocket-Protocol"
+                    "earlyDataHeaderName": "Sec-WebSocket-Protocol"
                 }
             }
         }
@@ -28,7 +28,52 @@
     "outbounds": [
         {
             "protocol": "freedom",
-            "settings": {}
+            "settings": {
+                "domainStrategy": "UseIPv4"
+            },
+            "tag": "IPv4-out"
+        },
+        {
+            "protocol": "freedom",
+            "settings": {
+                "domainStrategy": "UseIPv6"
+            },
+            "tag": "IPv6-out"
         }
-    ]
+    ],
+    "routing": {
+        "domainStrategy": "IPOnDemand",
+        "rules": [
+            {
+                "type": "field",
+                "domain": [
+                    "domain:netflix.com",
+                    "domain:netflix.net",
+                    "domain:netflixdnstest1.com",
+                    "domain:netflixdnstest2.com",
+                    "domain:netflixdnstest3.com",
+                    "domain:netflixdnstest4.com",
+                    "domain:netflixdnstest5.com",
+                    "domain:netflixdnstest6.com",
+                    "domain:netflixdnstest7.com",
+                    "domain:netflixdnstest8.com",
+                    "domain:netflixdnstest9.com",
+                    "domain:netflixdnstest10.com",
+                    "domain:netflixinvestor.com",
+                    "domain:netflixtechblog.com",
+                    "domain:nflxext.com",
+                    "domain:nflximg.com",
+                    "domain:nflximg.net",
+                    "domain:nflxsearch.net",
+                    "domain:nflxso.net",
+                    "domain:nflxvideo.net",
+                    "domain:fast.com",
+                    "dualstack.apiproxy",
+                    "dualstack.ichnaea-web",
+                    "geosite:netflix"
+                ],
+                "outboundTag": "IPv6-out"
+            }
+        ]
+    }
 }
