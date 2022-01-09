@@ -209,6 +209,12 @@ class IRBase:
     def __init__(self, val):
         self._val = val
 
+    def __hash__(self):
+        return hash(f"{self._clash_prefix},{self._quantumult_prefix},{self._val}")
+
+    def __eq__(self, rhs):
+        return type(rhs) == type(self) and rhs._val == self._val
+
     @property
     def clash_rule(self):
         if self._clash_prefix is None:
@@ -638,6 +644,21 @@ class ClashGenerator(GeneratorBase):
         for g in self._proxy_groups:
             conf["rules"] += g.clash_rules
 
+        # Deduplicate rules. Clash performs rule traversal in O(N) thus this could improve perf.
+        num_duplicates = 0
+        existing_matchers = set()
+        deduplicated_rules = []
+        for rule in conf["rules"]:
+            matcher = ",".join(rule.split(",")[:2])
+            if matcher not in existing_matchers:
+                existing_matchers.add(matcher)
+                deduplicated_rules.append(rule)
+            else:
+                num_duplicates += 1
+        if 0 < num_duplicates:
+            print(f"Filtered out {num_duplicates} duplications in Clash rules.")
+            conf["rules"] = deduplicated_rules
+
         base, _ = os.path.split(file)
         os.makedirs(base, exist_ok=True)
         with open(file, "w", encoding="utf-8") as f:
@@ -724,8 +745,20 @@ class QuantumultGenerator(GeneratorBase):
             # Filter.
             f.write("[filter_local]\n")
             missing_sections.remove("filter_local")
+            filters = []
+            existing_matchers = set()
+            num_duplications = 0
             for g in self._proxy_groups:
-                f.write("\n".join(g.quantumult_filters) + "\n")
+                for filter in g.quantumult_filters:
+                    matcher = ",".join(filter.split(",")[:2])
+                    if matcher not in existing_matchers:
+                        existing_matchers.add(matcher)
+                        filters.append(filter)
+                    else:
+                        num_duplications += 1
+            if 0 < num_duplications:
+                print(f"Filtered out {num_duplications} duplications in Quantumult-x filters.")
+            f.write("\n".join(filters) + "\n")
             # Rewrite.
             f.write("[rewrite_local]\n")
             missing_sections.remove("rewrite_local")

@@ -45,7 +45,6 @@ DNS_MARK="0x03"
 DNS_PORT="10053"
 TPROXY_PORT="10083"
 LAN_DEV="br-lan"
-WAN_DEV="pppoe-wan"
 TUN_DEV="utun"
 
 # Prepare ipsets that contan local IP addresses and MAC address.
@@ -68,15 +67,13 @@ done
 # IPv4 config.
 # Filter table. Note that we inset to fw3 custom chains to make flush easier.
 #
-# 0. Accept TUN inputs and outputs.
+# 1. Accept TUN inputs and outputs.
 iptables -t filter -A input_rule -i ${TUN_DEV} -j ACCEPT
 iptables -t filter -A output_rule -o ${TUN_DEV} -j ACCEPT
+# 2. Accept br-lan <-> TUN firwarding.
 iptables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -m conntrack --ctstate INVALID -j DROP
 iptables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -j ACCEPT
 iptables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${LAN_DEV} -j ACCEPT
-iptables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${WAN_DEV} -m conntrack --ctstate INVALID -j DROP
-iptables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${WAN_DEV} -j ACCEPT
-iptables -t filter -A forwarding_rule -i ${WAN_DEV} -o ${TUN_DEV} -j ACCEPT
 # Mangle table.
 #
 # 1. Do not touch direct-to-wan packets.
@@ -101,9 +98,6 @@ ip6tables -t filter -A output_rule -o ${TUN_DEV} -j ACCEPT
 ip6tables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -m conntrack --ctstate INVALID -j DROP
 ip6tables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -j ACCEPT
 ip6tables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${LAN_DEV} -j ACCEPT
-ip6tables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${WAN_DEV} -m conntrack --ctstate INVALID -j DROP
-ip6tables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${WAN_DEV} -j ACCEPT
-ip6tables -t filter -A forwarding_rule -i ${WAN_DEV} -o ${TUN_DEV} -j ACCEPT
 # Mangle table rules.
 ip6tables -t mangle -A PREROUTING -i ${LAN_DEV} -m set --match-set ${local_mac} src -j RETURN 
 ip6tables -t mangle -A PREROUTING -p udp --dport 53 -j MARK --set-mark ${DNS_MARK}
