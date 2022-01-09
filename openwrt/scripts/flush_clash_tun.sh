@@ -21,3 +21,6 @@ iptables -t filter -F forwarding_rule
 iptables -t filter -F output_rule
 iptables -t filter -F input_rule
 ipset destroy local_ipv4
+
+# Flush local MAC addresses.
+ipset destroy local_mac

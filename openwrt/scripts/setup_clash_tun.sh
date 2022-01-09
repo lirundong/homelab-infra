@@ -36,7 +36,7 @@ LOCAL_IP6S=(
 DIRECT_MACS=(
   "00:11:32:ac:77:2e" # synonas eth0
   "64:ff:0a:4b:8c:c1" # Sony-TV WiFi
-  "70:85:c2:da:43:f4" # Rundong-Gaming-PC
+  "70:85:c2:da:43:f4" # Rundong-Gaming-PC, Intel I219-V interface.
   "00:e4:21:6a:eb:a3" # PS5
 )
 TPROXY_MARK="0x01"
@@ -47,6 +47,23 @@ TPROXY_PORT="10083"
 LAN_DEV="br-lan"
 WAN_DEV="pppoe-wan"
 TUN_DEV="utun"
+
+# Prepare ipsets that contan local IP addresses and MAC address.
+local_mac="local_mac"
+ipset create ${local_mac} hash:mac >/dev/null 2>&1
+for MAC in ${DIRECT_MACS[@]}; do
+  ipset add ${local_mac} ${MAC}
+done
+local_ipv4="local_ipv4"
+ipset create ${local_ipv4} hash:net >/dev/null 2>&1
+for LOCAL_IP in ${LOCAL_IPS[@]}; do
+  ipset add ${local_ipv4} ${LOCAL_IP}
+done
+local_ipv6="local_ipv6"
+ipset create ${local_ipv6} hash:net family inet6 >/dev/null 2>&1
+for LOCAL_IP6 in ${LOCAL_IP6S[@]}; do
+  ipset add ${local_ipv6} ${LOCAL_IP6} 2>/dev/null # Supress duplicate error.
+done
 
 # IPv4 config.
 # Filter table. Note that we inset to fw3 custom chains to make flush easier.
@@ -62,15 +79,8 @@ iptables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${WAN_DEV} -j ACCEPT
 iptables -t filter -A forwarding_rule -i ${WAN_DEV} -o ${TUN_DEV} -j ACCEPT
 # Mangle table.
 #
-local_ipv4="local_ipv4"
-ipset create ${local_ipv4} hash:net >/dev/null 2>&1
-for LOCAL_IP in ${LOCAL_IPS[@]}; do
-  ipset add ${local_ipv4} ${LOCAL_IP}
-done
 # 1. Do not touch direct-to-wan packets.
-for MAC in ${DIRECT_MACS[@]}; do
-  iptables -t mangle -A PREROUTING -i ${LAN_DEV} -m mac --mac-source ${MAC} -j RETURN 
-done
+iptables -t mangle -A PREROUTING -i ${LAN_DEV} -m set --match-set ${local_mac} src -j RETURN 
 # 2. Mark and accept DNS packets, they will be redirted to Clash DNS port by NAT rules later.
 iptables -t mangle -A PREROUTING -p udp --dport 53 -j MARK --set-mark ${DNS_MARK}
 iptables -t mangle -A PREROUTING -p udp --dport 53 -j RETURN
@@ -95,14 +105,7 @@ ip6tables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${WAN_DEV} -m conntrack 
 ip6tables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${WAN_DEV} -j ACCEPT
 ip6tables -t filter -A forwarding_rule -i ${WAN_DEV} -o ${TUN_DEV} -j ACCEPT
 # Mangle table rules.
-local_ipv6="local_ipv6"
-ipset create ${local_ipv6} hash:net family inet6 >/dev/null 2>&1
-for LOCAL_IP6 in ${LOCAL_IP6S[@]}; do
-  ipset add ${local_ipv6} ${LOCAL_IP6} 2>/dev/null # Supress duplicate error.
-done
-for MAC in ${DIRECT_MACS[@]}; do
-  ip6tables -t mangle -A PREROUTING -i ${LAN_DEV} -m mac --mac-source ${MAC} -j RETURN 
-done
+ip6tables -t mangle -A PREROUTING -i ${LAN_DEV} -m set --match-set ${local_mac} src -j RETURN 
 ip6tables -t mangle -A PREROUTING -p udp --dport 53 -j MARK --set-mark ${DNS_MARK}
 ip6tables -t mangle -A PREROUTING -p udp --dport 53 -j RETURN
 ip6tables -t mangle -A PREROUTING -m set --match-set ${local_ipv6} dst -j RETURN
