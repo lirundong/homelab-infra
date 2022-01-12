@@ -1,14 +1,15 @@
+#!/usr/bin/python3
+#
+# Copy to /usr/bin/update_qcloud_dns on OpenWRT.
+
 from argparse import ArgumentParser
 import base64
-from collections import OrderedDict
 import copy
-import hashlib
 import hmac
-import json
 import warnings
 from pprint import pprint
 import random
-from typing import Dict, Tuple, List, Optional
+from typing import Dict, Tuple, List
 import time
 
 import requests
