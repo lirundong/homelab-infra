@@ -48,7 +48,6 @@ HTTP_PORT="10081"
 TPROXY_PORT="10083"
 LAN_DEV="br-lan"
 TUN_DEV="utun"
-WAN_DEV="pppoe-wan"
 
 # Prepare ipsets that contan local IP addresses and MAC address.
 local_mac="local_mac"
@@ -77,9 +76,6 @@ iptables -t filter -A output_rule -o ${TUN_DEV} -j ACCEPT
 iptables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -m conntrack --ctstate INVALID -j DROP
 iptables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -j ACCEPT
 iptables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${LAN_DEV} -j ACCEPT
-# 3. Reject outside Socks/HTTP clients.
-iptables -t filter -A input_rule -i ${WAN_DEV} -p tcp --dport ${SOCKS_PORT} -j DROP
-iptables -t filter -A input_rule -i ${WAN_DEV} -p tcp --dport ${HTTP_PORT} -j DROP
 # Mangle table.
 #
 # 1. Do not touch direct-to-wan packets.
@@ -104,8 +100,6 @@ ip6tables -t filter -A output_rule -o ${TUN_DEV} -j ACCEPT
 ip6tables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -m conntrack --ctstate INVALID -j DROP
 ip6tables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -j ACCEPT
 ip6tables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${LAN_DEV} -j ACCEPT
-ip6tables -t filter -A input_rule -i ${WAN_DEV} -p tcp --dport ${SOCKS_PORT} -j DROP
-ip6tables -t filter -A input_rule -i ${WAN_DEV} -p tcp --dport ${HTTP_PORT} -j DROP
 # Mangle table rules.
 ip6tables -t mangle -A PREROUTING -i ${LAN_DEV} -m set --match-set ${local_mac} src -j RETURN 
 ip6tables -t mangle -A PREROUTING -p udp --dport 53 -j MARK --set-mark ${DNS_MARK}
