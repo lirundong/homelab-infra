@@ -38,6 +38,7 @@ DIRECT_MACS=(
   "64:ff:0a:4b:8c:c1" # Sony-TV WiFi
   "70:85:c2:da:43:f4" # Rundong-Gaming-PC, Intel I219-V interface.
   "00:e4:21:6a:eb:a3" # PS5
+  "16:43:4b:30:19:84" # qemu-win10-compute
 )
 TPROXY_MARK="0x01"
 TUN_MARK="0x02"
