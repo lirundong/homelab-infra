@@ -1,0 +1,52 @@
+#!/bin/sh /etc/rc.common
+
+USE_PROCD=1
+START=99
+STOP=01
+
+start_service() {
+    local clash_root=/root/.config/clash
+    local clash_cfg=${clash_root}/config.yaml
+
+    procd_open_instance "clash-daemon"
+    procd_set_param command /usr/bin/clash -d ${clash_root}
+    procd_set_param file ${clash_cfg}
+    procd_set_param stdout 1
+    procd_set_param stderr 1
+    procd_set_param user root # Run as root to enable TUN interfaces.
+    procd_close_instance
+}
+
+reload_service() {
+    local clash_root=/root/.config/clash
+    local clash_cfg=${clash_root}/config.yaml
+
+    /usr/bin/curl -X PUT \
+        -H "Content-Type: application/json" \
+        -d "{\"path\":\"${clash_cfg}\"}" \
+        http://127.0.0.1:9090/configs
+}
+
+service_started() {
+    # Handle TProxy traffic for IPv4 and IPv6.
+    local tproxy_mark=${TPROXY_MARK:-"0x01"}
+    local tproxy_table=${TPROXY_TABLE:-"100"}
+    /sbin/ip route replace local default dev lo table ${tproxy_table}
+    /sbin/ip rule add fwmark ${tproxy_mark} table ${tproxy_table}
+    /sbin/ip -6 route replace local default dev lo table ${tproxy_table}
+    /sbin/ip -6 rule add fwmark ${tproxy_mark} table ${tproxy_table}
+    # Setup other iptables rules.
+    /bin/bash /etc/setup_clash_tproxy.user
+}
+
+service_stopped() {
+    # Cleanup TProxy routes and rules.
+    local tproxy_mark=${TPROXY_MARK:-"0x01"}
+    local tproxy_table=${TPROXY_TABLE:-"100"}
+    /sbin/ip rule delete fwmark ${tproxy_mark} table ${tproxy_table}
+    /sbin/ip route flush table ${tproxy_table}
+    /sbin/ip -6 rule delete fwmark ${tproxy_mark} table ${tproxy_table}
+    /sbin/ip -6 route flush table ${tproxy_table}
+    # Flush iptables rules.
+    /bin/bash /etc/flush_clash_tproxy.user
+}
