@@ -75,11 +75,13 @@ class VMessWebSocketProxy(VMessProxy):
         udp=False,
         tls=True,
         skip_cert_verify=False,
+        tls_version=1.2,
         **ws_options,
     ):
         super().__init__(name, server, port, uuid, alter_id, cipher, udp=udp)
         self.tls = tls
         self.skip_cert_verify = skip_cert_verify
+        self.tls_version = tls_version
         self.ws_options = ws_options
 
     @property
@@ -102,6 +104,7 @@ class VMessWebSocketProxy(VMessProxy):
             ("obfs", "wss"),
             ("obfs-uri", f"{self.ws_options['path']}"),
             ("tls-verification", f"{not self.skip_cert_verify}".lower()),
+            ("tls13", f"{self.tls_version >= 1.3}".lower()),
             ("tag", f"{self.name}",),
         ]
         return ",".join(f"{k}={v}" for k, v in info)
@@ -152,6 +155,7 @@ def parse_clash_proxies(proxies_info):
             )
         elif proxy_info["type"] == "vmess":
             if proxy_info.get("network", None) == "ws":
+                tls_version = proxy_info.get("tls-version", 1.3)
                 proxy = VMessWebSocketProxy(
                     name=proxy_info["name"],
                     server=proxy_info["server"],
@@ -161,6 +165,7 @@ def parse_clash_proxies(proxies_info):
                     cipher=proxy_info["cipher"],
                     udp=proxy_info.get("udp", False),
                     tls=proxy_info["tls"],
+                    tls_version=tls_version,
                     skip_cert_verify=proxy_info["skip-cert-verify"],
                     **proxy_info.get("ws-opts", {}),
                 )
