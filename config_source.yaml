@@ -181,7 +181,7 @@ generates:
   secret: "7ee4674b-0dcb-48e0-a56b-231a9ab282f1"
   authentication:
   - "lirundong:9c44f029-3707-40c6-8ec2-80cec2159675"
-  dns:
+  dns: &DNS_CONFIG
     enable: true
     listen: :10053
     ipv6: true
@@ -226,22 +226,9 @@ generates:
   socks-port: 10080
   port: 10081
   dns:
-    enable: true
-    listen: :10053
-    ipv6: true
-    enhanced-mode: fake-ip
-    fake-ip-range: 198.18.0.1/16
-    fake-ip-filter:
-    - '+.local'
-    - '+.rundong.me'
-    - localhost.ptlogin2.qq.com
-    # Otherwise MS apps and network manager will not operate properly.
-    - dns.msftncsi.com
-    - www.msftncsi.com
-    - www.msftconnecttest.com
-    # Otherwise IPv6 address acquisition will not operate properly.
-    - api6.ipify.org
+    <<: *DNS_CONFIG
     nameserver:
+    - 192.168.1.1
     - 192.168.50.1
 - name: quantumult-x
   type: quantumult
