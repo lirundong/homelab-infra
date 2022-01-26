@@ -133,6 +133,8 @@ rules:
     arg: s1s1s1.com
   - type: DOMAIN-SUFFIX
     arg: sehuatang.net
+  - type: DOMAIN-KEYWORD
+    arg: linkedin
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Global.list
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Outside.png
