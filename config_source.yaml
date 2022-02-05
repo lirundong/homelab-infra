@@ -39,8 +39,8 @@ rules:
   filters:
   - type: DOMAIN
     arg: bwh-jp-01.rundong.me
-  - type: DOMAIN
-    arg: yyds.v2clubnode.com
+  - type: DOMAIN-KEYWORD
+    arg: v2clubnode
   - type: PROCESS-NAME
     arg: qBittorrent
   - type: quantumult
@@ -72,15 +72,11 @@ rules:
     arg: dualstack.apiproxy
   - type: DOMAIN-KEYWORD
     arg: dualstack.ichnaea-web
-  # Weird tests on Netflix TV.
+  # Weird tests on Netflix web.
   - type: DOMAIN-SUFFIX
     arg: cookielaw.org
   - type: DOMAIN-SUFFIX
     arg: onetrust.com
-  - type: DOMAIN-SUFFIX
-    arg: bugsnag.com
-  - type: IP-CIDR
-    arg: '239.255.255.250/32' # UDP Port 1900.
   - type: clash-ipcidr
     url: https://raw.githubusercontent.com/snapei/clash-pro-rules/release/netflixcidr.txt
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Netflix.png
@@ -203,6 +199,10 @@ generates:
     - api6.ipify.org
     nameserver:
     - 127.0.0.1
+    nameserver-policy:
+      # Protect proxy node hostname from DNS pollution.
+      'cpdd.v2clubnode.xyz': &CLEAN_DNS https://doh.opendns.com/dns-query
+      'yyds.v2clubnode.com': *CLEAN_DNS
   tun:
     enable: true
     stack: system
@@ -229,11 +229,7 @@ generates:
   ipv6: true
   socks-port: 10080
   port: 10081
-  dns:
-    <<: *DNS_CONFIG
-    nameserver:
-    - 192.168.1.1
-    - 192.168.50.1
+  dns: *DNS_CONFIG
 - name: quantumult-x
   type: quantumult
   general:
