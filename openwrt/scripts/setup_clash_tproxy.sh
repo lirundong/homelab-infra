@@ -37,8 +37,10 @@ DIRECT_MACS=(
   "00:11:32:ac:77:2e" # synonas eth0
   "64:ff:0a:4b:8c:c1" # Sony-TV WiFi
   "70:85:c2:da:43:f4" # Rundong-Gaming-PC, Intel I219-V interface.
-  "00:e4:21:6a:eb:a3" # PS5
+  "00:e4:21:6a:eb:a3" # PS5 WiFi
+  "00:e4:21:fd:9f:0b" # PS5 Ethernet
   "16:43:4b:30:19:84" # qemu-win10-compute
+  "a6:3e:aa:1f:1d:57" # win-11-nv-work
 )
 TPROXY_MARK="0x01"
 DNS_MARK="0x03"
