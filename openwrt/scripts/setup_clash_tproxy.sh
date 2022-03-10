@@ -41,6 +41,7 @@ DIRECT_MACS=(
   "00:e4:21:fd:9f:0b" # PS5 Ethernet
   "16:43:4b:30:19:84" # qemu-win10-compute
   "a6:3e:aa:1f:1d:57" # win-11-nv-work
+  "9c:fc:e8:de:d3:de" # davidli-lt
 )
 TPROXY_MARK="0x01"
 DNS_MARK="0x03"
