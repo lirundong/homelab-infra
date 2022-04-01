@@ -2,43 +2,43 @@
 subscriptions:
 - name: V2Club
   type: clash
-  url: https://sub.v2club.top/api/v1/client/subscribe?token=90cc293a40e07f4387655fdf6722225f 
+  url: '@secret:SUBSCRIPTION_URL'
 proxies:
 - name: 🇯🇵「V2ray」bwh-jp-01
   type: vmess
-  server: bwh-jp-01.rundong.me
+  server: '@secret:NODE_HOSTNAME'
   port: 443
-  uuid: 2640da45-1e86-4c05-a13b-51f1276506b3
+  uuid: '@secret:NODE_V2RAY_UUID'
   alterId: 0
   cipher: none
   tls: true
   skip-cert-verify: false
   network: ws
   ws-opts:
-    path: /wgc2QbJoCLjiq
+    path: '@secret:NODE_V2RAY_WS_PATH'
     max-early-data: 2048
     early-data-header-name: Sec-WebSocket-Protocol
   udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
-  server: bwh-jp-01.rundong.me
-  port: 31514
+  server: '@secret:NODE_HOSTNAME'
+  port: '@secret:NODE_SS_AES_PORT'
   cipher: aes-128-gcm
-  password: GY*6WsEDdvvm_
+  password: '@secret:NODE_SS_AES_PASSWORD'
   udp: true
 - name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
   type: ss
-  server: bwh-jp-01.rundong.me
-  port: 32527
+  server: '@secret:NODE_HOSTNAME'
+  port: '@secret:NODE_SS_CHACHA_PORT'
   cipher: chacha20-ietf-poly1305
-  password: W97iHM_4MMQGU
+  password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
 rules:
 - name: Guard
   type: select
   filters:
   - type: DOMAIN
-    arg: bwh-jp-01.rundong.me
+    arg: '@secret:NODE_HOSTNAME'
   - type: DOMAIN-KEYWORD
     arg: v2clubnode
   - type: PROCESS-NAME
@@ -99,6 +99,8 @@ rules:
   filters:
   - type: quantumult
     url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/Optional/Microsoft.list
+  - type: DOMAIN-SUFFIX
+    arg: sharepoint.com
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Microsoft.png
   proxies:
   - Mainland
@@ -184,9 +186,9 @@ generates:
   tproxy-port: 10083
   external-ui: clash-dashboard
   external-controller: :9090
-  secret: "7ee4674b-0dcb-48e0-a56b-231a9ab282f1"
+  secret: '@secret:CLASH_SECRET'
   authentication:
-  - "lirundong:9c44f029-3707-40c6-8ec2-80cec2159675"
+  - '@secret:CLASH_PROXY_USERNAME:@secret:CLASH_PROXY_PASSWORD'
   dns: &DNS_CONFIG
     enable: true
     listen: :10053
@@ -195,7 +197,6 @@ generates:
     fake-ip-range: 198.18.0.1/16
     fake-ip-filter:
     - '+.local'
-    - '+.rundong.me'
     - localhost.ptlogin2.qq.com
     # Otherwise MS apps and network manager will not operate properly.
     - dns.msftncsi.com
@@ -205,10 +206,6 @@ generates:
     - api6.ipify.org
     nameserver:
     - 127.0.0.1
-    nameserver-policy:
-      # Protect proxy node hostname from DNS pollution.
-      'cpdd.v2clubnode.xyz': &CLEAN_DNS https://doh.opendns.com/dns-query
-      'yyds.v2clubnode.com': *CLEAN_DNS
   tun:
     enable: true
     stack: system

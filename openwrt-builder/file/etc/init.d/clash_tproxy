@@ -20,7 +20,7 @@ start_service() {
 reload_service() {
     local clash_root=/root/.config/clash
     local clash_cfg=${clash_root}/config.yaml
-    local clash_secret=7ee4674b-0dcb-48e0-a56b-231a9ab282f1
+    local clash_secret=@secret:CLASH_SECRET
 
     /usr/bin/curl -X PUT \
         -H "Content-Type: application/json" \

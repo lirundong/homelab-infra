@@ -2,15 +2,15 @@
     "servers": [
         {
             "address": "::",
-            "port": 31514,
+            "port": @secret:NODE_SS_AES_PORT,
             "method": "aes-128-gcm",
-            "password": "GY*6WsEDdvvm_"
+            "password": "@secret:NODE_SS_AES_PASSWORD"
         },
         {
             "address": "::",
-            "port": 32527,
+            "port": @secret:NODE_SS_CHACHA_PORT,
             "method": "chacha20-ietf-poly1305",
-            "password": "W97iHM_4MMQGU"
+            "password": "@secret:NODE_SS_CHACHA_PASSWORD"
         }
     ],
     "mode": "tcp_and_udp"

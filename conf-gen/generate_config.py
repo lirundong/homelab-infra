@@ -4,11 +4,18 @@ from argparse import ArgumentParser
 from copy import copy
 from datetime import datetime
 import os
+from pathlib import Path
 import re
+import sys
+
+# TODO: Remove this path hack.
+sys.path.insert(0, str(Path(os.path.realpath(__file__)).parents[1]))
 
 from pytz import timezone
 import requests
 import yaml
+
+from common import secrets
 
 
 # TODO: Refactor each section to submodules.
@@ -814,6 +821,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     src_conf = yaml.load(open(args.src, "r", encoding="utf-8"), Loader=yaml.SafeLoader)
+    src_conf = secrets.expand_secret_object(src_conf)
     src_file = os.path.split(args.src)[-1]
 
     proxies = parse_clash_proxies(src_conf["proxies"])

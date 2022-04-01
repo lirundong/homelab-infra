@@ -10,7 +10,7 @@
             "settings": {
                 "clients": [
                     {
-                        "id": "2640da45-1e86-4c05-a13b-51f1276506b3",
+                        "id": "@secret:NODE_V2RAY_UUID",
                         "alterId": 0
                     }
                 ]
@@ -18,7 +18,7 @@
             "streamSettings": {
                 "network": "ws",
                 "wsSettings": {
-                    "path": "/wgc2QbJoCLjiq",
+                    "path": "@secret:NODE_V2RAY_WS_PATH",
                     "maxEarlyData": 2048,
                     "earlyDataHeaderName": "Sec-WebSocket-Protocol"
                 }
