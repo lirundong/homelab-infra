@@ -1,0 +1,2 @@
+0 18 * * * /jffs/scripts/ledsoff.sh #lightsoff#
+0 7 * * * /jffs/scripts/ledson.sh #lightson#

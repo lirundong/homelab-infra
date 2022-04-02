@@ -22,14 +22,14 @@ proxies:
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
   server: '@secret:NODE_HOSTNAME'
-  port: '@secret:NODE_SS_AES_PORT'
+  port: '@secret:NODE_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:NODE_SS_AES_PASSWORD'
   udp: true
 - name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
   type: ss
   server: '@secret:NODE_HOSTNAME'
-  port: '@secret:NODE_SS_CHACHA_PORT'
+  port: '@secret:NODE_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true

@@ -1,5 +1,6 @@
 import base64
 import os
+from pydoc import locate
 import re
 import sys
 from typing import Any, Iterable, Mapping
@@ -13,7 +14,7 @@ import yaml
 class _SecretsManager:
 
     _secrets_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets.yaml")
-    _secret_prompt = r"@secret:(\w+)"
+    _secret_prompt = r"@secret:(\w+)(:?\!(\w+))?"  # @secret:<SECRET_NAME>[!<SECRET_TYPE>] 
 
     def __init__(self) -> None:
         if "PASSWORD" not in os.environ:
@@ -46,8 +47,14 @@ class _SecretsManager:
         secret_key = match_obj.group(1)
         return getattr(self, secret_key)
     
-    def expand_secret(self, original_str: str) -> str:
-        return re.sub(self._secret_prompt, self._expand_secret, original_str)
+    def expand_secret(self, original_str: str) -> Any:
+        full_match = re.fullmatch(self._secret_prompt, original_str)
+        if full_match and full_match.group(3) is not None:  # Secrets with type.
+            t = locate(full_match.group(3))
+            v = getattr(self, full_match.group(1))
+            return t(v)
+        else:
+            return re.sub(self._secret_prompt, self._expand_secret, original_str)
     
     def expand_secret_object(self, original_obj: Any) -> Any:
         original_type = type(original_obj)

@@ -2,13 +2,13 @@
     "servers": [
         {
             "address": "::",
-            "port": @secret:NODE_SS_AES_PORT,
+            "port": "@secret:NODE_SS_AES_PORT!int",
             "method": "aes-128-gcm",
             "password": "@secret:NODE_SS_AES_PASSWORD"
         },
         {
             "address": "::",
-            "port": @secret:NODE_SS_CHACHA_PORT,
+            "port": "@secret:NODE_SS_CHACHA_PORT!int",
             "method": "chacha20-ietf-poly1305",
             "password": "@secret:NODE_SS_CHACHA_PASSWORD"
         }
