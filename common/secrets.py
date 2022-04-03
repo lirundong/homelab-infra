@@ -35,6 +35,10 @@ class _SecretsManager:
         key = base64.urlsafe_b64encode(kdf.derive(master_password))
         self._fernet = Fernet(key)
     
+    @property
+    def fernet(self):
+        return self._fernet
+    
     def __getattr__(self, name: str) -> Any:
         if name in self._encrypted_secrets:
             cypher_text = self._encrypted_secrets[name].encode("utf-8")

@@ -1,0 +1,11 @@
+bash
+ca-bundle
+curl
+ip6tables-mod-nat
+ipset
+iptables-mod-tproxy
+luci-app-sqm
+python3-cryptography
+python3-requests
+python3-yaml
+qemu-ga

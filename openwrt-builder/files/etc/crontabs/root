@@ -1,0 +1,2 @@
+30 0 * * * /usr/bin/curl -sSL https://@secret:NODE_HOSTNAME/conf/clash-daemon.yaml -o /root/.config/clash/config.yaml && /etc/init.d/clash reload
+*/15 * * * * PASSWORD="@secret:MASTER_PASSWORD" /usr/bin/python3 /root/util-cookbook/tencent-cloud/register_dns.py -d @secret:DOMAIN -s @secret:DDNS_HOSTNAME
