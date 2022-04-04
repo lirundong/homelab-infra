@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # Copy to /usr/bin/update_qcloud_dns on OpenWRT.
 
@@ -190,7 +190,7 @@ def update_qcloud_subdomain_record(
     else:
         new_records = []
         for request in updating_records:
-            request = get_full_request("RecordModify", request, master_password, salt, request_method, hmac_method)
+            request = get_full_request("RecordModify", request, request_method, hmac_method)
             response = requests.get(f"https://{QCLOUD_API_HOSTNAME}{QCLOUD_API_PATH}", params=request).json()
             if response["code"] != 0:
                 raise RuntimeError(response["message"])
