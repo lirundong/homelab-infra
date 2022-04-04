@@ -1,0 +1,14 @@
+127.0.0.1 localhost
+
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+192.168.50.1 router
+192.168.50.2 gateway raspberry
+192.168.50.3 bmc
+192.168.50.4 pve
+192.168.50.5 truenas freenas
+192.168.50.6 synonas nas
+192.168.50.7 gateway-x86
+192.168.50.8 tp-switch TL-SG2008

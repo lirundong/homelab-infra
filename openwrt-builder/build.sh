@@ -40,6 +40,10 @@ curl -sSL https://github.com/Dreamacro/clash/releases/download/v$CLASH_VERSION/c
 gzip -d clash.gz
 chmod +x clash
 mv clash $CUSTOM_FILES_DIR/usr/bin/
+# Clash config and dashboard.
+mkdir -p $CUSTOM_FILES_DIR/root/.config/clash
+git clone https://github.com/Dreamacro/clash-dashboard.git --branch=gh-pages --single-branch --depth=1 $CUSTOM_FILES_DIR/root/.config/clash/clash-dashboard
+echo 'https://@secret:NODE_HOSTNAME/conf/clash-daemon.yaml' | $SRC_DIR/../common/secret_decoder.py | xargs curl -sSL -o $CUSTOM_FILES_DIR/root/.config/clash/config.yaml
 # VLMCSD.
 cp vlmcsd/bin/vlmcs vlmcsd/bin/vlmcsd $CUSTOM_FILES_DIR/usr/bin/
 # DDNS.

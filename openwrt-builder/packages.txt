@@ -4,6 +4,7 @@ curl
 ip6tables-mod-nat
 ipset
 iptables-mod-tproxy
+luci
 luci-app-sqm
 python3-cryptography
 python3-requests
