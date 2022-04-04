@@ -1,9 +1,12 @@
 bash
 ca-bundle
 curl
+dosfstools
 ip6tables-mod-nat
 ipset
 iptables-mod-tproxy
+kmod-fs-vfat
+kmod-tun
 luci
 luci-app-sqm
 python3-cryptography
