@@ -16,7 +16,7 @@ uci -q batch << EOI
     set sqm.eth1.overhead='44'
     set sqm.eth1.enabled='1'
     set sqm.eth1.download='575000'
-    set sqm.eth1.upload='35000'
+    set sqm.eth1.upload='39000'
 
     commit sqm
 EOI
