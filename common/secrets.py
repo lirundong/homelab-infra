@@ -49,7 +49,10 @@ class _SecretsManager:
     
     def _expand_secret(self, match_obj: re.Match) -> str:
         secret_key = match_obj.group(1)
-        return getattr(self, secret_key)
+        if secret_key == "MASTER_PASSWORD":
+            return self._password
+        else:
+            return getattr(self, secret_key)
     
     def expand_secret(self, original_str: str) -> Any:
         full_match = re.fullmatch(self._secret_prompt, original_str)
