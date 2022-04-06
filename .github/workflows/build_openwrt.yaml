@@ -14,6 +14,8 @@ jobs:
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
+        pip3 install --user --upgrade cryptography requests pyyaml
+        sed -i "s!mirrors.tuna.tsinghua.edu.cn/openwrt!downloads.openwrt.org!" openwrt-builder/build.sh
         bash openwrt-builder/build.sh
         mkdir artifacts
         cp /tmp/openwrt/openwrt-imagebuilder-21.02.2-x86-64.Linux-x86_64/bin/targets/x86/64/* ./artifacts/
