@@ -1,7 +1,6 @@
 bash
 ca-bundle
 curl
-dosfstools
 ip6tables-mod-nat
 ipset
 iptables-mod-tproxy

@@ -4,11 +4,11 @@ set -ex
 TARGET=x86/64
 VERSION=21.02.2
 REPOSITORY=https://mirrors.tuna.tsinghua.edu.cn/openwrt
-PACKAGES=$(tr '\n' ' ' < packages.txt)
 IMG_BUILDER=openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}
 SDK=openwrt-sdk-$VERSION-${TARGET/\//-}_gcc-8.4.0_musl.Linux-${TARGET/\//_}
 SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 WORK_DIR=/tmp/openwrt
+PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages.txt)
 
 # Prepare working directory.
 if [[ -d $WORK_DIR ]]; then

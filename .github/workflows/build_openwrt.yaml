@@ -1,0 +1,24 @@
+name: Build OpenWRT
+on:
+  push:
+  schedule:
+  - cron: '30 9 1 * *'  # Monthly build.
+jobs:
+  build-openwrt-stable-release:
+    name: Build OpenWRT stable release.
+    if: ${{ !contains(github.event.head_commit.message, '[no build]') }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build openwrt image.
+      env:
+        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+      run: |
+        bash openwrt-builder/build.sh
+        mkdir artifacts
+        cp /tmp/openwrt/openwrt-imagebuilder-21.02.2-x86-64.Linux-x86_64/bin/targets/x86/64/* ./artifacts/
+    - name: Upload built artifacts.
+      uses: actions/upload-artifact@v2
+      with:
+        name: openwrt-stable-images
+        path: artifacts
