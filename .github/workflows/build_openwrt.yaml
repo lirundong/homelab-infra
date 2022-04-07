@@ -17,10 +17,9 @@ jobs:
         pip3 install --user --upgrade cryptography requests pyyaml
         sed -i "s!mirrors.tuna.tsinghua.edu.cn/openwrt!downloads.openwrt.org!" openwrt-builder/build.sh
         bash openwrt-builder/build.sh
-        mkdir artifacts
-        cp /tmp/openwrt/openwrt-imagebuilder-21.02.2-x86-64.Linux-x86_64/bin/targets/x86/64/* ./artifacts/
+        tar cf - /tmp/openwrt/openwrt-imagebuilder-21.02.2-x86-64.Linux-x86_64/bin/targets/x86/64 | 7z a -si -p${PASSWORD} -mhe=on openwrt-images.tar.7z
     - name: Upload built artifacts.
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: openwrt-stable-images
-        path: artifacts
+        path: openwrt-images.tar.7z
