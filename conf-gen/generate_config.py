@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Generate config files for various clients from a common source spec."""
 
 from argparse import ArgumentParser
