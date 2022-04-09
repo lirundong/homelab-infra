@@ -1,5 +1,5 @@
 # OpenWRT Builder
 
-| Platform | Monthly Build |
-|:--------:|:-------------:|
-| x86-64   | [![Build OpenWRT](https://github.com/lirundong/homelab-infra/actions/workflows/build_openwrt.yaml/badge.svg)](https://github.com/lirundong/homelab-infra/actions/workflows/build_openwrt.yaml) |
+|          | 20.02.2 | Snapshots |
+|:--------:|:-------:|:---------:|
+| x86-64   | [![Stable Monthly](https://github.com/lirundong/homelab-infra/actions/workflows/openwrt-stable-monthly.yaml/badge.svg)](https://github.com/lirundong/homelab-infra/actions/workflows/openwrt-stable-monthly.yaml) |[![Snapshot Daily](https://github.com/lirundong/homelab-infra/actions/workflows/openwrt-snapshot-daily.yaml/badge.svg)](https://github.com/lirundong/homelab-infra/actions/workflows/openwrt-snapshot-daily.yaml) |

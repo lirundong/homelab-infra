@@ -1,0 +1,28 @@
+name: Stable Monthly
+on:
+  push:
+  schedule:
+  - cron: '30 9 1 * *'  # Monthly build.
+jobs:
+  build-openwrt-stable:
+    name: OpenWRT stable monthly build
+    if: ${{ !contains(github.event.head_commit.message, '[no build]') }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build openwrt image.
+      env:
+        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+        TARGET: x86/64
+        VERSION: '21.02.2'
+        REPOSITORY: https://downloads.openwrt.org
+        GCC_VERSION: 8.4.0_musl
+      run: |
+        pip3 install --user --upgrade cryptography requests pyyaml pytz
+        bash openwrt-builder/build.sh
+        tar cf - -C /tmp/openwrt/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET . | 7z a -si -p${PASSWORD} -mhe=on openwrt-stable-monthly.tar.7z
+    - name: Upload built artifacts.
+      uses: actions/upload-artifact@v3
+      with:
+        name: openwrt-stable-monthly
+        path: openwrt-stable-monthly.tar.7z

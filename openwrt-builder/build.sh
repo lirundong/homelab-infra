@@ -1,15 +1,25 @@
 #!/bin/bash
 set -ex
 
-TARGET=x86/64
-VERSION=21.02.2
-REPOSITORY=https://mirrors.tuna.tsinghua.edu.cn/openwrt
-IMG_BUILDER=openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}
-SDK=openwrt-sdk-$VERSION-${TARGET/\//-}_gcc-8.4.0_musl.Linux-${TARGET/\//_}
+TARGET=${TARGET:-'x86/64'}
+VERSION=${VERSION:-'21.02.2'}
+REPOSITORY=${REPOSITORY:-'https://mirrors.tuna.tsinghua.edu.cn/openwrt'}
+GCC_VERSION=${GCC_VERSION:-'8.4.0_musl'}
+WORK_DIR=${WORK_DIR:-'/tmp/openwrt'}
 SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( cd -- "$( dirname -- "${SRC_DIR}" )" &> /dev/null && pwd )
-WORK_DIR=/tmp/openwrt
 PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages.txt)
+if [[ $VERSION == "snapshots" ]]; then
+  SDK=openwrt-sdk-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
+  SDK_URL=$REPOSITORY/$VERSION/targets/$TARGET/$SDK.tar.xz
+  IMG_BUILDER=openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}
+  IMG_BUILDER_URL=$REPOSITORY/$VERSION/targets/$TARGET/$IMG_BUILDER.tar.xz
+else
+  SDK=openwrt-sdk-$VERSION-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
+  SDK_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$SDK.tar.xz
+  IMG_BUILDER=openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}
+  IMG_BUILDER_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$IMG_BUILDER.tar.xz
+fi
 
 # Prepare working directory.
 if [[ -d $WORK_DIR ]]; then
@@ -20,14 +30,14 @@ fi
 pushd $WORK_DIR
 
 # Cross-compiled projects.
-curl -sSLO $REPOSITORY/releases/$VERSION/targets/$TARGET/$SDK.tar.xz
+curl -sSLO $SDK_URL
 tar -Jxf $SDK.tar.xz
 STAGING_DIR=$(realpath -- $SDK/staging_dir)
-SDK_BIN_DIR=$(realpath -- $SDK/staging_dir/toolchain-x86_64_gcc-8.4.0_musl/bin)
+SDK_BIN_DIR=$(realpath -- $SDK/staging_dir/toolchain-${TARGET/\//_}_gcc-$GCC_VERSION/bin)
 # VLMCSD.
 git clone https://github.com/Wind4/vlmcsd.git
 pushd vlmcsd
-STAGING_DIR=$STAGING_DIR PATH=$SDK_BIN_DIR:$PATH make CC=x86_64-openwrt-linux-gcc LD=x86_64-openwrt-linux-ld
+STAGING_DIR=$STAGING_DIR PATH=$SDK_BIN_DIR:$PATH make CC=${TARGET/\//_}-openwrt-linux-gcc LD=${TARGET/\//_}-openwrt-linux-ld
 chmod +x bin/vlmcs bin/vlmcsd
 popd
 
@@ -54,7 +64,7 @@ rsync -aP --exclude='__pycache__' $ROOT_DIR/common $CUSTOM_FILES_DIR/root/
 rsync -aP --exclude='__pycache__' $ROOT_DIR/util-cookbook/tencent-cloud $CUSTOM_FILES_DIR/root/util-cookbook/
 
 # Image builder.
-curl -sSLO $REPOSITORY/releases/$VERSION/targets/$TARGET/$IMG_BUILDER.tar.xz
+curl -sSLO $IMG_BUILDER_URL
 tar -Jxf $IMG_BUILDER.tar.xz
 pushd $IMG_BUILDER
 sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" repositories.conf
