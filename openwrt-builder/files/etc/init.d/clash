@@ -8,9 +8,6 @@ start_service() {
     local clash_root=/root/.config/clash
     local clash_cfg=${clash_root}/config.yaml
 
-    # Download config at the first start.
-    /usr/bin/curl -sSL "https://@secret:NODE_HOSTNAME/conf/clash-daemon.yaml" -o ${clash_cfg}
-
     procd_open_instance "clash-daemon"
     procd_set_param command /usr/bin/clash -d ${clash_root}
     procd_set_param file ${clash_cfg}
