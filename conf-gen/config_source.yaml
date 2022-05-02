@@ -198,6 +198,7 @@ generates:
     fake-ip-filter:
     - '+.local'
     - localhost.ptlogin2.qq.com
+    - '@secret:NODE_HOSTNAME'
     # Otherwise MS apps and network manager will not operate properly.
     - dns.msftncsi.com
     - www.msftncsi.com
