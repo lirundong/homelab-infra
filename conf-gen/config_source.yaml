@@ -141,6 +141,8 @@ rules:
 - name: Mainland
   type: select
   filters:
+  - type: DOMAIN-SUFFIX
+    arg: .cn
   - type: DOMAIN-KEYWORD
     arg: nvidia
   - type: DOMAIN-KEYWORD
@@ -149,8 +151,6 @@ rules:
     arg: slack
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/China.list
-  - type: DOMAIN-SUFFIX
-    arg: '.cn'
   - type: geoip
     arg: CN
   img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Mainland.png
