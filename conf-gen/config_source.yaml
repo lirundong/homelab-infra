@@ -142,7 +142,7 @@ rules:
   type: select
   filters:
   - type: DOMAIN-SUFFIX
-    arg: .cn
+    arg: cn
   - type: DOMAIN-KEYWORD
     arg: nvidia
   - type: DOMAIN-KEYWORD
