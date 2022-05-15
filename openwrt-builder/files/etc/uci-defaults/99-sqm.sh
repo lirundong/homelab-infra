@@ -9,7 +9,7 @@ uci -q batch << EOI
     set sqm.eth1=queue
     set sqm.eth1.interface='eth1'
     set sqm.eth1.qdisc='cake'
-    set sqm.eth1.script='piece_of_cake.qos'
+    set sqm.eth1.script='layer_cake.qos'
     set sqm.eth1.debug_logging='0'
     set sqm.eth1.verbosity='5'
     set sqm.eth1.linklayer='ethernet'
