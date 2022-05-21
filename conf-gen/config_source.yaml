@@ -4,7 +4,7 @@ subscriptions:
   type: clash
   url: '@secret:SUBSCRIPTION_URL'
 proxies:
-- name: 🇯🇵「V2ray」bwh-jp-01
+- name: 🇯🇵「V2ray-WS」bwh-jp-01
   type: vmess
   server: '@secret:NODE_HOSTNAME'
   port: 443
@@ -18,6 +18,20 @@ proxies:
     path: '@secret:NODE_V2RAY_WS_PATH'
     max-early-data: 2048
     early-data-header-name: Sec-WebSocket-Protocol
+  udp: true
+- name: 🇯🇵「V2ray-gRPC」bwh-jp-01
+  type: vmess
+  server: '@secret:NODE_HOSTNAME'
+  port: 443
+  uuid: '@secret:NODE_V2RAY_GRPC_UUID'
+  alterId: 0
+  cipher: none
+  tls: true
+  skip-cert-verify: false
+  network: grpc
+  servername: '@secret:NODE_HOSTNAME'
+  grpc-opts:
+      grpc-service-name: '@secret:NODE_V2RAY_GRPC_PATH'
   udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss

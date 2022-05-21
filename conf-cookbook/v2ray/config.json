@@ -23,6 +23,25 @@
                     "earlyDataHeaderName": "Sec-WebSocket-Protocol"
                 }
             }
+        },
+        {
+            "port": 27753,
+            "listen": "127.0.0.1",
+            "protocol": "vmess",
+            "settings": {
+                "clients": [
+                    {
+                        "id": "@secret:NODE_V2RAY_GRPC_UUID",
+                        "alterId": 0
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "grpc",
+                "grpcSettings": {
+                    "serviceName": "@secret:NODE_V2RAY_GRPC_PATH"
+                }
+            }
         }
     ],
     "outbounds": [
