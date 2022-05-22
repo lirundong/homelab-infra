@@ -19,7 +19,7 @@ def copy_single_file(src, dst, force=False):
         for line in f_in.readlines():
             decoded_lines.append(secrets.expand_secret(line.rstrip()))
         f_out.write("\n".join(decoded_lines))
-    
+
     os.chmod(dst, mode=os.stat(src).st_mode)
 
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--recursive", action="store_true", help="Recursively copy.")
     parser.add_argument("-f", "--force", action="store_true", help="Overwire on existing dst.")
     args = parser.parse_args()
-    
+
     if args.src is None and args.dst is None:  # Input from stdin.
         for line in sys.stdin:
             decoded = secrets.expand_secret(line.strip())
@@ -40,14 +40,16 @@ if __name__ == "__main__":
         if os.path.isdir(args.src):
             if not args.recursive:
                 raise RuntimeError(f"Non-recursive copy on source directory: {args.src}")
-            
+
             abs_src = os.path.abspath(args.src)
             abs_dst = os.path.abspath(args.dst)
 
             for dirpath, dirnames, filenames in os.walk(abs_src):
                 if filenames:
                     for filename in filenames:
-                        if args.exclude and any(re.match(pattern, filename) for pattern in args.exclude):
+                        if args.exclude and any(
+                            re.match(pattern, filename) for pattern in args.exclude
+                        ):
                             continue
                         relpath = os.path.relpath(dirpath, abs_src)
                         src = os.path.join(dirpath, filename)

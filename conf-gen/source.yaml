@@ -29,9 +29,8 @@ proxies:
   tls: true
   skip-cert-verify: false
   network: grpc
-  servername: '@secret:NODE_HOSTNAME'
   grpc-opts:
-      grpc-service-name: '@secret:NODE_V2RAY_GRPC_PATH'
+    grpc-service-name: '@secret:NODE_V2RAY_GRPC_PATH'
   udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss

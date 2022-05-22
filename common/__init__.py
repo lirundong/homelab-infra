@@ -1,0 +1,1 @@
+QUANTUMULT_COMMENT_BEGINS = ("#", ";", "//")
