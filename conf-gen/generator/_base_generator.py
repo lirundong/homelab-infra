@@ -7,12 +7,13 @@ from pytz import timezone
 class GeneratorBase:
 
     _SUPPORTED_PROXY_TYPE = None
+    _DEFAULT_PROXY_NAMES = {"PROXY", "DIRECT", "REJECT"}
 
     def __init__(self, src_file, proxies, proxy_groups):
         self.src_file = src_file
         self._proxies = []
         self._proxy_groups = []
-        proxy_names = set()
+        proxy_names = set(pg.name for pg in proxy_groups).union(self._DEFAULT_PROXY_NAMES)
         for proxy in proxies:
             if type(proxy) in self._SUPPORTED_PROXY_TYPE:
                 self._proxies.append(proxy)

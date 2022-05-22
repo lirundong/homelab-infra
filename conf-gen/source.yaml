@@ -61,6 +61,7 @@ rules:
   img-url: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Hijacking.png
   proxies:
   - DIRECT
+  - Outside
 - name: AdBlock
   type: select
   filters:

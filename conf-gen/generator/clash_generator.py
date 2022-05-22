@@ -1,4 +1,5 @@
 import os
+from copy import copy
 
 import yaml
 
@@ -22,12 +23,14 @@ class ClashGenerator(GeneratorBase):
     )
 
     def __init__(self, src_file, proxies, proxy_groups, **general_options):
+        # Construct special group `PROXY` for clash.
+        proxy_groups = copy(proxy_groups)
+        the_proxy_proxy_group = SelectProxyGroup(
+            name="PROXY", filters=None, proxies=proxies
+        )
+        proxy_groups.insert(0, the_proxy_proxy_group)
         super().__init__(src_file, proxies, proxy_groups)
         self._general_options = general_options
-
-        # Construct special group `PROXY` for clash.
-        the_proxy_proxy_group = SelectProxyGroup(name="PROXY", filters=None, proxies=self._proxies,)
-        self._proxy_groups.insert(0, the_proxy_proxy_group)
 
     def generate(self, file):
         conf = {}
