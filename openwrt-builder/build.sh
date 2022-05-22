@@ -54,7 +54,7 @@ mv clash $CUSTOM_FILES_DIR/usr/bin/
 # Clash config and dashboard.
 mkdir -p $CUSTOM_FILES_DIR/root/.config/clash
 git clone https://github.com/Dreamacro/clash-dashboard.git --branch=gh-pages --single-branch --depth=1 $CUSTOM_FILES_DIR/root/.config/clash/clash-dashboard
-$ROOT_DIR/conf-gen/generate_config.py -s $ROOT_DIR/conf-gen/config_source.yaml -o clash-conf/
+$ROOT_DIR/conf-gen/generate.py -s $ROOT_DIR/conf-gen/source.yaml -o clash-conf/
 cp clash-conf/clash-daemon.yaml $CUSTOM_FILES_DIR/root/.config/clash/config.yaml
 curl -sSL https://github.com/Dreamacro/maxmind-geoip/releases/latest/download/Country.mmdb -o $CUSTOM_FILES_DIR/root/.config/clash/Country.mmdb
 # VLMCSD.
