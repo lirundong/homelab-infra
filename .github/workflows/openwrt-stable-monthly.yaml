@@ -20,8 +20,8 @@ jobs:
       run: |
         pip3 install --user --upgrade cryptography requests pyyaml pytz
         bash openwrt-builder/build.sh
-        cp -r tmp/openwrt/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts
-        for f in $(find artifacts -iname '*.img.gz'); do
+        cp -r /tmp/openwrt/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts
+        for f in $(find artifacts -iname '*.gz'); do
           gpg -c --batch --yes --passphrase=${PASSWORD} $f
           rm $f
         done
