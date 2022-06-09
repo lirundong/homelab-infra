@@ -58,7 +58,7 @@ rules:
     arg: qBittorrent
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Unbreak.list
-  img-url: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Hijacking.png
+  img-url: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Hijacking.png
   proxies:
   - DIRECT
   - Outside
@@ -67,7 +67,7 @@ rules:
   filters:
   - type: quantumult
     url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/AdBlock.list
-  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/AdBlock.png
+  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/AdBlock.png
   proxies:
   - REJECT
   - Mainland
@@ -81,7 +81,7 @@ rules:
     arg: cookielaw.org
   - type: DOMAIN-SUFFIX
     arg: onetrust.com
-  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Netflix.png
+  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Netflix.png
   proxies:
   - Outside
   - type: regex
@@ -91,7 +91,7 @@ rules:
   filters:
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Extra/Telegram/Telegram.list
-  img-url: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Telegram.png
+  img-url: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Telegram.png
   proxies:
   - Outside
   - type: regex
@@ -107,7 +107,7 @@ rules:
     arg: linkedin
   - type: quantumult
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Global.list
-  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Outside.png
+  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Outside.png
   proxies:
   - PROXY
 - name: Bilibili & iQIYI
@@ -115,7 +115,7 @@ rules:
   filters:
   - type: clash-classic
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/StreamingMedia/StreamingSE.yaml
-  img-url: https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/iQIYI%26bilibili.png
+  img-url: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/iQIYI%26bilibili.png
   proxies:
   - Mainland
   - type: regex
@@ -127,7 +127,7 @@ rules:
     url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/Optional/Microsoft.list
   - type: DOMAIN-SUFFIX
     arg: sharepoint.com
-  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Microsoft.png
+  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Microsoft.png
   proxies:
   - Mainland
   - Outside
@@ -136,7 +136,7 @@ rules:
   filters:
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Apple.list
-  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Apple.png
+  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Apple.png
   proxies:
   - Mainland
   - Outside
@@ -145,7 +145,7 @@ rules:
   filters:
   - type: quantumult
     url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/Speedtest.list
-  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Speedtest.png
+  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Speedtest.png
   proxies:
   - Mainland
   - Outside
@@ -164,14 +164,14 @@ rules:
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/China.list
   - type: geoip
     arg: CN
-  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Mainland.png
+  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Mainland.png
   proxies:
   - DIRECT
 - name: Others
   type: select
   filters:
   - type: match
-  img-url: https://cdn.jsdelivr.net/gh/GeQ1an/Rules@master/QuantumultX/IconSet/Others.png
+  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Others.png
   proxies:
   - PROXY
   - DIRECT
@@ -258,7 +258,7 @@ generates:
     - 17.0.0.0/8
     geo_location_checker:
     - http://ip-api.com/json/?lang=zh-CN
-    - https://cdn.jsdelivr.net/gh/KOP-XIAO/QuantumultX@master/Scripts/IP_API.js
+    - https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/IP_API.js
     server_check_url: http://cp.cloudflare.com/generate_204
     ssid_suspended_list:
     - Rundong's AP
@@ -267,9 +267,9 @@ generates:
   task_local:
   - name: 流媒体-解锁查询
     type: event-interaction
-    url: https://cdn.jsdelivr.net/gh/KOP-XIAO/QuantumultX@master/Scripts/streaming-ui-check.js
+    url: https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/streaming-ui-check.js
     img-url: checkmark.seal.system
   - name: GeoIP 查询
     type: event-interaction
-    url: https://cdn.jsdelivr.net/gh/KOP-XIAO/QuantumultX@master/Scripts/geo_location.js
+    url: https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/geo_location.js
     img-url: location.fill.viewfinder.system
