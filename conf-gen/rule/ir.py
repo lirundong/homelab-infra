@@ -37,6 +37,18 @@ class DomainKeyword(IRBase):
 
 
 @_IR_REGISTRY.register()
+class DomainWildcard(IRBase):
+
+    _clash_prefix = "DOMAIN-KEYWORD"
+    _quantumult_prefix = "host-wildcard"
+
+    @property
+    def clash_rule(self):
+        keyword = self._val.split("*")[0]
+        return f"{self._clash_prefix},{keyword}"
+
+
+@_IR_REGISTRY.register()
 class GeoIP(IRBase):
 
     _clash_prefix = "GEOIP"
