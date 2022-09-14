@@ -42,6 +42,8 @@ DIRECT_MACS=(
   "16:43:4b:30:19:84" # qemu-win10-compute
   "a6:3e:aa:1f:1d:57" # win-11-nv-work
   "9c:fc:e8:de:d3:de" # davidli-lt
+  "54:ef:44:34:35:86" # Living room camera
+  "54:ef:44:2e:b1:62" # Bedroom gateway
 )
 TPROXY_MARK="0x01"
 DNS_MARK="0x03"
