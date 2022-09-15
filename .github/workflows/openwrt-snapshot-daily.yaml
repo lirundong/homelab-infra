@@ -9,12 +9,12 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[no build]') }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build openwrt image.
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
         TARGET: x86/64
-        VERSION: 'snapshots'
+        VERSION: 'snapshot'
         REPOSITORY: https://downloads.openwrt.org
         GCC_VERSION: 11.3.0_musl
       run: |
