@@ -1,0 +1,14 @@
+bash
+ca-bundle
+curl
+kmod-fs-vfat
+kmod-nft-nat6
+kmod-tun
+losetup
+luci
+luci-app-nft-qos
+python3-cryptography
+python3-requests
+python3-yaml
+qemu-ga
+resize2fs

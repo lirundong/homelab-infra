@@ -4,6 +4,7 @@ from pydoc import locate
 import re
 import sys
 from typing import Any, Iterable, Mapping
+from warnings import warn
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -43,8 +44,11 @@ class _SecretsManager:
             cypher_text = self._encrypted_secrets[name].encode("utf-8")
             plain_text = self._fernet.decrypt(cypher_text).decode("utf-8")
             return plain_text
+        elif name in os.environ:
+            warn(f"`{name}` was fetched from raw environment variables as it was not registered as a secret.")
+            return str(os.environ[name])
         else:
-            raise AttributeError(f"{name} was not registered as a secret in {self._secrets_file}.")
+            raise AttributeError(f"{name} was neither registered as a secret in {self._secrets_file} nor an environment variable.")
 
     def _expand_secret(self, match_obj: re.Match) -> str:
         secret_key = match_obj.group(1)

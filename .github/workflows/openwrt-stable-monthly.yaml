@@ -9,8 +9,11 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[no build]') }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build openwrt image.
+    - uses: actions/checkout@v3
+    - name: setup-dependencies
+      run: |
+        pip3 install --user --upgrade cryptography requests pyyaml pytz
+    - name: build-openwrt-21-02
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
         TARGET: x86/64
@@ -18,15 +21,35 @@ jobs:
         REPOSITORY: https://downloads.openwrt.org
         GCC_VERSION: 8.4.0_musl
       run: |
-        pip3 install --user --upgrade cryptography requests pyyaml pytz
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
         bash openwrt-builder/build.sh
-        cp -r /tmp/openwrt/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts
-        for f in $(find artifacts -iname '*.gz'); do
+        cp -r /tmp/openwrt/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
+        for f in $(find artifacts-$VERSION -iname '*.gz'); do
           gpg -c --batch --yes --passphrase=${PASSWORD} $f
           rm $f
         done
-    - name: Upload built artifacts.
+    - name: upload-openwrt-21-02-artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: openwrt-stable-monthly
-        path: artifacts
+        name: openwrt-stable-${{ env.VERSION }}
+        path: artifacts-${{ env.VERSION }}
+    - name: build-openwrt-22-03
+      env:
+        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+        TARGET: x86/64
+        VERSION: '22.03.0'
+        REPOSITORY: https://downloads.openwrt.org
+        GCC_VERSION: 11.2.0_musl
+      run: |
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        bash openwrt-builder/build.sh
+        cp -r /tmp/openwrt/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
+        for f in $(find artifacts-$VERSION -iname '*.gz'); do
+          gpg -c --batch --yes --passphrase=${PASSWORD} $f
+          rm $f
+        done
+    - name: upload-openwrt-22-03-artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: openwrt-stable-${{ env.VERSION }}
+        path: artifacts-${{ env.VERSION }}
