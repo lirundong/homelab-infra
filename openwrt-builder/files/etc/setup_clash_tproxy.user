@@ -5,6 +5,10 @@ if [ ${EUID} -ne 0 ]; then
   echo "Please run as root"
   exit -1
 fi
+if ! command -v iptables &> /dev/null; then
+  echo '`iptables` command is not available, nftables support is WIP.'
+  exit -1
+fi
 
 LOCAL_IPS=(
   "0.0.0.0/8"

@@ -8,7 +8,7 @@ GCC_VERSION=${GCC_VERSION:-'8.4.0_musl'}
 WORK_DIR=${WORK_DIR:-'/tmp/openwrt'}
 SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( cd -- "$( dirname -- "${SRC_DIR}" )" &> /dev/null && pwd )
-PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages-${VERSION}.txt)
+PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages/${VERSION}.txt)
 if [[ $VERSION == "snapshots" ]]; then
   SDK=openwrt-sdk-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
   SDK_URL=$REPOSITORY/$VERSION/targets/$TARGET/$SDK.tar.xz
