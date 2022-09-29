@@ -1,5 +1,6 @@
 bash
 ca-bundle
+coreutils-timeout
 curl
 ip6tables-mod-nat
 ipset

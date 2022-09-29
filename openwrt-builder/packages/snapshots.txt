@@ -1,5 +1,6 @@
 bash
 ca-bundle
+coreutils-timeout
 curl
 kmod-fs-vfat
 kmod-tun
