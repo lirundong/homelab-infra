@@ -23,7 +23,7 @@ class TrojanProxy(ProxyBase):
             "password": self.password,
             "port": self.port,
             "server": self.server,
-            "skip_cert_verify": self.skip_cert_verify,
+            "skip-cert-verify": self.skip_cert_verify,
             "type": "trojan",
             "udp": self.udp,
         }
