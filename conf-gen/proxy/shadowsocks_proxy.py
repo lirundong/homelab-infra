@@ -23,10 +23,25 @@ class ShadowSocksProxy(ProxyBase):
     @property
     def quantumult_proxy(self):
         info = [
-            ("shadowsocks", f"{self.server}:{self.port}",),
-            ("method", f"{self.cipher}",),
-            ("password", f"{self.password}",),
-            ("udp-relay", f"{self.udp}".lower(),),
-            ("tag", f"{self.name}",),
+            (
+                "shadowsocks",
+                f"{self.server}:{self.port}",
+            ),
+            (
+                "method",
+                f"{self.cipher}",
+            ),
+            (
+                "password",
+                f"{self.password}",
+            ),
+            (
+                "udp-relay",
+                f"{self.udp}".lower(),
+            ),
+            (
+                "tag",
+                f"{self.name}",
+            ),
         ]
         return ",".join(f"{k}={v}" for k, v in info)

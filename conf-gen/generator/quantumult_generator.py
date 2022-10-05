@@ -3,6 +3,7 @@ import os
 from generator._base_generator import GeneratorBase
 from proxy import (
     ShadowSocksProxy,
+    TrojanProxy,
     VMessProxy,
     VMessWebSocketProxy,
 )
@@ -26,6 +27,7 @@ class QuantumultGenerator(GeneratorBase):
 
     _SUPPORTED_PROXY_TYPE = (
         ShadowSocksProxy,
+        TrojanProxy,
         VMessProxy,
         VMessWebSocketProxy,
     )

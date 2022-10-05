@@ -6,6 +6,7 @@ import yaml
 from generator._base_generator import GeneratorBase
 from proxy import (
     ShadowSocksProxy,
+    TrojanProxy,
     VMessProxy,
     VMessGRPCProxy,
     VMessWebSocketProxy,
@@ -17,6 +18,7 @@ class ClashGenerator(GeneratorBase):
 
     _SUPPORTED_PROXY_TYPE = (
         ShadowSocksProxy,
+        TrojanProxy,
         VMessProxy,
         VMessGRPCProxy,
         VMessWebSocketProxy,
@@ -25,9 +27,7 @@ class ClashGenerator(GeneratorBase):
     def __init__(self, src_file, proxies, proxy_groups, **general_options):
         # Construct special group `PROXY` for clash.
         proxy_groups = copy(proxy_groups)
-        the_proxy_proxy_group = SelectProxyGroup(
-            name="PROXY", filters=None, proxies=proxies
-        )
+        the_proxy_proxy_group = SelectProxyGroup(name="PROXY", filters=None, proxies=proxies)
         proxy_groups.insert(0, the_proxy_proxy_group)
         super().__init__(src_file, proxies, proxy_groups)
         self._general_options = general_options
@@ -61,5 +61,9 @@ class ClashGenerator(GeneratorBase):
         with open(file, "w", encoding="utf-8") as f:
             f.write(f"{self.header}\n")
             yaml.dump(
-                conf, f, Dumper=yaml.SafeDumper, allow_unicode=True, line_break="\n",
+                conf,
+                f,
+                Dumper=yaml.SafeDumper,
+                allow_unicode=True,
+                line_break="\n",
             )

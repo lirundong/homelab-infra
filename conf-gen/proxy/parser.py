@@ -2,6 +2,7 @@ import requests
 import yaml
 
 from proxy.shadowsocks_proxy import ShadowSocksProxy
+from proxy.trojan_proxy import TrojanProxy
 from proxy.v2ray_proxy import VMessProxy, VMessGRPCProxy, VMessWebSocketProxy
 
 
@@ -58,6 +59,22 @@ def parse_clash_proxies(proxies_info):
                     alter_id=proxy_info["alterId"],
                     cipher=proxy_info["cipher"],
                     udp=proxy_info.get("udp", False),
+                )
+        elif proxy_info["type"] == "trojan":
+            if proxy_info.get("network", None) in ("ws", "grpc"):
+                raise NotImplementedError(
+                    "WebSocket or gRPC support for Trojan was not implemented yet."
+                )
+            else:
+                proxy = TrojanProxy(
+                    name=proxy_info["name"],
+                    server=proxy_info["server"],
+                    port=proxy_info["port"],
+                    password=proxy_info["password"],
+                    udp=proxy_info.get("udp", False),
+                    sni=proxy_info.get("sni", None),
+                    alpn=proxy_info.get("alpn", None),
+                    skip_cert_verify=proxy_info["skip-cert-verify"],
                 )
         else:
             raise RuntimeError(f"Get unsupported proxy type: {proxy_info['type']}")

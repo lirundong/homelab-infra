@@ -134,7 +134,10 @@ def get_full_request(
 
 
 def get_qcloud_subdomain_record(
-    domain: str, subdomain: str, request_method: str = "GET", hmac_method: str = "sha256",
+    domain: str,
+    subdomain: str,
+    request_method: str = "GET",
+    hmac_method: str = "sha256",
 ) -> List[Dict[str, str]]:
     """Get subdomain's record id and previous value, return None if it does not exist."""
     request = copy.copy(QCLOUD_DNS_API["RecordList"])

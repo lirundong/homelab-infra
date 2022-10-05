@@ -28,11 +28,26 @@ class VMessProxy(ProxyBase):
     def quantumult_proxy(self):
         method = "chacha20-ietf-poly1305" if self.cipher == "auto" else self.cipher
         info = [
-            ("vmess", f"{self.server}:{self.port}",),
-            ("method", method,),
-            ("password", f"{self.uuid}",),
-            ("udp-relay", f"{self.udp}".lower(),),
-            ("tag", f"{self.name}",),
+            (
+                "vmess",
+                f"{self.server}:{self.port}",
+            ),
+            (
+                "method",
+                method,
+            ),
+            (
+                "password",
+                f"{self.uuid}",
+            ),
+            (
+                "udp-relay",
+                f"{self.udp}".lower(),
+            ),
+            (
+                "tag",
+                f"{self.name}",
+            ),
         ]
         return ",".join(f"{k}={v}" for k, v in info)
 
@@ -62,7 +77,11 @@ class VMessWebSocketProxy(VMessProxy):
     def clash_proxy(self):
         info = super().clash_proxy
         info.update(
-            {"tls": self.tls, "skip-cert-verify": self.skip_cert_verify, "network": "ws",}
+            {
+                "tls": self.tls,
+                "skip-cert-verify": self.skip_cert_verify,
+                "network": "ws",
+            }
         )
         if self.ws_options:
             info["ws-opts"] = copy(self.ws_options)
@@ -71,15 +90,30 @@ class VMessWebSocketProxy(VMessProxy):
     @property
     def quantumult_proxy(self):
         info = [
-            ("vmess", f"{self.server}:{self.port}",),
-            ("method", f"{self.cipher}",),
-            ("password", f"{self.uuid}",),
-            ("udp-relay", f"{self.udp}".lower(),),
+            (
+                "vmess",
+                f"{self.server}:{self.port}",
+            ),
+            (
+                "method",
+                f"{self.cipher}",
+            ),
+            (
+                "password",
+                f"{self.uuid}",
+            ),
+            (
+                "udp-relay",
+                f"{self.udp}".lower(),
+            ),
             ("obfs", "wss"),
             ("obfs-uri", f"{self.ws_options['path']}"),
             ("tls-verification", f"{not self.skip_cert_verify}".lower()),
             ("tls13", f"{self.tls_version >= 1.3}".lower()),
-            ("tag", f"{self.name}",),
+            (
+                "tag",
+                f"{self.name}",
+            ),
         ]
         return ",".join(f"{k}={v}" for k, v in info)
 
@@ -111,7 +145,11 @@ class VMessGRPCProxy(VMessProxy):
     def clash_proxy(self):
         info = super().clash_proxy
         info.update(
-            {"tls": self.tls, "skip-cert-verify": self.skip_cert_verify, "network": "grpc",}
+            {
+                "tls": self.tls,
+                "skip-cert-verify": self.skip_cert_verify,
+                "network": "grpc",
+            }
         )
         if self.server_name is not None:
             info["servername"] = self.server_name

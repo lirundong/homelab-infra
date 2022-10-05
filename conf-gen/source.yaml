@@ -1,6 +1,6 @@
 # Source configuration that generates Clash and Quantumult X configs.
 subscriptions:
-- name: V2Club
+- name: WestData Cloud
   type: clash
   url: '@secret:SUBSCRIPTION_URL'
 proxies:

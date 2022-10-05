@@ -31,7 +31,12 @@ class _SecretsManager:
 
         master_password = self._password.encode("utf-8")
         salt = self._salt.encode("utf-8")
-        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000,)
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=100000,
+        )
         key = base64.urlsafe_b64encode(kdf.derive(master_password))
         self._fernet = Fernet(key)
 
@@ -45,10 +50,14 @@ class _SecretsManager:
             plain_text = self._fernet.decrypt(cypher_text).decode("utf-8")
             return plain_text
         elif name in os.environ:
-            warn(f"`{name}` was fetched from raw environment variables as it was not registered as a secret.")
+            warn(
+                f"`{name}` was fetched from raw environment variables as it was not registered as a secret."
+            )
             return str(os.environ[name])
         else:
-            raise AttributeError(f"{name} was neither registered as a secret in {self._secrets_file} nor an environment variable.")
+            raise AttributeError(
+                f"{name} was neither registered as a secret in {self._secrets_file} nor an environment variable."
+            )
 
     def _expand_secret(self, match_obj: re.Match) -> str:
         secret_key = match_obj.group(1)
