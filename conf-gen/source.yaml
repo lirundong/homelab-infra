@@ -104,6 +104,8 @@ rules:
   - type: DOMAIN-SUFFIX
     arg: sehuatang.net
   - type: DOMAIN-KEYWORD
+    arg: hegre
+  - type: DOMAIN-KEYWORD
     arg: linkedin
   - type: DOMAIN-KEYWORD
     arg: proctoru
