@@ -6,7 +6,7 @@ subscriptions:
 proxies:
 - name: 🇯🇵「V2ray-WS」bwh-jp-01
   type: vmess
-  server: '@secret:NODE_HOSTNAME'
+  server: '@secret:JP_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:NODE_V2RAY_UUID'
   alterId: 0
@@ -21,7 +21,7 @@ proxies:
   udp: true
 - name: 🇯🇵「V2ray-gRPC」bwh-jp-01
   type: vmess
-  server: '@secret:NODE_HOSTNAME'
+  server: '@secret:JP_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:NODE_V2RAY_GRPC_UUID'
   alterId: 0
@@ -34,14 +34,14 @@ proxies:
   udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
-  server: '@secret:NODE_HOSTNAME'
+  server: '@secret:JP_NODE_HOSTNAME'
   port: '@secret:NODE_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:NODE_SS_AES_PASSWORD'
   udp: true
 - name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
   type: ss
-  server: '@secret:NODE_HOSTNAME'
+  server: '@secret:JP_NODE_HOSTNAME'
   port: '@secret:NODE_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
@@ -51,7 +51,9 @@ rules:
   type: select
   filters:
   - type: DOMAIN
-    arg: '@secret:NODE_HOSTNAME'
+    arg: '@secret:JP_NODE_HOSTNAME'
+  - type: DOMAIN
+    arg: '@secret:HK_NODE_HOSTNAME'
   - type: DOMAIN-KEYWORD
     arg: v2clubnode
   - type: PROCESS-NAME
@@ -215,7 +217,7 @@ generates:
     fake-ip-filter:
     - '+.local'
     - localhost.ptlogin2.qq.com
-    - '@secret:NODE_HOSTNAME'
+    - '@secret:JP_NODE_HOSTNAME'
     # Otherwise MS apps and network manager will not operate properly.
     - dns.msftncsi.com
     - www.msftncsi.com
