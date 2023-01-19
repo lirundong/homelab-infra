@@ -46,6 +46,34 @@ proxies:
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
+- name: 🇭🇰「V2ray-WS」bwh-hk-01
+  type: vmess
+  server: '@secret:HK_NODE_HOSTNAME'
+  port: 443
+  uuid: '@secret:HK_V2RAY_WS_UUID'
+  alterId: 0
+  cipher: none
+  tls: true
+  skip-cert-verify: false
+  network: ws
+  ws-opts:
+    path: '@secret:HK_V2RAY_WS_PATH'
+    max-early-data: 2048
+    early-data-header-name: Sec-WebSocket-Protocol
+  udp: true
+- name: 🇭🇰「V2ray-gRPC」bwh-hk-01
+  type: vmess
+  server: '@secret:HK_NODE_HOSTNAME'
+  port: 443
+  uuid: '@secret:HK_V2RAY_GRPC_UUID'
+  alterId: 0
+  cipher: none
+  tls: true
+  skip-cert-verify: false
+  network: grpc
+  grpc-opts:
+    grpc-service-name: '@secret:HK_V2RAY_GRPC_PATH'
+  udp: true
 rules:
 - name: Guard
   type: select
