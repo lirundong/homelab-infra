@@ -1,14 +1,10 @@
-bash
 ca-bundle
 coreutils-timeout
 curl
-kmod-fs-vfat
-kmod-tun
-losetup
+kmod-nft-tproxy
 luci
-luci-app-nft-qos
+luci-app-sqm
 python3-cryptography
 python3-requests
 python3-yaml
 qemu-ga
-resize2fs

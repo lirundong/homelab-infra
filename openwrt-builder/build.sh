@@ -2,9 +2,9 @@
 set -ex
 
 TARGET=${TARGET:-'x86/64'}
-VERSION=${VERSION:-'21.02.2'}
+VERSION=${VERSION:-'22.03.3'}
 REPOSITORY=${REPOSITORY:-'https://mirrors.tuna.tsinghua.edu.cn/openwrt'}
-GCC_VERSION=${GCC_VERSION:-'8.4.0_musl'}
+GCC_VERSION=${GCC_VERSION:-'11.2.0_musl'}
 WORK_DIR=${WORK_DIR:-'/tmp/openwrt'}
 SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( cd -- "$( dirname -- "${SRC_DIR}" )" &> /dev/null && pwd )

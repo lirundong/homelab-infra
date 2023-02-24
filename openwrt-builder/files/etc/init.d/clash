@@ -5,50 +5,78 @@ START=99
 STOP=01
 
 start_service() {
-    local clash_root=/root/.config/clash
-    local clash_cfg=${clash_root}/config.yaml
+  local clash_root=/root/.config/clash
+  local clash_cfg=${clash_root}/config.yaml
 
-    procd_open_instance "clash-daemon"
-    procd_set_param command /usr/bin/clash -d ${clash_root}
-    procd_set_param file ${clash_cfg}
-    procd_set_param stdout 1
-    procd_set_param stderr 1
-    procd_set_param user root # Run as root to enable Redirect and TProxy binding.
-    procd_close_instance
+  procd_open_instance "clash-daemon"
+  procd_set_param command /usr/bin/clash -d ${clash_root}
+  procd_set_param file ${clash_cfg}
+  procd_set_param stdout 1
+  procd_set_param stderr 1
+  procd_set_param user root # Run as root to enable Redirect and TProxy binding.
+  procd_close_instance
 }
 
 reload_service() {
-    local clash_root=/root/.config/clash
-    local clash_cfg=${clash_root}/config.yaml
-    local clash_secret=@secret:CLASH_SECRET
+  local clash_root=/root/.config/clash
+  local clash_cfg=${clash_root}/config.yaml
+  local clash_secret=@secret:CLASH_SECRET
 
-    /usr/bin/curl -X PUT \
-        -H "Content-Type: application/json" \
-        -H "Authorization: Bearer ${clash_secret}" \
-        -d "{\"path\":\"${clash_cfg}\"}" \
-        http://127.0.0.1:9090/configs
+  curl -X PUT \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${clash_secret}" \
+    -d "{\"path\":\"${clash_cfg}\"}" \
+    http://127.0.0.1:9090/configs
 }
 
 service_started() {
-    # Handle TProxy traffic for IPv4 and IPv6.
-    local tproxy_mark=${TPROXY_MARK:-"0x01"}
-    local tproxy_table=${TPROXY_TABLE:-"100"}
-    /sbin/ip route replace local default dev lo table ${tproxy_table}
-    /sbin/ip rule add fwmark ${tproxy_mark} table ${tproxy_table}
-    /sbin/ip -6 route replace local default dev lo table ${tproxy_table}
-    /sbin/ip -6 rule add fwmark ${tproxy_mark} table ${tproxy_table}
-    # Setup other iptables rules.
-    /bin/bash /etc/setup_clash_tproxy.user
+  # Handle TProxy traffic for IPv4 and IPv6.
+  local tproxy_mark=${TPROXY_MARK:-"0x01"}
+  local tproxy_table=${TPROXY_TABLE:-"100"}
+  ip route replace local default dev lo table ${tproxy_table}
+  ip rule add fwmark ${tproxy_mark} table ${tproxy_table}
+  ip -6 route replace local default dev lo table ${tproxy_table}
+  ip -6 rule add fwmark ${tproxy_mark} table ${tproxy_table}
+
+  # Load TProxy and redirect rules into nftables.
+  local nft_tproxy=/etc/nftables.d/99-clash-tproxy.nft
+  if test -f ${nft_tproxy}.skip; then
+    mv ${nft_tproxy}.skip ${nft_tproxy}
+  fi
+  fw4 reload
+
+  # Add interface IP addresses into corresponding sets.
+  local interface_ipv4=$(ifconfig | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
+  local interface_ipv6=$(ifconfig | grep 'inet6 addr' | awk '{print $3}' 2>/dev/null)
+  for ipv4 in ${interface_ipv4}; do
+    if ! $(nft get element inet fw4 local_ipv4 { ${ipv4} } &> /dev/null); then
+      nft add element inet fw4 local_ipv4 { ${ipv4} }
+    fi
+  done
+  for ipv6 in ${interface_ipv6}; do
+    if ! $(nft get element inet fw4 local_ipv6 { ${ipv6} } &> /dev/null); then
+      nft add element inet fw4 local_ipv6 { ${ipv6} }
+    fi
+  done
 }
 
 service_stopped() {
-    # Cleanup TProxy routes and rules.
-    local tproxy_mark=${TPROXY_MARK:-"0x01"}
-    local tproxy_table=${TPROXY_TABLE:-"100"}
-    /sbin/ip rule delete fwmark ${tproxy_mark} table ${tproxy_table}
-    /sbin/ip route flush table ${tproxy_table}
-    /sbin/ip -6 rule delete fwmark ${tproxy_mark} table ${tproxy_table}
-    /sbin/ip -6 route flush table ${tproxy_table}
-    # Flush iptables rules.
-    /bin/bash /etc/flush_clash_tproxy.user
+  # Cleanup TProxy routes and rules.
+  local tproxy_mark=${TPROXY_MARK:-"0x01"}
+  local tproxy_table=${TPROXY_TABLE:-"100"}
+  ip rule delete fwmark ${tproxy_mark} table ${tproxy_table}
+  ip route flush table ${tproxy_table}
+  ip -6 rule delete fwmark ${tproxy_mark} table ${tproxy_table}
+  ip -6 route flush table ${tproxy_table}
+
+  # Flush TProxy and redirect rules from nftables.
+  local nft_tproxy=/etc/nftables.d/99-clash-tproxy.nft
+  if test -f ${nft_tproxy}; then
+    mv ${nft_tproxy} ${nft_tproxy}.skip
+  fi
+  fw4 reload
+
+  # Flush interface IP addresses from corresponding sets.
+  nft flush set inet fw4 local_ipv4
+  nft flush set inet fw4 local_ipv6
 }

@@ -30,6 +30,7 @@ set direct_macs {
 set local_ipv4 {
     type ipv4_addr
     flags interval
+    auto-merge
     elements = {
         0.0.0.0/8,
         10.0.0.0/8,
@@ -45,6 +46,7 @@ set local_ipv4 {
 set local_ipv6 {
     type ipv6_addr
     flags interval
+    auto-merge
     elements = {
         ::/128,
         ::1/128,
@@ -65,15 +67,14 @@ set local_ipv6 {
 chain mangle_prerouting_custom {
     type filter hook prerouting priority mangle - 1; policy accept;
     # 1. Do not touch direct-to-wan packets.
-    iifname $lan_devices ether saddr @direct_macs return
+    ether saddr @direct_macs return
     # 2. Mark and accept DNS packets, they will be redirted to Clash DNS port by NAT rules later.
     iifname $lan_devices udp dport 53 meta mark set $dns_mark return
     # 3. Bypass local connectons.
     ip daddr @local_ipv4 return
     ip6 daddr @local_ipv6 return
     # 4. Handle all remaining TCP and UDP packets by TProxy and route to lo later.
-    iifname $lan_devices ip protocol {tcp, udp} meta mark set $tproxy_mark tproxy ip to :$tproxy_port
-    iifname $lan_devices ip6 nexthdr {tcp, udp} meta mark set $tproxy_mark tproxy ip6 to :$tproxy_port
+    iifname $lan_devices meta l4proto {tcp, udp} meta mark set $tproxy_mark tproxy to :$tproxy_port
 }
 
 chain dstnat_lan_custom {

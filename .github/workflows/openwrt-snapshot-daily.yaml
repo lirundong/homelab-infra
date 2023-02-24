@@ -16,7 +16,7 @@ jobs:
         TARGET: x86/64
         VERSION: 'snapshots'
         REPOSITORY: https://downloads.openwrt.org
-        GCC_VERSION: 11.3.0_musl
+        GCC_VERSION: 12.2.0_musl
       run: |
         pip3 install --user --upgrade cryptography requests pyyaml pytz
         bash openwrt-builder/build.sh
