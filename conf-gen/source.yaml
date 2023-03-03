@@ -6,7 +6,8 @@ subscriptions:
 proxies:
 - name: 🇯🇵「V2ray-WS」bwh-jp-01
   type: vmess
-  server: '@secret:JP_NODE_HOSTNAME'
+  server: '@secret:JP_NODE_IPV4'
+  servername: '@secret:JP_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:NODE_V2RAY_UUID'
   alterId: 0
@@ -21,7 +22,8 @@ proxies:
   udp: true
 - name: 🇯🇵「V2ray-gRPC」bwh-jp-01
   type: vmess
-  server: '@secret:JP_NODE_HOSTNAME'
+  server: '@secret:JP_NODE_IPV4'
+  servername: '@secret:JP_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:NODE_V2RAY_GRPC_UUID'
   alterId: 0
@@ -34,21 +36,22 @@ proxies:
   udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
-  server: '@secret:JP_NODE_HOSTNAME'
+  server: '@secret:JP_NODE_IPV4'
   port: '@secret:NODE_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:NODE_SS_AES_PASSWORD'
   udp: true
 - name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
   type: ss
-  server: '@secret:JP_NODE_HOSTNAME'
+  server: '@secret:JP_NODE_IPV4'
   port: '@secret:NODE_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
 - name: 🇭🇰「V2ray-WS」bwh-hk-01
   type: vmess
-  server: '@secret:HK_NODE_HOSTNAME'
+  server: '@secret:HK_NODE_IPV4'
+  servername: '@secret:HK_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:HK_V2RAY_WS_UUID'
   alterId: 0
@@ -63,7 +66,8 @@ proxies:
   udp: true
 - name: 🇭🇰「V2ray-gRPC」bwh-hk-01
   type: vmess
-  server: '@secret:HK_NODE_HOSTNAME'
+  server: '@secret:HK_NODE_IPV4'
+  servername: '@secret:HK_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:HK_V2RAY_GRPC_UUID'
   alterId: 0
