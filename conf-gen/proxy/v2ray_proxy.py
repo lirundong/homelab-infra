@@ -4,8 +4,9 @@ from proxy._base_proxy import ProxyBase
 
 
 class VMessProxy(ProxyBase):
-    def __init__(self, name, server, port, uuid, alter_id, cipher, udp=False):
+    def __init__(self, name, server, port, servername, uuid, alter_id, cipher, udp=False):
         super().__init__(name, server, port)
+        self.servername = servername
         self.uuid = uuid
         self.alter_id = alter_id
         self.cipher = cipher
@@ -19,6 +20,7 @@ class VMessProxy(ProxyBase):
             "name": self.name,
             "port": self.port,
             "server": self.server,
+            "servername": self.servername,
             "type": "vmess",
             "udp": self.udp,
             "uuid": self.uuid,
@@ -58,6 +60,7 @@ class VMessWebSocketProxy(VMessProxy):
         name,
         server,
         port,
+        servername,
         uuid,
         alter_id,
         cipher,
@@ -67,7 +70,7 @@ class VMessWebSocketProxy(VMessProxy):
         tls_version=1.2,
         **ws_options,
     ):
-        super().__init__(name, server, port, uuid, alter_id, cipher, udp=udp)
+        super().__init__(name, server, port, servername, uuid, alter_id, cipher, udp=udp)
         self.tls = tls
         self.skip_cert_verify = skip_cert_verify
         self.tls_version = tls_version
@@ -107,6 +110,7 @@ class VMessWebSocketProxy(VMessProxy):
                 f"{self.udp}".lower(),
             ),
             ("obfs", "wss"),
+            ("obfs-host", f"{self.servername}"),
             ("obfs-uri", f"{self.ws_options['path']}"),
             ("tls-verification", f"{not self.skip_cert_verify}".lower()),
             ("tls13", f"{self.tls_version >= 1.3}".lower()),
@@ -124,6 +128,7 @@ class VMessGRPCProxy(VMessProxy):
         name,
         server,
         port,
+        servername,
         uuid,
         alter_id,
         cipher,
@@ -134,7 +139,7 @@ class VMessGRPCProxy(VMessProxy):
         server_name=None,
         **grpc_options,
     ):
-        super().__init__(name, server, port, uuid, alter_id, cipher, udp=udp)
+        super().__init__(name, server, port, servername, uuid, alter_id, cipher, udp=udp)
         self.tls = tls
         self.skip_cert_verify = skip_cert_verify
         self.tls_version = tls_version
