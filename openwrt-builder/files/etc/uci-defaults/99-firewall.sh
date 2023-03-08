@@ -9,12 +9,12 @@ uci add_list firewall.$rule_id.proto='tcp'
 uci add_list firewall.$rule_id.proto='udp'
 uci set firewall.$rule_id.target='ACCEPT'
 
-# Allow qBittorrent forwarding from WAN to synonas via IPv6.
+# Allow qBittorrent forwarding from WAN to synonas and truenas via IPv6.
 rule_id=$(uci add firewall rule)
 uci set firewall.$rule_id.name='Allow-qBitTorrent-WAN-LAN'
 uci set firewall.$rule_id.src='wan'
 uci set firewall.$rule_id.dest='lan'
-uci set firewall.$rule_id.dest_port='11080:11081'
+uci set firewall.$rule_id.dest_port='11080:11083'
 uci add_list firewall.$rule_id.proto='tcp'
 uci add_list firewall.$rule_id.proto='udp'
 uci set firewall.$rule_id.family='ipv6'
@@ -87,6 +87,19 @@ uci set firewall.$rule_id.src_dport='32400'
 uci set firewall.$rule_id.dest='lan'
 uci set firewall.$rule_id.dest_ip='192.168.50.6'
 uci set firewall.$rule_id.dest_port='32400'
+uci add_list firewall.$rule_id.proto='tcp'
+uci add_list firewall.$rule_id.proto='udp'
+uci set firewall.$rule_id.family='ipv4'
+uci set firewall.$rule_id.target='DNAT'
+
+# Forward truenas qBittorrent.
+rule_id=$(uci add firewall redirect)
+uci set firewall.$rule_id.name='DNAT-qBitTorrent@truenas-WAN-LAN'
+uci set firewall.$rule_id.src='wan'
+uci set firewall.$rule_id.src_dport='11082:11083'
+uci set firewall.$rule_id.dest='lan'
+uci set firewall.$rule_id.dest_ip='192.168.50.5'
+uci set firewall.$rule_id.dest_port='11082:11083'
 uci add_list firewall.$rule_id.proto='tcp'
 uci add_list firewall.$rule_id.proto='udp'
 uci set firewall.$rule_id.family='ipv4'
