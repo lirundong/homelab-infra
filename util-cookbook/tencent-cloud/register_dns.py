@@ -7,17 +7,18 @@ import copy
 from datetime import datetime, timezone
 import hashlib
 import hmac
+import ipaddress as ip
 import json
 import os
 from pathlib import Path
 from pprint import pprint
 import sys
-from typing import Dict, Tuple, List
-import warnings
+from typing import Dict, List, Optional
 
 # TODO: Remove this path hack.
 sys.path.insert(0, str(Path(os.path.realpath(__file__)).parents[2]))
 
+import netifaces as ni
 import requests
 
 from common import secrets
@@ -49,18 +50,27 @@ QCLOUD_DNS_API = {
 }
 
 
-def get_public_ip_addresses(method: str = "ipify") -> Tuple[str, str]:
-    if method == "ipify":
-        ipv4 = requests.get("https://api.ipify.org").text
-        try:
-            ipv6 = requests.get("https://api6.ipify.org").text
-        except requests.ConnectionError as e:
-            warnings.warn(f"Seems that we don't have IPv6 addresses: {e}")
-            ipv6 = None
-    else:
-        raise ValueError(f"Unsupported method: {method}")
+def get_public_ip_addresses(method: str = "ipify", type: str = "A", **kwargs) -> str:
+    if method not in ("ipify", "netifaces"):
+        raise ValueError(f"Invalid IP acquisition method {method}")
+    if type not in ("A", "AAAA"):
+        raise ValueError(f"Invalid target IP type {type}")
 
-    return ipv4, ipv6
+    if method == "ipify":
+        url = "https://api6.ipify.org" if type == "AAAA" else "https://api.ipify.org"
+        try:
+            ip_addr = requests.get(url).text
+        except requests.ConnectionError as e:
+            raise RuntimeError(f"Seems that we don't have {type} addresses: {e}") from e
+    elif method == "netifaces":
+        itype = ni.AF_INET6 if type == "AAAA" else ni.AF_INET
+        for ip_addr in ni.ifaddresses(kwargs["interface"])[itype]:
+            ip_addr = ip.ip_address(ip_addr["addr"])
+            if ip_addr.is_global:
+                ip_addr = str(ip_addr)
+                break
+
+    return ip_addr
 
 
 def normalize_dict(src: Dict) -> Dict:
@@ -207,11 +217,14 @@ def get_qcloud_subdomain_record(domain: str, subdomain: str) -> List[Dict[str, s
 def update_qcloud_subdomain_record(
     domain: str,
     subdomain: str,
-    get_ip_method: str = "ipify",
+    get_ipv4_method: str = "ipify",
+    get_ipv6_method: str = "netifaces",
+    interface: Optional[str] = None,
     dry_run: bool = False,
 ):
     current_records = get_qcloud_subdomain_record(domain, subdomain)
-    ipv4, ipv6 = get_public_ip_addresses(get_ip_method)
+    ipv4 = get_public_ip_addresses(get_ipv4_method, type="A", interface=interface)
+    ipv6 = get_public_ip_addresses(get_ipv6_method, type="AAAA", interface=interface)
 
     updating_records = []
     for record in current_records:
@@ -260,7 +273,10 @@ if __name__ == "__main__":
     parser.add_argument("--domain", "-d", help="Domain to be updated.")
     parser.add_argument("--sub-domain", "-s", help="Sub-domain to be updated.")
     parser.add_argument(
-        "--get-ip-method", default="ipify", help="Method to get host public IP addresses."
+        "--get-ipv4-method", default="ipify", help="Method to get host public IPv4 addresses."
+    )
+    parser.add_argument(
+        "--get-ipv6-method", default="netifaces", help="Method to get host public IPv6 addresses."
     )
     parser.add_argument(
         "--dry-run",
@@ -268,11 +284,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Print modifications and don't actually perform them.",
     )
+    parser.add_argument("--interface", "-i", help="Network interface name to get IP addresses from")
     args = parser.parse_args()
 
     update_qcloud_subdomain_record(
-        args.domain,
-        args.sub_domain,
-        args.get_ip_method,
-        args.dry_run,
+        domain=args.domain,
+        subdomain=args.sub_domain,
+        get_ipv4_method=args.get_ipv4_method,
+        get_ipv6_method=args.get_ipv6_method,
+        interface=args.interface,
+        dry_run=args.dry_run,
     )

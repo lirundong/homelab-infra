@@ -30,9 +30,9 @@ uci set firewall.$rule_id.proto='tcp'
 uci set firewall.$rule_id.family='ipv6'
 uci set firewall.$rule_id.target='ACCEPT'
 
-# Allow Plex forward from WAN to synonas via IPv6.
+# Allow Plex forward from WAN to plex-gpu via IPv6.
 rule_id=$(uci add firewall rule)
-uci set firewall.$rule_id.name='Allow-Plex@synonas-WAN-LAN'
+uci set firewall.$rule_id.name='Allow-Plex@plex-gpu-WAN-LAN'
 uci set firewall.$rule_id.src='wan'
 uci set firewall.$rule_id.dest='lan'
 uci set firewall.$rule_id.dest_port='32400'
@@ -79,13 +79,13 @@ uci set firewall.$rule_id.proto='tcp'
 uci set firewall.$rule_id.family='ipv4'
 uci set firewall.$rule_id.target='DNAT'
 
-# Forward synonas Plex.
+# Forward plex-gpu.
 rule_id=$(uci add firewall redirect)
-uci set firewall.$rule_id.name='DNAT-Plex@synonas-WAN-LAN'
+uci set firewall.$rule_id.name='DNAT-Plex@plex-gpu-WAN-LAN'
 uci set firewall.$rule_id.src='wan'
 uci set firewall.$rule_id.src_dport='32400'
 uci set firewall.$rule_id.dest='lan'
-uci set firewall.$rule_id.dest_ip='192.168.50.6'
+uci set firewall.$rule_id.dest_ip='192.168.50.10'
 uci set firewall.$rule_id.dest_port='32400'
 uci add_list firewall.$rule_id.proto='tcp'
 uci add_list firewall.$rule_id.proto='udp'
