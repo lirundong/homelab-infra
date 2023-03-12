@@ -102,6 +102,8 @@ rules:
     arg: '@secret:HK_NODE_HOSTNAME'
   - type: DOMAIN-KEYWORD
     arg: v2clubnode
+  - type: DOMAIN-SUFFIX
+    arg: ipify.org
   - type: PROCESS-NAME
     arg: qBittorrent
   - type: quantumult
