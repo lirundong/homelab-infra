@@ -3,7 +3,6 @@ coreutils-timeout
 curl
 kmod-nft-tproxy
 luci
-luci-app-sqm
 python3-cryptography
 python3-netifaces
 python3-requests
