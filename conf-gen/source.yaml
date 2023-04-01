@@ -54,7 +54,7 @@ proxies:
   port: 443
   password: '@secret:JP_NODE_TROJAN_PASSWORD'
   udp: true
-  sni: '@secret:JP_NODE_HOSTNAME'
+  sni: '@secret:JP_NODE_TROJAN_HOSTNAME'
   alpn:
   - http/1.1
   skip-cert-verify: false
