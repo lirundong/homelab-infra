@@ -48,6 +48,16 @@ proxies:
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
+- name: 🇯🇵「Trojan」bwh-jp-01
+  type: trojan
+  server: '@secret:JP_NODE_IPV4'
+  port: 443
+  password: '@secret:JP_NODE_TROJAN_PASSWORD'
+  udp: true
+  sni: '@secret:JP_NODE_HOSTNAME'
+  alpn:
+  - http/1.1
+  skip-cert-verify: false
 - name: 🇭🇰「V2ray-WS」bwh-hk-01
   type: vmess
   server: '@secret:HK_NODE_IPV4'
