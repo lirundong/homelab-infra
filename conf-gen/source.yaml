@@ -6,7 +6,7 @@ subscriptions:
 proxies:
 - name: 🇯🇵「V2ray-WS」bwh-jp-01
   type: vmess
-  server: '@secret:JP_NODE_IPV4'
+  server: '@secret:JP_NODE_IPV6'
   servername: '@secret:JP_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:NODE_V2RAY_UUID'
@@ -22,7 +22,7 @@ proxies:
   udp: true
 - name: 🇯🇵「V2ray-gRPC」bwh-jp-01
   type: vmess
-  server: '@secret:JP_NODE_IPV4'
+  server: '@secret:JP_NODE_IPV6'
   servername: '@secret:JP_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:NODE_V2RAY_GRPC_UUID'
@@ -36,21 +36,21 @@ proxies:
   udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
-  server: '@secret:JP_NODE_IPV4'
+  server: '@secret:JP_NODE_IPV6'
   port: '@secret:NODE_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:NODE_SS_AES_PASSWORD'
   udp: true
 - name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
   type: ss
-  server: '@secret:JP_NODE_IPV4'
+  server: '@secret:JP_NODE_IPV6'
   port: '@secret:NODE_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
 - name: 🇯🇵「Trojan」bwh-jp-01
   type: trojan
-  server: '@secret:JP_NODE_IPV4'
+  server: '@secret:JP_NODE_IPV6'
   port: 443
   password: '@secret:JP_NODE_TROJAN_PASSWORD'
   udp: true
@@ -60,7 +60,7 @@ proxies:
   skip-cert-verify: false
 - name: 🇭🇰「V2ray-WS」bwh-hk-01
   type: vmess
-  server: '@secret:HK_NODE_IPV4'
+  server: '@secret:HK_NODE_IPV6'
   servername: '@secret:HK_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:HK_V2RAY_WS_UUID'
@@ -76,7 +76,7 @@ proxies:
   udp: true
 - name: 🇭🇰「V2ray-gRPC」bwh-hk-01
   type: vmess
-  server: '@secret:HK_NODE_IPV4'
+  server: '@secret:HK_NODE_IPV6'
   servername: '@secret:HK_NODE_HOSTNAME'
   port: 443
   uuid: '@secret:HK_V2RAY_GRPC_UUID'
@@ -90,14 +90,14 @@ proxies:
   udp: true
 - name: 🇭🇰「SS-AES」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV4'
+  server: '@secret:HK_NODE_IPV6'
   port: '@secret:HK_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:HK_SS_AES_PASSWORD'
   udp: true
 - name:  🇭🇰「SS-ChaCha」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV4'
+  server: '@secret:HK_NODE_IPV6'
   port: '@secret:HK_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:HK_SS_CHACHA_PASSWORD'

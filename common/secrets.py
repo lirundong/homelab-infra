@@ -1,9 +1,10 @@
 import base64
 import os
+from pprint import pprint
 from pydoc import locate
 import re
 import sys
-from typing import Any, Iterable, Mapping
+from typing import Any, Dict, Iterable, Mapping
 from warnings import warn
 
 from cryptography.fernet import Fernet
@@ -25,7 +26,7 @@ class _SecretsManager:
 
         self._password = str(os.environ["PASSWORD"])
         self._salt = str(os.environ.get("SALT", "19260817"))
-        self._encrypted_secrets = yaml.load(
+        self._encrypted_secrets: Dict[str, str] = yaml.load(
             open(self._secrets_file, "r", encoding="utf-8"), Loader=yaml.SafeLoader
         )
 
@@ -39,6 +40,7 @@ class _SecretsManager:
         )
         key = base64.urlsafe_b64encode(kdf.derive(master_password))
         self._fernet = Fernet(key)
+        self._staged_changes = dict()
 
     @property
     def fernet(self):
@@ -58,6 +60,26 @@ class _SecretsManager:
             raise AttributeError(
                 f"{name} was neither registered as a secret in {self._secrets_file} nor an environment variable."
             )
+
+    def update(self, key: str, value: str):
+        if not isinstance(value, str):
+            raise ValueError(f"Credential values should be str, but got {type(value)} instead.")
+        value = self._fernet.encrypt(value.encode("utf-8")).decode("ascii")
+        self._staged_changes[key] = value
+
+    def status(self):
+        if self._staged_changes:
+            print(f"These credential changes will be written into {self._secrets_file}:")
+            pprint(self._staged_changes)
+
+    def commit(self):
+        self._encrypted_secrets.update(self._staged_changes)
+        print(f"These credentials have been changed:")
+        pprint(list(self._staged_changes.keys()))
+        self._staged_changes.clear()
+        with open(self._secrets_file, "w", encoding="utf-8") as f:
+            yaml.dump(self._encrypted_secrets, f, Dumper=yaml.SafeDumper)
+        print(f"Changes have been written into {self._secrets_file}")
 
     def _expand_secret(self, match_obj: re.Match) -> str:
         secret_key = match_obj.group(1)
