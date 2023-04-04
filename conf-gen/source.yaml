@@ -276,6 +276,7 @@ generates:
     - '+.local'
     - localhost.ptlogin2.qq.com
     - '@secret:JP_NODE_HOSTNAME'
+    - '@secret:HK_NODE_HOSTNAME'
     # Otherwise MS apps and network manager will not operate properly.
     - dns.msftncsi.com
     - www.msftncsi.com
