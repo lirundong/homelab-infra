@@ -4,100 +4,30 @@ subscriptions:
   type: clash
   url: '@secret:SUBSCRIPTION_URL'
 proxies:
-- name: 🇯🇵「V2ray-WS」bwh-jp-01
-  type: vmess
-  server: '@secret:JP_NODE_IPV6'
-  servername: '@secret:JP_NODE_HOSTNAME'
-  port: 443
-  uuid: '@secret:NODE_V2RAY_UUID'
-  alterId: 0
-  cipher: none
-  tls: true
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: '@secret:NODE_V2RAY_WS_PATH'
-    max-early-data: 2048
-    early-data-header-name: Sec-WebSocket-Protocol
-  udp: true
-- name: 🇯🇵「V2ray-gRPC」bwh-jp-01
-  type: vmess
-  server: '@secret:JP_NODE_IPV6'
-  servername: '@secret:JP_NODE_HOSTNAME'
-  port: 443
-  uuid: '@secret:NODE_V2RAY_GRPC_UUID'
-  alterId: 0
-  cipher: none
-  tls: true
-  skip-cert-verify: false
-  network: grpc
-  grpc-opts:
-    grpc-service-name: '@secret:NODE_V2RAY_GRPC_PATH'
-  udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
-  server: '@secret:JP_NODE_IPV6'
+  server: '@secret:JP_NODE_IPV4'
   port: '@secret:NODE_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:NODE_SS_AES_PASSWORD'
   udp: true
 - name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
   type: ss
-  server: '@secret:JP_NODE_IPV6'
+  server: '@secret:JP_NODE_IPV4'
   port: '@secret:NODE_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
-- name: 🇯🇵「Trojan」bwh-jp-01
-  type: trojan
-  server: '@secret:JP_NODE_IPV6'
-  port: 443
-  password: '@secret:JP_NODE_TROJAN_PASSWORD'
-  udp: true
-  sni: '@secret:JP_NODE_TROJAN_HOSTNAME'
-  alpn:
-  - http/1.1
-  skip-cert-verify: false
-- name: 🇭🇰「V2ray-WS」bwh-hk-01
-  type: vmess
-  server: '@secret:HK_NODE_IPV6'
-  servername: '@secret:HK_NODE_HOSTNAME'
-  port: 443
-  uuid: '@secret:HK_V2RAY_WS_UUID'
-  alterId: 0
-  cipher: none
-  tls: true
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: '@secret:HK_V2RAY_WS_PATH'
-    max-early-data: 2048
-    early-data-header-name: Sec-WebSocket-Protocol
-  udp: true
-- name: 🇭🇰「V2ray-gRPC」bwh-hk-01
-  type: vmess
-  server: '@secret:HK_NODE_IPV6'
-  servername: '@secret:HK_NODE_HOSTNAME'
-  port: 443
-  uuid: '@secret:HK_V2RAY_GRPC_UUID'
-  alterId: 0
-  cipher: none
-  tls: true
-  skip-cert-verify: false
-  network: grpc
-  grpc-opts:
-    grpc-service-name: '@secret:HK_V2RAY_GRPC_PATH'
-  udp: true
 - name: 🇭🇰「SS-AES」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV6'
+  server: '@secret:HK_NODE_IPV4'
   port: '@secret:HK_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:HK_SS_AES_PASSWORD'
   udp: true
 - name:  🇭🇰「SS-ChaCha」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV6'
+  server: '@secret:HK_NODE_IPV4'
   port: '@secret:HK_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:HK_SS_CHACHA_PASSWORD'
@@ -110,8 +40,6 @@ rules:
     arg: '@secret:JP_NODE_HOSTNAME'
   - type: DOMAIN
     arg: '@secret:HK_NODE_HOSTNAME'
-  - type: DOMAIN-KEYWORD
-    arg: v2clubnode
   - type: DOMAIN-SUFFIX
     arg: ipify.org
   - type: PROCESS-NAME
