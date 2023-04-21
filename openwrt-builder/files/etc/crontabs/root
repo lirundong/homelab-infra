@@ -1,2 +1,2 @@
 30 0 * * * /usr/bin/curl -sSL https://@secret:JP_NODE_HOSTNAME/conf/clash-daemon.yaml -o /root/.config/clash/config.yaml && /etc/init.d/clash reload
-*/15 * * * * PASSWORD="@secret:MASTER_PASSWORD" /usr/bin/timeout -k 3m 1m /usr/bin/python3 /root/util-cookbook/tencent-cloud/register_dns.py -d @secret:DOMAIN -s @secret:DDNS_HOSTNAME -i pppoe-wan
+*/15 * * * * PASSWORD="@secret:MASTER_PASSWORD" /usr/bin/timeout -k 3m 1m /usr/bin/python3 /root/util-cookbook/tencent-cloud/register_dns.py -d @secret:DOMAIN -s @secret:DDNS_HOSTNAME -i pppoe-wan --get-ipv4-method taobao --get-ipv6-method ifaddr

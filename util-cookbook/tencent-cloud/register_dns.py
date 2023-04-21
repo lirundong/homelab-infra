@@ -12,14 +12,16 @@ import json
 import os
 from pathlib import Path
 from pprint import pprint
+import socket
 import sys
+import re
 from typing import Dict, List, Optional
 
 # TODO: Remove this path hack.
 sys.path.insert(0, str(Path(os.path.realpath(__file__)).parents[2]))
 
-import netifaces as ni
 import requests
+import requests.packages.urllib3.util.connection as urllib3_cn
 
 from common import secrets
 
@@ -51,7 +53,7 @@ QCLOUD_DNS_API = {
 
 
 def get_public_ip_addresses(method: str = "ipify", type: str = "A", **kwargs) -> str:
-    if method not in ("ipify", "netifaces"):
+    if method not in ("ipify", "taobao", "netifaces", "ifaddr"):
         raise ValueError(f"Invalid IP acquisition method {method}")
     if type not in ("A", "AAAA"):
         raise ValueError(f"Invalid target IP type {type}")
@@ -62,13 +64,54 @@ def get_public_ip_addresses(method: str = "ipify", type: str = "A", **kwargs) ->
             ip_addr = requests.get(url).text
         except requests.ConnectionError as e:
             raise RuntimeError(f"Seems that we don't have {type} addresses: {e}") from e
+    elif method == "taobao":
+        # Taobao API accept both IPv4 and IPv6 calls, thus need patch requests to set preference.
+        # https://stackoverflow.com/a/46972341
+        def _allowed_gai_family():
+            """
+            https://github.com/shazow/urllib3/blob/master/urllib3/util/connection.py
+            """
+            if urllib3_cn.HAS_IPV6 and type == "AAAA":
+                family = socket.AF_INET6  # force ipv6 only if it is available
+            else:
+                family = socket.AF_INET
+            return family
+
+        urllib3_cn.allowed_gai_family = _allowed_gai_family
+        try:
+            ret = requests.get("https://www.taobao.com/help/getip.php").text
+            pattern = re.compile(r"ipCallback\({ip:\"(.*)\"}\)")
+            ip_addr = pattern.search(ret).group(1)
+        except requests.ConnectionError as e:
+            raise RuntimeError(f"Seems that we don't have {type} addresses: {e}") from e
     elif method == "netifaces":
+        import netifaces as ni
+
         itype = ni.AF_INET6 if type == "AAAA" else ni.AF_INET
         for ip_addr in ni.ifaddresses(kwargs["interface"])[itype]:
             ip_addr = ip.ip_address(ip_addr["addr"])
             if ip_addr.is_global:
                 ip_addr = str(ip_addr)
                 break
+    elif method == "ifaddr":
+        import ifaddr
+
+        ip_addr = None
+        for adapter in ifaddr.get_adapters():
+            if adapter.name == kwargs["interface"] or adapter.nice_name == kwargs["interface"]:
+                for adapter_ip in adapter.ips:
+                    if type == "AAAA" and adapter_ip.is_IPv6:
+                        ip_addr_obj = ip.ip_address(adapter_ip.ip[0])
+                        if ip_addr_obj.is_global:
+                            ip_addr = str(ip_addr_obj)
+                            break
+                    elif type == "A" and adapter_ip.is_IPv4:
+                        ip_addr_obj = ip.ip_address(adapter_ip.ip)
+                        if ip_addr_obj.is_global:
+                            ip_addr = str(ip_addr_obj)
+                            break
+        if ip_addr is None:
+            raise RuntimeError(f"Cannot find {type} address with ifaddr")
 
     return ip_addr
 
