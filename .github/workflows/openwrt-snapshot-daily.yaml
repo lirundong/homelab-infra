@@ -18,7 +18,7 @@ jobs:
         REPOSITORY: https://downloads.openwrt.org
         GCC_VERSION: 12.2.0_musl
       run: |
-        pip3 install --user --upgrade cryptography requests pyyaml pytz
+        pip3 install --user --upgrade cryptography emoji pycountry pytz pyyaml requests
         bash openwrt-builder/build.sh
         cp -r /tmp/openwrt/openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts
         for f in $(find artifacts -iname '*.gz'); do

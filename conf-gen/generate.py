@@ -15,7 +15,7 @@ import yaml
 from common import secrets
 from generator import generate_conf
 from proxy import parse_clash_proxies, parse_subscriptions
-from proxy_group import parse_proxy_groups
+from proxy_group import parse_proxy_groups, merge_proxy_by_region
 from rewrite import parse_rewrites
 
 
@@ -31,7 +31,16 @@ if __name__ == "__main__":
 
     proxies = parse_clash_proxies(src_conf["proxies"])
     proxies += parse_subscriptions(src_conf["subscriptions"])
-    proxy_groups = parse_proxy_groups(src_conf["rules"], available_proxies=proxies)
+    per_region_proxies = merge_proxy_by_region(proxies, src_conf["global"]["proxy_check_url"])
+    proxy_groups = parse_proxy_groups(src_conf["rules"], available_proxies=per_region_proxies)
     rewrites = parse_rewrites(src_conf["rewrites"])
 
-    generate_conf(src_conf["generates"], src_file, args.dst, proxies, proxy_groups, rewrites)
+    generate_conf(
+        generate_info=src_conf["generates"],
+        src=src_file,
+        dst=args.dst,
+        proxies=proxies,
+        per_region_proxies=per_region_proxies,
+        proxy_groups=proxy_groups,
+        rewrites=rewrites,
+    )

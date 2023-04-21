@@ -24,10 +24,12 @@ class ClashGenerator(GeneratorBase):
         VMessWebSocketProxy,
     )
 
-    def __init__(self, src_file, proxies, proxy_groups, **general_options):
+    def __init__(self, src_file, proxies, per_region_proxies, proxy_groups, **general_options):
         # Construct special group `PROXY` for clash.
         proxy_groups = copy(proxy_groups)
-        the_proxy_proxy_group = SelectProxyGroup(name="PROXY", filters=None, proxies=proxies)
+        the_proxy_proxy_group = SelectProxyGroup(
+            name="PROXY", filters=None, proxies=per_region_proxies
+        )
         proxy_groups.insert(0, the_proxy_proxy_group)
         super().__init__(src_file, proxies, proxy_groups)
         self._general_options = general_options

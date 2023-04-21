@@ -1,11 +1,19 @@
 import re
+from typing import Dict, Optional, List, Union
 
-from proxy import ProxyBase
-from rule import parse_filter
+from proxy import ProxyBase, ProxyT
+from rule import FilterT, parse_filter
 
 
 class ProxyGroupBase:
-    def __init__(self, name, filters, proxies, img_url=None, available_proxies=None):
+    def __init__(
+        self,
+        name: str,
+        filters: Optional[List[FilterT]],
+        proxies: List[Union[ProxyT, "ProxyGroupBase"]],
+        img_url: Optional[str] = None,
+        available_proxies: Optional[List[ProxyT]] = None,
+    ):
         self.name = name
         self.img_url = img_url
         self._filters = []
@@ -19,22 +27,26 @@ class ProxyGroupBase:
         for proxy in proxies:
             if isinstance(proxy, str):
                 self._proxies.append(proxy)
-            elif isinstance(proxy, ProxyBase):
+            elif isinstance(proxy, (ProxyBase, ProxyGroupBase)):
                 self._proxies.append(proxy.name)
             elif isinstance(proxy, dict) and proxy["type"] == "regex":
                 if available_proxies is None:
                     raise ValueError("Must provide non-empty proxy list to use proxy regex.")
                 pattern = proxy["pattern"]
                 for available_proxy in available_proxies:
-                    if re.search(pattern, available_proxy.name):
+                    if isinstance(available_proxy, ProxyBase) and re.search(
+                        pattern, available_proxy.name
+                    ):
                         self._proxies.append(available_proxy.name)
+                    elif isinstance(available_proxy, str) and re.search(pattern, available_proxy):
+                        self._proxies.append(available_proxy)
 
     @property
-    def quantumult_policy(self):
+    def quantumult_policy(self) -> str:
         raise NotImplementedError()
 
     @property
-    def quantumult_filters(self):
+    def quantumult_filters(self) -> List[str]:
         filters = []
         for filter in self._filters:
             try:
@@ -48,11 +60,11 @@ class ProxyGroupBase:
         return filters
 
     @property
-    def clash_proxy_group(self):
+    def clash_proxy_group(self) -> Dict[str, Union[str, List[str], int]]:
         raise NotImplementedError()
 
     @property
-    def clash_rules(self):
+    def clash_rules(self) -> List[str]:
         ret = []
         for filter in self._filters:
             try:

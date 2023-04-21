@@ -1,3 +1,4 @@
+from copy import copy
 import os
 
 from generator._base_generator import GeneratorBase
@@ -7,6 +8,7 @@ from proxy import (
     VMessProxy,
     VMessWebSocketProxy,
 )
+from proxy_group.selective_proxy_group import SelectProxyGroup
 
 
 class QuantumultGenerator(GeneratorBase):
@@ -32,10 +34,26 @@ class QuantumultGenerator(GeneratorBase):
         VMessWebSocketProxy,
     )
 
-    def __init__(self, src_file, proxies, proxy_groups, rewrites, **additional_sections):
+    def __init__(
+        self, src_file, proxies, per_region_proxies, proxy_groups, rewrites, **additional_sections
+    ):
+        # Quantumult-X has a built-in "PROXY" selective group that contains all servers, thus we
+        # have to create another selective proxy group to contain per-region auto-fallback servers,
+        # then rewrite "PROXY" in rules with this group's name.
+        proxy_groups = copy(proxy_groups)
+        the_per_region_proxy_group = SelectProxyGroup(
+            name="PROXY-PER-REGION", filters=None, proxies=per_region_proxies
+        )
+        proxy_groups.insert(0, the_per_region_proxy_group)
+
         super().__init__(src_file, proxies, proxy_groups)
         self._rewrites = rewrites
         self._additional_sections = additional_sections
+        for group in self._proxy_groups:
+            # Replace the default "PROXY" name. The `group` has been copied in __init__.
+            for i, p in enumerate(group._proxies):
+                if isinstance(p, str) and p == "PROXY":
+                    group._proxies[i] = the_per_region_proxy_group.name
 
     @staticmethod
     def parse_tasks(tasks_info):

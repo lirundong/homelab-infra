@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: setup-dependencies
       run: |
-        pip3 install --user --upgrade cryptography requests pyyaml pytz
+        pip3 install --user --upgrade cryptography emoji pycountry pytz pyyaml requests
     - name: build-openwrt-21-02
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}

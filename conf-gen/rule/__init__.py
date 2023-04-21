@@ -1,3 +1,10 @@
+from typing import Dict
+
 from .parser import parse_filter
 
-__all__ = ("parse_filter",)
+FilterT = Dict[str, str]
+
+__all__ = (
+    "FilterT",
+    "parse_filter",
+)

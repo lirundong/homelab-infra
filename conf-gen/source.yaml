@@ -1,4 +1,6 @@
 # Source configuration that generates Clash and Quantumult X configs.
+global:
+  proxy_check_url: &proxy-check-url https://www.google.com/generate_204
 subscriptions:
 - name: WestData Cloud
   type: clash
@@ -252,7 +254,7 @@ generates:
     geo_location_checker:
     - http://ip-api.com/json/?lang=zh-CN
     - https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/IP_API.js
-    server_check_url: http://cp.cloudflare.com/generate_204
+    server_check_url: *proxy-check-url
     ssid_suspended_list:
     - Rundong's AP
     - Rundong's AP 5GHz
