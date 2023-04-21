@@ -74,9 +74,9 @@ rules:
     arg: onetrust.com
   img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Netflix.png
   proxies:
-  - Outside
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
+  - Outside
 - name: Telegram
   type: select
   filters:

@@ -17,7 +17,6 @@ class SelectProxyGroup(ProxyGroupBase):
         super().__init__(
             name, filters, proxies, img_url=img_url, available_proxies=available_proxies
         )
-        self._proxies = sorted(self._proxies)
 
     @property
     def quantumult_policy(self) -> str:

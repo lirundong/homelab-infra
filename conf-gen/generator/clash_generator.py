@@ -27,10 +27,11 @@ class ClashGenerator(GeneratorBase):
     def __init__(self, src_file, proxies, per_region_proxies, proxy_groups, **general_options):
         # Construct special group `PROXY` for clash.
         proxy_groups = copy(proxy_groups)
-        the_proxy_proxy_group = SelectProxyGroup(
+        the_per_region_proxy_group = SelectProxyGroup(
             name="PROXY", filters=None, proxies=per_region_proxies
         )
-        proxy_groups.insert(0, the_proxy_proxy_group)
+        the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
+        proxy_groups.insert(0, the_per_region_proxy_group)
         super().__init__(src_file, proxies, proxy_groups)
         self._general_options = general_options
 

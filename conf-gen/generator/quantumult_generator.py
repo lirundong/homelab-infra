@@ -44,6 +44,7 @@ class QuantumultGenerator(GeneratorBase):
         the_per_region_proxy_group = SelectProxyGroup(
             name="PROXY-PER-REGION", filters=None, proxies=per_region_proxies
         )
+        the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
         proxy_groups.insert(0, the_per_region_proxy_group)
 
         super().__init__(src_file, proxies, proxy_groups)
