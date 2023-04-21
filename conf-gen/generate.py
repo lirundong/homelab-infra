@@ -31,7 +31,11 @@ if __name__ == "__main__":
 
     proxies = parse_clash_proxies(src_conf["proxies"])
     proxies += parse_subscriptions(src_conf["subscriptions"])
-    per_region_proxies = merge_proxy_by_region(proxies, src_conf["global"]["proxy_check_url"])
+    per_region_proxies = merge_proxy_by_region(
+        proxies=proxies,
+        proxy_check_url=src_conf["global"]["proxy_check_url"],
+        proxy_check_interval=src_conf["global"]["proxy_check_interval"],
+    )
     proxy_groups = parse_proxy_groups(src_conf["rules"], available_proxies=per_region_proxies)
     rewrites = parse_rewrites(src_conf["rewrites"])
 

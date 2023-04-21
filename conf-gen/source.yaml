@@ -1,6 +1,7 @@
 # Source configuration that generates Clash and Quantumult X configs.
 global:
   proxy_check_url: &proxy-check-url http://www.google.com/generate_204
+  proxy_check_interval: 30
 subscriptions:
 - name: WestData Cloud
   type: clash

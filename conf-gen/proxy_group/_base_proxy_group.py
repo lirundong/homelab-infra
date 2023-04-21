@@ -34,7 +34,7 @@ class ProxyGroupBase:
                     raise ValueError("Must provide non-empty proxy list to use proxy regex.")
                 pattern = proxy["pattern"]
                 for available_proxy in available_proxies:
-                    if isinstance(available_proxy, ProxyBase) and re.search(
+                    if isinstance(available_proxy, (ProxyBase, ProxyGroupBase)) and re.search(
                         pattern, available_proxy.name
                     ):
                         self._proxies.append(available_proxy.name)
