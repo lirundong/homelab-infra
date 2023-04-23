@@ -77,6 +77,16 @@ rules:
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
   - Outside
+- name: Spotify
+  type: select
+  filters:
+  - type: quantumult
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Spotify.list
+  img-url: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Spotify.png
+  proxies:
+  - type: regex
+    pattern: US|United\w{0,1}States|美国|🇺🇸
+  - Outside
 - name: Telegram
   type: select
   filters:
@@ -114,7 +124,7 @@ rules:
   proxies:
   - Mainland
   - type: regex
-    pattern: HK|HongKong|香港|🇭🇰|TW|Taiwan|台湾|🇹🇼
+    pattern: HK|Hong\s{0,1}Kong|香港|🇭🇰|TW|Taiwan|台湾|🇹🇼
 - name: Microsoft
   type: select
   filters:
