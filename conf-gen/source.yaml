@@ -23,14 +23,14 @@ proxies:
   udp: true
 - name: 🇭🇰「SS-AES」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV6'
+  server: '@secret:HK_NODE_IPV4'
   port: '@secret:HK_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:HK_SS_AES_PASSWORD'
   udp: true
 - name:  🇭🇰「SS-ChaCha」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV6'
+  server: '@secret:HK_NODE_IPV4'
   port: '@secret:HK_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:HK_SS_CHACHA_PASSWORD'
