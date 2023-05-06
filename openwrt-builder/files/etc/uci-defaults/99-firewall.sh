@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# ==============================================================================
+#   Input rules.
+# ==============================================================================
 # Allow KMS inputs from WAN.
 rule_id=$(uci add firewall rule)
 uci set firewall.$rule_id.name='Allow-KMS-WAN'
@@ -9,46 +12,30 @@ uci add_list firewall.$rule_id.proto='tcp'
 uci add_list firewall.$rule_id.proto='udp'
 uci set firewall.$rule_id.target='ACCEPT'
 
-# Allow qBittorrent forwarding from WAN to synonas and truenas via IPv6.
-rule_id=$(uci add firewall rule)
-uci set firewall.$rule_id.name='Allow-qBitTorrent-WAN-LAN'
-uci set firewall.$rule_id.src='wan'
-uci set firewall.$rule_id.dest='lan'
-uci set firewall.$rule_id.dest_port='11080:11083'
-uci add_list firewall.$rule_id.proto='tcp'
-uci add_list firewall.$rule_id.proto='udp'
-uci set firewall.$rule_id.family='ipv6'
-uci set firewall.$rule_id.target='ACCEPT'
-
-# Allow SSH forward from WAN to synonas via IPv6.
-rule_id=$(uci add firewall rule)
-uci set firewall.$rule_id.name='Allow-SSH@synonas-WAN-LAN'
-uci set firewall.$rule_id.src='wan'
-uci set firewall.$rule_id.dest='lan'
-uci set firewall.$rule_id.dest_port='28996'
-uci set firewall.$rule_id.proto='tcp'
-uci set firewall.$rule_id.family='ipv6'
-uci set firewall.$rule_id.target='ACCEPT'
-
-# Allow Plex forward from WAN to plex-gpu via IPv6.
-rule_id=$(uci add firewall rule)
-uci set firewall.$rule_id.name='Allow-Plex@plex-gpu-WAN-LAN'
-uci set firewall.$rule_id.src='wan'
-uci set firewall.$rule_id.dest='lan'
-uci set firewall.$rule_id.dest_port='32400'
-uci add_list firewall.$rule_id.proto='tcp'
-uci add_list firewall.$rule_id.proto='udp'
-uci set firewall.$rule_id.family='ipv6'
-uci set firewall.$rule_id.target='ACCEPT'
-
+# ==============================================================================
+#   IPv4 forward rules.
+# ==============================================================================
 # Forward synonas web services.
 rule_id=$(uci add firewall redirect)
 uci set firewall.$rule_id.name='DNAT-services@synonas-WAN-LAN'
 uci set firewall.$rule_id.src='wan'
-uci set firewall.$rule_id.src_dport='5000:5010'
+uci set firewall.$rule_id.src_dport='5000:5009'
 uci set firewall.$rule_id.dest='lan'
 uci set firewall.$rule_id.dest_ip='192.168.50.6'
-uci set firewall.$rule_id.dest_port='5000:5010'
+uci set firewall.$rule_id.dest_port='5000:5009'
+uci add_list firewall.$rule_id.proto='tcp'
+uci add_list firewall.$rule_id.proto='udp'
+uci set firewall.$rule_id.family='ipv4'
+uci set firewall.$rule_id.target='DNAT'
+
+# Forward truenas web services.
+rule_id=$(uci add firewall redirect)
+uci set firewall.$rule_id.name='DNAT-services@truenas-WAN-LAN'
+uci set firewall.$rule_id.src='wan'
+uci set firewall.$rule_id.src_dport='5010:5019'
+uci set firewall.$rule_id.dest='lan'
+uci set firewall.$rule_id.dest_ip='192.168.50.5'
+uci set firewall.$rule_id.dest_port='5010:5019'
 uci add_list firewall.$rule_id.proto='tcp'
 uci add_list firewall.$rule_id.proto='udp'
 uci set firewall.$rule_id.family='ipv4'
@@ -62,6 +49,19 @@ uci set firewall.$rule_id.src_dport='11080:11081'
 uci set firewall.$rule_id.dest='lan'
 uci set firewall.$rule_id.dest_ip='192.168.50.6'
 uci set firewall.$rule_id.dest_port='11080:11081'
+uci add_list firewall.$rule_id.proto='tcp'
+uci add_list firewall.$rule_id.proto='udp'
+uci set firewall.$rule_id.family='ipv4'
+uci set firewall.$rule_id.target='DNAT'
+
+# Forward truenas qBittorrent.
+rule_id=$(uci add firewall redirect)
+uci set firewall.$rule_id.name='DNAT-qBitTorrent@truenas-WAN-LAN'
+uci set firewall.$rule_id.src='wan'
+uci set firewall.$rule_id.src_dport='11082:11083'
+uci set firewall.$rule_id.dest='lan'
+uci set firewall.$rule_id.dest_ip='192.168.50.5'
+uci set firewall.$rule_id.dest_port='11082:11083'
 uci add_list firewall.$rule_id.proto='tcp'
 uci add_list firewall.$rule_id.proto='udp'
 uci set firewall.$rule_id.family='ipv4'
@@ -92,17 +92,50 @@ uci add_list firewall.$rule_id.proto='udp'
 uci set firewall.$rule_id.family='ipv4'
 uci set firewall.$rule_id.target='DNAT'
 
-# Forward truenas qBittorrent.
-rule_id=$(uci add firewall redirect)
-uci set firewall.$rule_id.name='DNAT-qBitTorrent@truenas-WAN-LAN'
+# ==============================================================================
+#   IPv6 forward rules.
+# ==============================================================================
+# Allow web services forwarding from WAN to {synonas, truenas} via IPv6.
+rule_id=$(uci add firewall rule)
+uci set firewall.$rule_id.name='Allow-web-services-WAN-LAN'
 uci set firewall.$rule_id.src='wan'
-uci set firewall.$rule_id.src_dport='11082:11083'
 uci set firewall.$rule_id.dest='lan'
-uci set firewall.$rule_id.dest_ip='192.168.50.5'
-uci set firewall.$rule_id.dest_port='11082:11083'
+uci set firewall.$rule_id.dest_port='5000:5019'
 uci add_list firewall.$rule_id.proto='tcp'
 uci add_list firewall.$rule_id.proto='udp'
-uci set firewall.$rule_id.family='ipv4'
-uci set firewall.$rule_id.target='DNAT'
+uci set firewall.$rule_id.family='ipv6'
+uci set firewall.$rule_id.target='ACCEPT'
+
+# Allow qBittorrent forwarding from WAN to {synonas, truenas} via IPv6.
+rule_id=$(uci add firewall rule)
+uci set firewall.$rule_id.name='Allow-qBitTorrent-WAN-LAN'
+uci set firewall.$rule_id.src='wan'
+uci set firewall.$rule_id.dest='lan'
+uci set firewall.$rule_id.dest_port='11080:11083'
+uci add_list firewall.$rule_id.proto='tcp'
+uci add_list firewall.$rule_id.proto='udp'
+uci set firewall.$rule_id.family='ipv6'
+uci set firewall.$rule_id.target='ACCEPT'
+
+# Allow SSH forward from WAN to synonas via IPv6.
+rule_id=$(uci add firewall rule)
+uci set firewall.$rule_id.name='Allow-SSH@synonas-WAN-LAN'
+uci set firewall.$rule_id.src='wan'
+uci set firewall.$rule_id.dest='lan'
+uci set firewall.$rule_id.dest_port='28996'
+uci set firewall.$rule_id.proto='tcp'
+uci set firewall.$rule_id.family='ipv6'
+uci set firewall.$rule_id.target='ACCEPT'
+
+# Allow Plex forward from WAN to plex-gpu via IPv6.
+rule_id=$(uci add firewall rule)
+uci set firewall.$rule_id.name='Allow-Plex@plex-gpu-WAN-LAN'
+uci set firewall.$rule_id.src='wan'
+uci set firewall.$rule_id.dest='lan'
+uci set firewall.$rule_id.dest_port='32400'
+uci add_list firewall.$rule_id.proto='tcp'
+uci add_list firewall.$rule_id.proto='udp'
+uci set firewall.$rule_id.family='ipv6'
+uci set firewall.$rule_id.target='ACCEPT'
 
 uci commit firewall
