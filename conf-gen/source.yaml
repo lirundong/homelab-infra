@@ -215,9 +215,8 @@ generates:
     fake-ip-range: 198.18.0.1/16
     fake-ip-filter:
     - '+.local'
+    - '+.@secret:DOMAIN'
     - localhost.ptlogin2.qq.com
-    - '@secret:JP_NODE_HOSTNAME'
-    - '@secret:HK_NODE_HOSTNAME'
     # Otherwise MS apps and network manager will not operate properly.
     - dns.msftncsi.com
     - www.msftncsi.com
@@ -230,19 +229,7 @@ generates:
     enable: true
     stack: system
     dns-hijack:
-    - tcp://1.1.1.1:53
-    - tcp://1.0.0.1:53
-    - tcp://8.8.4.4:53
-    - tcp://8.8.8.8:53
-    - tcp://9.9.9.9:53
-    - tcp://149.112.112.112:53
-    - tcp://35.190.88.7:53
-    - tcp://[2001:4860:4860::8888]:53
-    - tcp://[2001:4860:4860::8844]:53
-    - tcp://[2606:4700:4700::1111]:53
-    - tcp://[2606:4700:4700::1001]:53
-    - tcp://[2620:fe::fe]:53
-    - tcp://[2620:fe::9]:53
+    - any:53
   profile:
     store-selected: true
     store-fake-ip: true
