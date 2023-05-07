@@ -1,0 +1,59 @@
+name: Artifacts Release Nightly
+on:
+  push:
+  schedule:
+  - cron: '1 0 * * *'  # Nightly build.
+jobs:
+  build-artifacts:
+    name: build-openwrt-and-config
+    if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: setup-dependencies
+      run: |
+        pip3 install --user --upgrade cryptography emoji pycountry pytz pyyaml requests
+    - name: generate-clash-conf
+      env:
+        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+      run: |
+        conf-gen/generate.py -s conf-gen/source.yaml -o artifacts-conf/
+        for f in $( ls artifacts-conf/* ); do
+          gpg -c --batch --yes --passphrase=${PASSWORD} $f
+          rm $f
+        done
+    - name: build-openwrt-stable
+      env:
+        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+        TARGET: x86/64
+        VERSION: '22.03.4'
+        REPOSITORY: https://downloads.openwrt.org
+        GCC_VERSION: 11.2.0_musl
+      run: |
+        bash openwrt-builder/build.sh
+        cp -r /tmp/openwrt/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
+        for f in $(find artifacts-$VERSION -iname '*.gz'); do
+          gpg -c --batch --yes --passphrase=${PASSWORD} $f
+          rm $f
+        done
+    - name: build-openwrt-snapshots
+      env:
+        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+        TARGET: x86/64
+        VERSION: 'snapshots'
+        REPOSITORY: https://downloads.openwrt.org
+        GCC_VERSION: 12.2.0_musl
+      run: |
+        bash openwrt-builder/build.sh
+        cp -r /tmp/openwrt/openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
+        for f in $(find artifacts-$VERSION -iname '*.gz'); do
+          gpg -c --batch --yes --passphrase=${PASSWORD} $f
+          rm $f
+        done
+    - name: release-artifacts
+      uses: pyTooling/Actions/releaser@r0
+      with:
+        tag: nightly
+        token: ${{ secrets.GITHUB_TOKEN }}
+        files: |
+          artifacts-*/*.gpg

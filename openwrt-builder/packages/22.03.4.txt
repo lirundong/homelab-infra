@@ -1,6 +1,7 @@
 ca-bundle
 coreutils-timeout
 curl
+gnupg
 kmod-nft-tproxy
 luci
 python3-cryptography
