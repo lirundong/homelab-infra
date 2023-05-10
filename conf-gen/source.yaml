@@ -23,14 +23,14 @@ proxies:
   udp: true
 - name: 🇭🇰「SS-AES」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV4'
+  server: '@secret:HK_NODE_IPV6'
   port: '@secret:HK_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:HK_SS_AES_PASSWORD'
   udp: true
 - name:  🇭🇰「SS-ChaCha」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV4'
+  server: '@secret:HK_NODE_IPV6'
   port: '@secret:HK_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:HK_SS_CHACHA_PASSWORD'
@@ -48,8 +48,8 @@ rules:
   - type: PROCESS-NAME
     arg: qBittorrent
   - type: quantumult
-    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Unbreak.list
-  img-url: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Hijacking.png
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Special.list
+  img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Hijacking.png
   proxies:
   - DIRECT
   - Outside
@@ -57,8 +57,8 @@ rules:
   type: select
   filters:
   - type: quantumult
-    url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/AdBlock.list
-  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/AdBlock.png
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/AdBlock.list
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/AdBlock.png
   proxies:
   - REJECT
   - Mainland
@@ -67,12 +67,7 @@ rules:
   filters:
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Netflix.list
-  # Weird tests on Netflix web.
-  - type: DOMAIN-SUFFIX
-    arg: cookielaw.org
-  - type: DOMAIN-SUFFIX
-    arg: onetrust.com
-  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Netflix.png
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Netflix.png
   proxies:
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
@@ -82,7 +77,7 @@ rules:
   filters:
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Spotify.list
-  img-url: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Spotify.png
+  img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Spotify.png
   proxies:
   - type: regex
     pattern: US|United\w{0,1}States|美国|🇺🇸
@@ -91,8 +86,8 @@ rules:
   type: select
   filters:
   - type: quantumult
-    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Extra/Telegram/Telegram.list
-  img-url: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Telegram.png
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Telegram.list
+  img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Telegram.png
   proxies:
   - Outside
   - type: regex
@@ -100,27 +95,25 @@ rules:
 - name: Outside
   type: select
   filters:
+  - type: quantumult
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Outside.list
   - type: DOMAIN-SUFFIX
     arg: s1s1s1.com
   - type: DOMAIN-SUFFIX
     arg: sehuatang.net
   - type: DOMAIN-KEYWORD
     arg: hegre
-  - type: DOMAIN-KEYWORD
-    arg: linkedin
-  - type: DOMAIN-KEYWORD
-    arg: proctoru
-  - type: quantumult
-    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/Global.list
-  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Outside.png
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Outside.png
   proxies:
   - PROXY
 - name: Bilibili & iQIYI
   type: select
   filters:
   - type: clash-classic
-    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/StreamingMedia/StreamingSE.yaml
-  img-url: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/iQIYI%26bilibili.png
+    url: https://github.com/dler-io/Rules/raw/main/Clash/Provider/Media/Bilibili.yaml
+  - type: clash-classic
+    url: https://github.com/dler-io/Rules/raw/main/Clash/Provider/Media/IQIYI.yaml
+  img-url: https://github.com/Koolson/Qure/raw/master/IconSet/iQIYI%26bilibili.png
   proxies:
   - Mainland
   - type: regex
@@ -128,11 +121,9 @@ rules:
 - name: Microsoft
   type: select
   filters:
-  - type: quantumult
-    url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/Optional/Microsoft.list
-  - type: DOMAIN-SUFFIX
-    arg: sharepoint.com
-  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Microsoft.png
+  - type: clash-classic
+    url: https://github.com/dler-io/Rules/raw/main/Clash/Provider/Microsoft.yaml
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Microsoft.png
   proxies:
   - Mainland
   - Outside
@@ -141,7 +132,7 @@ rules:
   filters:
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Apple.list
-  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Apple.png
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Apple.png
   proxies:
   - Mainland
   - Outside
@@ -149,44 +140,33 @@ rules:
   type: select
   filters:
   - type: quantumult
-    url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/Filter/Speedtest.list
-  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Speedtest.png
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Speedtest.list
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Speedtest.png
   proxies:
   - Mainland
   - Outside
 - name: Mainland
   type: select
   filters:
-  - type: DOMAIN-SUFFIX
-    arg: cn
-  - type: DOMAIN-KEYWORD
-    arg: nvidia
-  - type: DOMAIN-KEYWORD
-    arg: nvda
-  - type: DOMAIN-KEYWORD
-    arg: slack
   - type: quantumult
-    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Filter/China.list
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Mainland.list
   - type: geoip
     arg: CN
-  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Mainland.png
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Mainland.png
   proxies:
   - DIRECT
 - name: Others
   type: select
   filters:
   - type: match
-  img-url: https://raw.githubusercontent.com/GeQ1an/Rules/master/QuantumultX/IconSet/Others.png
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Others.png
   proxies:
   - PROXY
   - DIRECT
 rewrites:
 - name: General
   type: quantumult
-  url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Rewrite/General.conf
-- name: AdBlock
-  type: quantumult
-  url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Quantumult/Rewrite/Block/Advertising.conf
+  url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Rewrite/Rewrite.list
 generates:
 - name: clash
   type: clash
@@ -251,7 +231,7 @@ generates:
     - 17.0.0.0/8
     geo_location_checker:
     - http://ip-api.com/json/?lang=zh-CN
-    - https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/IP_API.js
+    - https://github.com/KOP-XIAO/QuantumultX/raw/master/Scripts/IP_API.js
     server_check_url: *proxy-check-url
     ssid_suspended_list:
     - Rundong's AP
@@ -260,9 +240,9 @@ generates:
   task_local:
   - name: 流媒体-解锁查询
     type: event-interaction
-    url: https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/streaming-ui-check.js
+    url: https://github.com/KOP-XIAO/QuantumultX/raw/master/Scripts/streaming-ui-check.js
     img-url: checkmark.seal.system
   - name: GeoIP 查询
     type: event-interaction
-    url: https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/geo_location.js
+    url: https://github.com/KOP-XIAO/QuantumultX/raw/master/Scripts/geo_location.js
     img-url: location.fill.viewfinder.system
