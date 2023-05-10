@@ -9,28 +9,28 @@ subscriptions:
 proxies:
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
-  server: '@secret:JP_NODE_IPV6'
+  server: '@secret:JP_NODE_HOSTNAME'
   port: '@secret:NODE_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:NODE_SS_AES_PASSWORD'
   udp: true
 - name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
   type: ss
-  server: '@secret:JP_NODE_IPV6'
+  server: '@secret:JP_NODE_HOSTNAME'
   port: '@secret:NODE_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
 - name: 🇭🇰「SS-AES」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV6'
+  server: '@secret:HK_NODE_HOSTNAME'
   port: '@secret:HK_SS_AES_PORT!int'
   cipher: aes-128-gcm
   password: '@secret:HK_SS_AES_PASSWORD'
   udp: true
 - name:  🇭🇰「SS-ChaCha」bwh-hk-01
   type: ss
-  server: '@secret:HK_NODE_IPV6'
+  server: '@secret:HK_NODE_HOSTNAME'
   port: '@secret:HK_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:HK_SS_CHACHA_PASSWORD'
