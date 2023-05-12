@@ -16,6 +16,7 @@ from common import secrets
 from generator import generate_conf
 from proxy import parse_clash_proxies, parse_subscriptions
 from proxy_group import parse_proxy_groups, merge_proxy_by_region
+from proxy_group.selective_proxy_group import SelectProxyGroup
 from rewrite import parse_rewrites
 
 
@@ -29,10 +30,12 @@ if __name__ == "__main__":
     src_conf = secrets.expand_secret_object(src_conf)
     src_file = os.path.split(args.src)[-1]
 
-    proxies = parse_clash_proxies(src_conf["proxies"])
-    proxies += parse_subscriptions(src_conf["subscriptions"])
+    custom_proxies = parse_clash_proxies(src_conf["proxies"])
+    subscription_proxies = parse_subscriptions(src_conf["subscriptions"])
+    proxies = custom_proxies + subscription_proxies
+    grouped_proxy = [SelectProxyGroup(name="🖧 Custom", filters=None, proxies=custom_proxies), ]
     per_region_proxies = merge_proxy_by_region(
-        proxies=proxies,
+        proxies=grouped_proxy + subscription_proxies,
         proxy_check_url=src_conf["global"]["proxy_check_url"],
         proxy_check_interval=src_conf["global"]["proxy_check_interval"],
     )

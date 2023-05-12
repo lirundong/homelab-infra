@@ -7,6 +7,20 @@ subscriptions:
   type: clash
   url: '@secret:SUBSCRIPTION_URL'
 proxies:
+- name: 🇸🇬「SS-AES」aws-sg
+  type: ss
+  server: '@secret:SG_NODE_IPV6'
+  port: '@secret:SG_SS_AES_PORT!int'
+  cipher: aes-128-gcm
+  password: '@secret:SG_SS_AES_PASSWORD'
+  udp: true
+- name: &udp-fallback 🇸🇬「SS-ChaCha」aws-sg
+  type: ss
+  server: '@secret:SG_NODE_IPV6'
+  port: '@secret:SG_SS_CHACHA_PORT!int'
+  cipher: chacha20-ietf-poly1305
+  password: '@secret:SG_SS_CHACHA_PASSWORD'
+  udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
   server: '@secret:JP_NODE_HOSTNAME'
@@ -14,7 +28,7 @@ proxies:
   cipher: aes-128-gcm
   password: '@secret:NODE_SS_AES_PASSWORD'
   udp: true
-- name: &ss-chacha-jp-01 🇯🇵「SS-ChaCha」bwh-jp-01
+- name: 🇯🇵「SS-ChaCha」bwh-jp-01
   type: ss
   server: '@secret:JP_NODE_HOSTNAME'
   port: '@secret:NODE_SS_CHACHA_PORT!int'
@@ -39,10 +53,8 @@ rules:
 - name: Guard
   type: select
   filters:
-  - type: DOMAIN
-    arg: '@secret:JP_NODE_HOSTNAME'
-  - type: DOMAIN
-    arg: '@secret:HK_NODE_HOSTNAME'
+  - type: DOMAIN-SUFFIX
+    arg: '@secret:DOMAIN'
   - type: DOMAIN-SUFFIX
     arg: ipify.org
   - type: PROCESS-NAME
@@ -236,7 +248,7 @@ generates:
     ssid_suspended_list:
     - Rundong's AP
     - Rundong's AP 5GHz
-    fallback_udp_policy: *ss-chacha-jp-01
+    fallback_udp_policy: *udp-fallback
   task_local:
   - name: 流媒体-解锁查询
     type: event-interaction

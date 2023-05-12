@@ -1,8 +1,8 @@
 from copy import copy
 import os
 
-from .clash_generator import ClashGenerator
-from .quantumult_generator import QuantumultGenerator
+from generator.clash_generator import ClashGenerator
+from generator.quantumult_generator import QuantumultGenerator
 
 
 def generate_conf(

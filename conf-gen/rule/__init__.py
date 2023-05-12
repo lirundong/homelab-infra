@@ -1,6 +1,6 @@
 from typing import Dict
 
-from .parser import parse_filter
+from rule.parser import parse_filter
 
 FilterT = Dict[str, str]
 

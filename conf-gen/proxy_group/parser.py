@@ -6,19 +6,24 @@ import emoji
 import pycountry
 
 from proxy import ProxyBase
+from proxy_group import ProxyGroupBase
 from proxy_group.fallback_proxy_group import FallbackProxyGroup
 from proxy_group.selective_proxy_group import SelectProxyGroup
 
 
 def merge_proxy_by_region(
-    proxies: List[ProxyBase],
+    proxies: List[Union[ProxyBase, ProxyGroupBase]],
     proxy_check_url: str,
     proxy_check_interval: int = 300,
     stat_proxy_name_pattern: str = r"traffic|expire",
 ) -> List[Union[FallbackProxyGroup, ProxyBase]]:
     proxies_by_region = defaultdict(list)
+    ret = []
     for proxy in proxies:
-        if re.search(stat_proxy_name_pattern, proxy.name, re.IGNORECASE):
+        if isinstance(proxy, ProxyGroupBase):
+            # Custom proxies are pre-grouped.
+            ret.append(proxy)
+        elif re.search(stat_proxy_name_pattern, proxy.name, re.IGNORECASE):
             proxies_by_region["📈 Statistics"].append(proxy)
         else:
             region_flags = emoji.emoji_list(proxy.name)
@@ -33,7 +38,6 @@ def merge_proxy_by_region(
                 region_name = region_info.name
             proxies_by_region[f"{region_info.flag} {region_name}"].append(proxy)
 
-    ret = []
     for region_name, region_proxies in proxies_by_region.items():
         if len(region_proxies) == 1:
             ret.append(region_proxies[0])
@@ -66,7 +70,7 @@ def parse_proxy_groups(proxy_groups_info, available_proxies=None):
         proxy_groups.append(g)
 
     for proxy in available_proxies:
-        if isinstance(proxy, FallbackProxyGroup):
+        if isinstance(proxy, ProxyGroupBase):
             proxy_groups.append(proxy)
 
     return proxy_groups

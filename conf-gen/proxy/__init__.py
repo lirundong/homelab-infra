@@ -1,17 +1,16 @@
 from typing import Dict, Union
 
-from ._base_proxy import ProxyBase
-from .parser import (
+from proxy._base_proxy import ProxyBase
+ProxyT = Union[ProxyBase, str, Dict[str, str]]  # To prevent circular import.
+from proxy.parser import (
     parse_clash_proxies,
     parse_clash_subscription,
     parse_subscriptions,
 )
-from .shadowsocks_proxy import ShadowSocksProxy
-from .trojan_proxy import TrojanProxy
-from .v2ray_proxy import VMessProxy, VMessGRPCProxy, VMessWebSocketProxy
+from proxy.shadowsocks_proxy import ShadowSocksProxy
+from proxy.trojan_proxy import TrojanProxy
+from proxy.v2ray_proxy import VMessProxy, VMessGRPCProxy, VMessWebSocketProxy
 
-
-ProxyT = Union[ProxyBase, str, Dict[str, str]]
 
 __all__ = (
     "ProxyBase",

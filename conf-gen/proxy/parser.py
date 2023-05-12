@@ -1,12 +1,18 @@
 import requests
+from typing import Dict, List, Union
 import yaml
 
+from proxy import ProxyBase
 from proxy.shadowsocks_proxy import ShadowSocksProxy
 from proxy.trojan_proxy import TrojanProxy
 from proxy.v2ray_proxy import VMessProxy, VMessGRPCProxy, VMessWebSocketProxy
+from proxy_group.selective_proxy_group import SelectProxyGroup
 
 
-def parse_clash_proxies(proxies_info):
+def parse_clash_proxies(
+    proxies_info: List[Dict[str, any]],
+    pre_group: bool = False
+) -> List[Union[ProxyBase, SelectProxyGroup]]:
     ret = []
     for proxy_info in proxies_info:
         if proxy_info["type"] == "ss":
@@ -82,6 +88,13 @@ def parse_clash_proxies(proxies_info):
         else:
             raise RuntimeError(f"Get unsupported proxy type: {proxy_info['type']}")
         ret.append(proxy)
+
+    if pre_group:
+        grouped_proxy = SelectProxyGroup(
+            name="🖧 Custom", filters=None, proxies=ret
+        )
+        grouped_proxy._proxies = sorted(grouped_proxy._proxies)
+        ret = [grouped_proxy, ]
 
     return ret
 
