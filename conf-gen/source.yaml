@@ -104,6 +104,16 @@ rules:
   - Outside
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
+- name: OpenAI
+  type: select
+  filters:
+  - type: quantumult
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/ChatGPT.list
+  img-url: https://aws-sg.rundong.me/assets/ChatGPT_logo.png
+  proxies:
+  - type: regex
+    pattern: US|United\w{0,1}States|美国|🇺🇸|SG|Singapore|新加坡|🇸🇬
+  - Outside
 - name: Outside
   type: select
   filters:
