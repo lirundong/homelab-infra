@@ -33,7 +33,7 @@ if __name__ == "__main__":
     custom_proxies = parse_clash_proxies(src_conf["proxies"])
     subscription_proxies = parse_subscriptions(src_conf["subscriptions"])
     proxies = custom_proxies + subscription_proxies
-    grouped_proxy = [SelectProxyGroup(name="🖧 Custom", filters=None, proxies=custom_proxies), ]
+    grouped_proxy = [SelectProxyGroup(name="🌏 Custom", filters=None, proxies=custom_proxies), ]
     per_region_proxies = merge_proxy_by_region(
         proxies=grouped_proxy + subscription_proxies,
         proxy_check_url=src_conf["global"]["proxy_check_url"],
