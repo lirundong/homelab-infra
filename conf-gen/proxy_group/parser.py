@@ -1,4 +1,5 @@
 from collections import defaultdict
+from random import shuffle
 import re
 from typing import List, Union
 
@@ -49,6 +50,8 @@ def merge_proxy_by_region(
                 proxy_check_url=proxy_check_url,
                 proxy_check_interval=proxy_check_interval,
             )
+            # Shuffle proxies within each region to achieve certain degree of "load balancing".
+            shuffle(region_proxy._proxies)
             ret.append(region_proxy)
 
     return ret
