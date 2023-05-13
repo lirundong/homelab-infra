@@ -50,6 +50,11 @@ jobs:
           gpg -c --batch --yes --passphrase=${PASSWORD} $f
           rm $f
         done
+    - name: prepare-release-readme
+      run: |
+        mkdir artifacts-readme
+        cp .github/artifacts-release-readme.md artifacts-readme/README.md
+        sed -i 's!{RELEASE_DATE}!'$(date +'%Y/%m/%d')'!g' artifacts-readme/README.md
     - name: release-artifacts
       uses: pyTooling/Actions/releaser@r0
       with:
@@ -57,3 +62,4 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         files: |
           artifacts-*/*.gpg
+          artifacts-readme/README.md
