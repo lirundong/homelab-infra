@@ -42,7 +42,7 @@ jobs:
         TARGET: x86/64
         VERSION: 'snapshots'
         REPOSITORY: https://downloads.openwrt.org
-        GCC_VERSION: 12.2.0_musl
+        GCC_VERSION: 12.3.0_musl
       run: |
         bash openwrt-builder/build.sh
         cp -r /tmp/openwrt/openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
