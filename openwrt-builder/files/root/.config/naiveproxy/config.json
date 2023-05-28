@@ -1,0 +1,5 @@
+{
+    "listen": "socks://@secret:NAIVE_PROXY_SERVER:@secret:NAIVE_PROXY_PORT",
+    "proxy": "https://@secret:NAIVE_PROXY_USERNAME:@secret:NAIVE_PROXY_PASSWORD@@secret:JP_NODE_HOSTNAME",
+    "log": ""
+}

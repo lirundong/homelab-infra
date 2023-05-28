@@ -4,6 +4,7 @@ import yaml
 
 from proxy import ProxyBase
 from proxy.shadowsocks_proxy import ShadowSocksProxy
+from proxy.socks_proxy import Socks5Proxy
 from proxy.trojan_proxy import TrojanProxy
 from proxy.v2ray_proxy import VMessProxy, VMessGRPCProxy, VMessWebSocketProxy
 from proxy_group.selective_proxy_group import SelectProxyGroup
@@ -85,6 +86,17 @@ def parse_clash_proxies(
                     alpn=proxy_info.get("alpn", None),
                     skip_cert_verify=proxy_info["skip-cert-verify"],
                 )
+        elif proxy_info["type"] == "socks5":
+            proxy = Socks5Proxy(
+                name=proxy_info["name"],
+                server=proxy_info["server"],
+                port=proxy_info["port"],
+                username=proxy_info.get("username", None),
+                password=proxy_info.get("password", None),
+                tls=proxy_info.get("tls", None),
+                skip_cert_verify=proxy_info.get("skip_cert_verify", False),
+                udp=proxy_info.get("udp", False),
+            )
         else:
             raise RuntimeError(f"Get unsupported proxy type: {proxy_info['type']}")
         ret.append(proxy)

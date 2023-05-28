@@ -35,6 +35,11 @@ proxies:
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
+- name: 🇯🇵「Naïve」bwh-jp-01
+  type: socks5
+  server: '@secret:NAIVE_PROXY_SERVER'
+  port: '@secret:NAIVE_PROXY_PORT!int'
+  udp: true
 - name: 🇭🇰「SS-AES」bwh-hk-01
   type: ss
   server: '@secret:HK_NODE_HOSTNAME'

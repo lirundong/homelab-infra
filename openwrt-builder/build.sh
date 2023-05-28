@@ -57,6 +57,12 @@ git clone https://github.com/Dreamacro/clash-dashboard.git --branch=gh-pages --s
 $ROOT_DIR/conf-gen/generate.py -s $ROOT_DIR/conf-gen/source.yaml -o clash-conf/
 cp clash-conf/clash-daemon.yaml $CUSTOM_FILES_DIR/root/.config/clash/config.yaml
 curl -sSL https://github.com/Dreamacro/maxmind-geoip/releases/latest/download/Country.mmdb -o $CUSTOM_FILES_DIR/root/.config/clash/Country.mmdb
+# Naive proxy.
+NAIVE_PROXY_VERSION=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/klzgrad/naiveproxy/releases/latest | grep -Po 'v\d+\.\d+\.\d+\.\d+-\d+')
+curl -sSLO "https://github.com/klzgrad/naiveproxy/releases/download/${NAIVE_PROXY_VERSION}/naiveproxy-${NAIVE_PROXY_VERSION}-openwrt-x86_64.tar.xz"
+tar -Jxvf naiveproxy-${NAIVE_PROXY_VERSION}-openwrt-x86_64.tar.xz
+cp naiveproxy-${NAIVE_PROXY_VERSION}-openwrt-x86_64/naive $CUSTOM_FILES_DIR/usr/bin/
+chmod +x $CUSTOM_FILES_DIR/usr/bin/naive
 # VLMCSD.
 cp vlmcsd/bin/vlmcs vlmcsd/bin/vlmcsd $CUSTOM_FILES_DIR/usr/bin/
 # DDNS.

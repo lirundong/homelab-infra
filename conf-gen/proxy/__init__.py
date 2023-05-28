@@ -8,6 +8,7 @@ from proxy.parser import (
     parse_subscriptions,
 )
 from proxy.shadowsocks_proxy import ShadowSocksProxy
+from proxy.socks_proxy import Socks5Proxy
 from proxy.trojan_proxy import TrojanProxy
 from proxy.v2ray_proxy import VMessProxy, VMessGRPCProxy, VMessWebSocketProxy
 
@@ -16,6 +17,7 @@ __all__ = (
     "ProxyBase",
     "ProxyT",
     "ShadowSocksProxy",
+    "Socks5Proxy",
     "TrojanProxy",
     "VMessGRPCProxy",
     "VMessProxy",

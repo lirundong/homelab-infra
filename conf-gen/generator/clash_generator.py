@@ -5,6 +5,7 @@ import yaml
 
 from generator._base_generator import GeneratorBase
 from proxy import (
+    Socks5Proxy,
     ShadowSocksProxy,
     TrojanProxy,
     VMessProxy,
@@ -17,6 +18,7 @@ from proxy_group.selective_proxy_group import SelectProxyGroup
 class ClashGenerator(GeneratorBase):
 
     _SUPPORTED_PROXY_TYPE = (
+        Socks5Proxy,
         ShadowSocksProxy,
         TrojanProxy,
         VMessProxy,
