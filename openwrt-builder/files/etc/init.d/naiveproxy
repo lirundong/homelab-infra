@@ -10,6 +10,6 @@ start_service() {
     procd_set_param command /usr/bin/naive /root/.config/naiveproxy/config.json
     procd_set_param stdout 1
     procd_set_param stderr 1
-    procd_set_param user nobody
+    procd_set_param user root # Naive also listens to Redir.
     procd_close_instance
 }
