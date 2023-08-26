@@ -7,20 +7,6 @@ subscriptions:
   type: clash
   url: '@secret:SUBSCRIPTION_URL'
 proxies:
-- name: 🇸🇬「SS-AES」aws-sg
-  type: ss
-  server: '@secret:SG_NODE_IPV6'
-  port: '@secret:SG_SS_AES_PORT!int'
-  cipher: aes-128-gcm
-  password: '@secret:SG_SS_AES_PASSWORD'
-  udp: true
-- name: &udp-fallback 🇸🇬「SS-ChaCha」aws-sg
-  type: ss
-  server: '@secret:SG_NODE_IPV6'
-  port: '@secret:SG_SS_CHACHA_PORT!int'
-  cipher: chacha20-ietf-poly1305
-  password: '@secret:SG_SS_CHACHA_PASSWORD'
-  udp: true
 - name: 🇯🇵「SS-AES」bwh-jp-01
   type: ss
   server: '@secret:JP_NODE_HOSTNAME'
@@ -34,11 +20,6 @@ proxies:
   port: '@secret:NODE_SS_CHACHA_PORT!int'
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
-  udp: true
-- name: 🇯🇵「Naïve」bwh-jp-01
-  type: socks5
-  server: '@secret:NAIVE_PROXY_SERVER'
-  port: '@secret:NAIVE_PROXY_PORT!int'
   udp: true
 - name: 🇭🇰「SS-AES」bwh-hk-01
   type: ss
