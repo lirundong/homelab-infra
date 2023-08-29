@@ -7,7 +7,7 @@ subscriptions:
   type: clash
   url: '@secret:SUBSCRIPTION_URL'
 proxies:
-- name: 🇯🇵「SS-AES」bwh-jp-01
+- name: &udp-fallback 🇯🇵「SS-AES」bwh-jp-01
   type: ss
   server: '@secret:JP_NODE_HOSTNAME'
   port: '@secret:NODE_SS_AES_PORT!int'
