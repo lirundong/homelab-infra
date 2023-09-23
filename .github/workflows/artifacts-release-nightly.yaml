@@ -26,7 +26,7 @@ jobs:
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
         TARGET: x86/64
-        VERSION: '22.03.4'
+        VERSION: '22.03.5'
         REPOSITORY: https://downloads.openwrt.org
         GCC_VERSION: 11.2.0_musl
       run: |
