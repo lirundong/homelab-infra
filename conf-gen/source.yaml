@@ -213,8 +213,10 @@ generates:
     - www.msftconnecttest.com
     # Otherwise IPv6 address acquisition will not operate properly.
     - api6.ipify.org
+    default-nameserver:
+    - 114.114.114.114
     nameserver:
-    - 127.0.0.1
+    - tls://dot.pub
   tun:
     enable: true
     stack: system
