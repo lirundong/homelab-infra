@@ -217,6 +217,40 @@ generates:
     - 114.114.114.114
     nameserver:
     - tls://dot.pub
+  hosts:
+    # TODO: Auto-gen from hosts.
+    router: 192.168.50.1
+    router.rundong.local: 192.168.50.1
+    gateway: 192.168.50.2
+    gateway.rundong.local: 192.168.50.2
+    raspberry: 192.168.50.2
+    raspberry.rundong.local: 192.168.50.2
+    bmc: 192.168.50.3
+    bmc.rundong.local: 192.168.50.3
+    pve: 192.168.50.4
+    pve.rundong.local: 192.168.50.4
+    truenas: 192.168.50.5
+    truenas.rundong.local: 192.168.50.5
+    freenas: 192.168.50.5
+    freenas.rundong.local: 192.168.50.5
+    synonas: 192.168.50.6
+    synonas.rundong.local: 192.168.50.6
+    nas: 192.168.50.6
+    nas.rundong.local: 192.168.50.6
+    gateway-x86: 192.168.50.7
+    gateway-x86.rundong.local: 192.168.50.7
+    tp-switch: 192.168.50.8
+    tp-switch.rundong.local: 192.168.50.8
+    TL-SG2008: 192.168.50.8
+    TL-SG2008.rundong.local: 192.168.50.8
+    home-assistant: 192.168.50.9
+    home-assistant.rundong.local: 192.168.50.9
+    ha: 192.168.50.9
+    ha.rundong.local: 192.168.50.9
+    plex: 192.168.50.10
+    plex.rundong.local: 192.168.50.10
+    plex-gpu: 192.168.50.10
+    plex-gpu.rundong.local: 192.168.50.10
   tun:
     enable: true
     stack: system
