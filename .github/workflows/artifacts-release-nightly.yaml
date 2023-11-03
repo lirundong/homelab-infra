@@ -26,9 +26,9 @@ jobs:
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
         TARGET: x86/64
-        VERSION: '22.03.5'
+        VERSION: '23.05.0'
         REPOSITORY: https://downloads.openwrt.org
-        GCC_VERSION: 11.2.0_musl
+        GCC_VERSION: 12.3.0_musl
       run: |
         bash openwrt-builder/build.sh
         cp -r /tmp/openwrt/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
