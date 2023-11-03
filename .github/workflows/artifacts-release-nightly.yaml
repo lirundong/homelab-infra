@@ -29,9 +29,10 @@ jobs:
         VERSION: '23.05.0'
         REPOSITORY: https://downloads.openwrt.org
         GCC_VERSION: 12.3.0_musl
+        WORK_DIR: ${{ github.workspace }}/openwrt
       run: |
         bash openwrt-builder/build.sh
-        cp -r /tmp/openwrt/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
+        cp -r ${WORK_DIR}/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
         for f in $(find artifacts-$VERSION -iname '*.gz'); do
           gpg -c --batch --yes --passphrase=${PASSWORD} $f
           rm $f
@@ -43,9 +44,10 @@ jobs:
         VERSION: 'snapshots'
         REPOSITORY: https://downloads.openwrt.org
         GCC_VERSION: 12.3.0_musl
+        WORK_DIR: ${{ github.workspace }}/openwrt
       run: |
         bash openwrt-builder/build.sh
-        cp -r /tmp/openwrt/openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
+        cp -r ${WORK_DIR}/openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
         for f in $(find artifacts-$VERSION -iname '*.gz'); do
           gpg -c --batch --yes --passphrase=${PASSWORD} $f
           rm $f
