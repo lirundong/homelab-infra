@@ -1,0 +1,71 @@
+#!/usr/sbin/nft -f
+
+# Available fw4 constants: (Note that *_subnets contains both ip and ip6 addresses.)
+#   lan_devices, lan_subnets
+#   wan_devices, wan_subnets
+define tun_mark    = 0x02
+define tun_device  = tun0
+
+set direct_macs {
+    type ether_addr
+    elements = {
+        00:11:32:ac:77:2e, # synonas eth0
+        64:ff:0a:4b:8c:c1, # Sony-TV WiFi
+        00:e4:21:6a:eb:a3, # PS5 WiFi
+        00:e4:21:fd:9f:0b, # PS5 Ethernet
+        16:43:4b:30:19:84, # qemu-win10-compute
+        a6:3e:aa:1f:1d:57, # win-11-nv-work
+        9c:fc:e8:de:d3:de, # davidli-lt
+        54:ef:44:34:35:86, # Living room camera
+        54:ef:44:2e:b1:62, # Bedroom gateway
+        1a:07:10:1f:ab:50, # TrueNAS
+        1a:0d:d3:c5:27:27  # Plex-GPU
+    }
+}
+
+set local_ipv4 {
+    type ipv4_addr
+    flags interval
+    auto-merge
+    elements = {
+        0.0.0.0/8,
+        10.0.0.0/8,
+        127.0.0.0/8,
+        169.254.0.0/16,
+        172.16.0.0/12,
+        192.168.0.0/16,
+        224.0.0.0/4,
+        240.0.0.0/4
+    }
+}
+
+set local_ipv6 {
+    type ipv6_addr
+    flags interval
+    auto-merge
+    elements = {
+        ::/128,
+        ::1/128,
+        ::ffff:0:0/96,
+        ::ffff:0:0:0/96,
+        64:ff9b::/96,
+        100::/64,
+        2001::/32,
+        2001:20::/28,
+        2001:db8::/32,
+        2002::/16,
+        fc00::/7,
+        fe80::/10,
+        ff00::/8
+    }
+}
+
+chain mangle_prerouting_custom {
+    type filter hook prerouting priority mangle - 1; policy accept;
+    # 1. Do not touch packets from direct-to-wan devices or packets designated to local network.
+    ether saddr @direct_macs counter return
+    ip daddr @local_ipv4 counter return
+    ip6 daddr @local_ipv6 counter return
+    # 2. Handle all remaining TCP and UDP packets by TProxy and route to lo later.
+    iifname $lan_devices counter meta mark set $tun_mark
+}

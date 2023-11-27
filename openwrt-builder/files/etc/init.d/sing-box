@@ -1,0 +1,92 @@
+#!/bin/sh /etc/rc.common
+
+USE_PROCD=1
+START=99
+STOP=01
+
+start_service() {
+  local sing_box_root=/tmp/.config/sing-box
+  local sing_box_config=${sing_box_root}/config.json
+
+  procd_open_instance "sing-box-daemon"
+  procd_set_param command /tmp/bin/sing-box run -c ${sing_box_config}
+  procd_set_param file ${sing_box_config}
+  procd_set_param stdout 1
+  procd_set_param stderr 1
+  procd_set_param user root
+  procd_close_instance
+}
+
+reload_service() {
+  local sing_box_root=/tmp/.config/sing-box
+  local sing_box_config=${sing_box_root}/config.json
+  local clash_secret=@secret:CLASH_SECRET
+
+  curl -X PUT \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${clash_secret}" \
+    -d "{\"path\":\"${sing_box_config}\"}" \
+    http://127.0.0.1:9090/configs
+}
+
+service_started() {
+  # Handle TUN traffic for IPv4.
+  local tun_dev=${TUN_DEV:-"tun0"}
+  local tun_mark=${TUN_MARK:-"0x02"}
+  local tun_table=${TUN_TABLE:-"101"}
+  # Wait until TUN device is up.
+  ip addr list dev ${tun_dev} >/dev/null 2>&1
+  while [[ $? -ne 0 ]]; do
+    sleep 1s
+    ip addr list dev ${tun_dev} >/dev/null 2>&1
+  done
+
+  # Add routing policy.
+  ip route replace default dev ${tun_dev} table ${tun_table}
+  ip rule add fwmark ${tun_mark} table ${tun_table}
+  ip -6 route replace default dev ${tun_dev} table ${tun_table}
+  ip -6 rule add fwmark ${tun_mark} table ${tun_table}
+
+  # Instruct nftables to mark routable packets.
+  local nft_config=/etc/nftables.d/99-sing-box.nft
+  if test -f ${nft_config}.skip; then
+    mv ${nft_config}.skip ${nft_config}
+  fi
+  fw4 reload
+
+  # Add interface IP addresses into corresponding sets.
+  local interface_ipv4=$(ifconfig | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
+  local interface_ipv6=$(ifconfig | grep 'inet6 addr' | awk '{print $3}' 2>/dev/null)
+  for ipv4 in ${interface_ipv4}; do
+    if ! $(nft get element inet fw4 local_ipv4 { ${ipv4} } &> /dev/null); then
+      nft add element inet fw4 local_ipv4 { ${ipv4} }
+    fi
+  done
+  for ipv6 in ${interface_ipv6}; do
+    if ! $(nft get element inet fw4 local_ipv6 { ${ipv6} } &> /dev/null); then
+      nft add element inet fw4 local_ipv6 { ${ipv6} }
+    fi
+  done
+}
+
+service_stopped() {
+  # Cleanup TUN routes and rules.
+  local tun_dev=${TUN_DEV:-"tun0"}
+  local tun_mark=${TUN_MARK:-"0x02"}
+  local tun_table=${TUN_TABLE:-"101"}
+  ip rule delete fwmark ${tun_mark} table ${tun_table}
+  ip route flush table ${tun_table}
+  ip -6 rule delete fwmark ${tun_mark} table ${tun_table}
+  ip -6 route flush table ${tun_table}
+
+  # Clear packet fileting rules from nftables.
+  local nft_config=/etc/nftables.d/99-sing-box.nft
+  if test -f ${nft_config}; then
+    mv ${nft_config} ${nft_config}.skip
+  fi
+  fw4 reload
+
+  # Flush interface IP addresses from corresponding sets.
+  nft flush set inet fw4 local_ipv4
+  nft flush set inet fw4 local_ipv6
+}

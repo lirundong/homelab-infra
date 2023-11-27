@@ -54,6 +54,10 @@ class GeoIP(IRBase):
     _clash_prefix = "GEOIP"
     _quantumult_prefix = "geoip"
 
+    @property
+    def clash_rule(self):
+        return f"{super().clash_rule},no-resolve"
+
 
 @_IR_REGISTRY.register()
 class IPCIDR(IRBase):
