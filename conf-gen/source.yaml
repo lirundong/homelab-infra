@@ -160,6 +160,10 @@ rules:
   filters:
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Mainland.list
+  - type: DOMAIN-SUFFIX
+    arg: smartmidea.net
+  - type: DOMAIN-SUFFIX
+    arg: gree.com
   - type: geoip
     arg: CN
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Mainland.png
