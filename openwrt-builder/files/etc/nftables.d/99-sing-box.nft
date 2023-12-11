@@ -66,7 +66,7 @@ chain mangle_prerouting_custom {
     type filter hook prerouting priority mangle - 1; policy accept;
     # 1. Do not touch packets from direct-to-wan devices.
     ether saddr @direct_macs counter return
-    # 2. Mark DNS packets and TProxy to sing-box's TProxy port.
+    # 2. Mark DNS packets, they will be DNAT to the TUN network later.
     iifname $lan_devices meta l4proto {tcp, udp} th dport 53 counter meta mark set $dns_mark return
     # 3. Bypass local connections.
     ip daddr @local_ipv4 counter return
