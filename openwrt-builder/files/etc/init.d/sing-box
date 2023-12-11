@@ -30,7 +30,7 @@ reload_service() {
 }
 
 service_started() {
-  # Handle TUN traffic for IPv4.
+  # Handle TUN traffic.
   local tun_dev=${TUN_DEV:-"tun0"}
   local tun_mark=${TUN_MARK:-"0x02"}
   local tun_table=${TUN_TABLE:-"101"}
@@ -41,7 +41,7 @@ service_started() {
     ip addr list dev ${tun_dev} >/dev/null 2>&1
   done
 
-  # Add routing policy.
+  # Add routing policy for TUN.
   ip route replace default dev ${tun_dev} table ${tun_table}
   ip rule add fwmark ${tun_mark} table ${tun_table}
   ip -6 route replace default dev ${tun_dev} table ${tun_table}

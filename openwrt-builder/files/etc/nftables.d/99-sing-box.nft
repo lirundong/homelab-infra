@@ -3,8 +3,10 @@
 # Available fw4 constants: (Note that *_subnets contains both ip and ip6 addresses.)
 #   lan_devices, lan_subnets
 #   wan_devices, wan_subnets
-define tun_mark    = 0x02
-define tun_device  = tun0
+define tun_mark      = 0x02
+define tun_route_ip  = 172.19.0.2
+define tun_route_ip6 = fdfe:dcba:9876::2
+define dns_mark      = 0x03
 
 set direct_macs {
     type ether_addr
@@ -62,10 +64,20 @@ set local_ipv6 {
 
 chain mangle_prerouting_custom {
     type filter hook prerouting priority mangle - 1; policy accept;
-    # 1. Do not touch packets from direct-to-wan devices or packets designated to local network.
+    # 1. Do not touch packets from direct-to-wan devices.
     ether saddr @direct_macs counter return
+    # 2. Mark DNS packets and TProxy to sing-box's TProxy port.
+    iifname $lan_devices meta l4proto {tcp, udp} th dport 53 counter meta mark set $dns_mark return
+    # 3. Bypass local connections.
     ip daddr @local_ipv4 counter return
     ip6 daddr @local_ipv6 counter return
-    # 2. Handle all remaining TCP and UDP packets by TProxy and route to lo later.
+    # 4. Mark all remaining packets and route them to sing-box TUN later.
     iifname $lan_devices counter meta mark set $tun_mark
+}
+
+chain dstnat_lan_custom {
+    type nat hook prerouting priority dstnat - 1; policy accept;
+    # 1. Finally, take care of DNS packets.
+    meta mark $dns_mark counter dnat ip to $tun_route_ip
+    meta mark $dns_mark counter dnat ip6 to $tun_route_ip6
 }
