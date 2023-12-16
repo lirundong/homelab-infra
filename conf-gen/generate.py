@@ -21,7 +21,7 @@ from rewrite import parse_rewrites
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser("Generate Clash/QuantumultX config from specified source.")
+    parser = ArgumentParser("Generate Clash/QuantumultX/sing-box config from specified source.")
     parser.add_argument("-s", "--src", required=True, help="Source spec in YAML format.")
     parser.add_argument("-o", "--dst", required=True, help="Directory of generated files.")
     args = parser.parse_args()

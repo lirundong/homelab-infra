@@ -12,7 +12,6 @@ from proxy_group.selective_proxy_group import SelectProxyGroup
 
 def parse_clash_proxies(
     proxies_info: List[Dict[str, any]],
-    pre_group: bool = False
 ) -> List[Union[ProxyBase, SelectProxyGroup]]:
     ret = []
     for proxy_info in proxies_info:
@@ -100,13 +99,6 @@ def parse_clash_proxies(
         else:
             raise RuntimeError(f"Get unsupported proxy type: {proxy_info['type']}")
         ret.append(proxy)
-
-    if pre_group:
-        grouped_proxy = SelectProxyGroup(
-            name="🖧 Custom", filters=None, proxies=ret
-        )
-        grouped_proxy._proxies = sorted(grouped_proxy._proxies)
-        ret = [grouped_proxy, ]
 
     return ret
 

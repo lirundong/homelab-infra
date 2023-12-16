@@ -21,7 +21,7 @@ class ProxyGroupBase:
 
         if filters:  # `filters` could be None, e.g., clash's special PROXY group.
             for filter in filters:
-                filter = parse_filter(**filter)
+                filter = parse_filter(filter)
                 self._filters += filter
 
         for proxy in proxies:

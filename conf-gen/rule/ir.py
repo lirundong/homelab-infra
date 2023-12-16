@@ -39,13 +39,50 @@ class DomainKeyword(IRBase):
 @_IR_REGISTRY.register()
 class DomainWildcard(IRBase):
 
-    _clash_prefix = "DOMAIN-KEYWORD"
+    _clash_prefix = None
     _quantumult_prefix = "host-wildcard"
 
     @property
     def clash_rule(self):
         keyword = self._val.split("*")[0]
-        return f"{self._clash_prefix},{keyword}"
+        return f"DOMAIN-KEYWORD,{keyword}"
+
+
+@_IR_REGISTRY.register()
+class DomainListItem(IRBase):
+    """A special IR class that only be used in domain-list parsing."""
+    _clash_prefix = None
+    _quantumult_prefix = None
+
+    @property
+    def clash_rule(self):
+        domain = self._val
+        if "+" in domain:
+            domain = domain.split("+")[-1]
+        if "*" in domain:
+            domain = domain.split("*")[-1]
+        if domain.startswith("."):
+            domain = domain[1:]
+        if not domain:
+            raise ValueError(f"Domain-list item {self._val} cannot be parsed to a Clash rule")
+        return f"DOMAIN-SUFFIX,{domain}"
+    
+    @property
+    def quantumult_rule(self):
+        domain = self._val
+        if "+" in domain:
+            domain = domain.split("+")[-1]
+            if domain.startswith("."):
+                domain = domain[1:]
+            return f"host-suffix,{domain}"
+        elif "*" in domain:
+            if domain.startswith("."):
+                domain = domain[1:]
+            return f"host-wildcard,{domain}"
+        else:
+            if domain.startswith("."):
+                domain = domain[1:]
+            return f"host-suffix,{domain}"
 
 
 @_IR_REGISTRY.register()

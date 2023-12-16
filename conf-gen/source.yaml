@@ -22,139 +22,252 @@ proxies:
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
 rules:
+# ------------------------------------------------------------------------------
+# Guard.
+# ------------------------------------------------------------------------------
 - name: Guard
   type: select
   filters:
-  - type: DOMAIN-SUFFIX
-    arg: '@secret:DOMAIN'
-  - type: DOMAIN-SUFFIX
-    arg: ipify.org
-  - type: PROCESS-NAME
-    arg: qBittorrent
-  - type: DOMAIN-SUFFIX
-    arg: plex.redirect
-  - type: quantumult
-    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Special.list
+  - DOMAIN-SUFFIX,ipify.org
+  - DOMAIN-SUFFIX,plex.redirect
+  - DOMAIN-SUFFIX,@secret:DOMAIN
+  - IP-CIDR,@secret:JP_NODE_IPV4/32
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/non_ip/direct.txt
   img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Hijacking.png
   proxies:
   - DIRECT
-  - Outside
+  - Global
+# ------------------------------------------------------------------------------
+# AdBlock.
+# ------------------------------------------------------------------------------
 - name: AdBlock
   type: select
   filters:
-  - type: quantumult
-    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/AdBlock.list
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/non_ip/reject.txt
+  # NOTE: This is a VERY long list, use with caution!
+  - type: domain-list
+    format: text
+    url: https://ruleset.skk.moe/Clash/domainset/reject.txt
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/ip/reject.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/AdBlock.png
   proxies:
   - REJECT
   - Mainland
+# ------------------------------------------------------------------------------
+# Netflix.
+# ------------------------------------------------------------------------------
 - name: Netflix
   type: select
   filters:
+  - DOMAIN-SUFFIX,netflix.ca
+  - DOMAIN-SUFFIX,netflix.com
+  - DOMAIN-SUFFIX,netflix.net
+  - DOMAIN-SUFFIX,nflxext.com
+  - DOMAIN-SUFFIX,nflximg.com
+  - DOMAIN-SUFFIX,nflximg.net
+  - DOMAIN-SUFFIX,nflxso.net
+  - DOMAIN-SUFFIX,nflxvideo.net
+  - DOMAIN-SUFFIX,nflxsearch.net
+  - DOMAIN-SUFFIX,netflix.com.edgesuite.net
+  - DOMAIN-KEYWORD,netflixdnstest
+  - DOMAIN-KEYWORD,dualstack.apiproxy-
+  - DOMAIN-KEYWORD,dualstack.ichnaea-web-
+  - DOMAIN-KEYWORD,apiproxy-device-prod-nlb-
+  - USER-AGENT,Argo*
+  - PROCESS-NAME,com.netflix.mediaclient
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Netflix.list
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Netflix.png
   proxies:
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
-  - Outside
+  - Global
+# ------------------------------------------------------------------------------
+# Spotify.
+# ------------------------------------------------------------------------------
 - name: Spotify
   type: select
   filters:
+  - DOMAIN-KEYWORD,-spotify-com
+  - DOMAIN-SUFFIX,pscdn.co
+  - DOMAIN-SUFFIX,scdn.co
+  - DOMAIN-SUFFIX,spoti.fi
+  - DOMAIN-SUFFIX,spotify.com
+  - DOMAIN-SUFFIX,byspotify.com
+  - DOMAIN-SUFFIX,spotify-everywhere.com
+  - DOMAIN-SUFFIX,spotify.design
+  - DOMAIN-SUFFIX,spotifycdn.com
+  - DOMAIN-SUFFIX,spotifycdn.net
+  - DOMAIN-SUFFIX,spotifycharts.com
+  - DOMAIN-SUFFIX,spotifycodes.com
+  - DOMAIN-SUFFIX,spotifyforbrands.com
+  - DOMAIN-SUFFIX,spotifyjobs.com
+  - DOMAIN-SUFFIX,spotify-com.akamaized.net
+  - DOMAIN-SUFFIX,spotifynewsroom.jp
+  - DOMAIN-SUFFIX,spotilocal.com
+  - DOMAIN-SUFFIX,tospotify.com
+  - USER-AGENT,*Spotify*
+  - IP-CIDR,35.186.224.47/32
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Spotify.list
   img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Spotify.png
   proxies:
   - type: regex
     pattern: US|United\w{0,1}States|美国|🇺🇸
-  - Outside
+  - Global
+# ------------------------------------------------------------------------------
+# Telegram.
+# ------------------------------------------------------------------------------
 - name: Telegram
   type: select
   filters:
-  - type: quantumult
-    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Telegram.list
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/non_ip/telegram.txt
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/ip/telegram.txt
   img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Telegram.png
   proxies:
-  - Outside
+  - Global
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
+# ------------------------------------------------------------------------------
+# OpenAI.
+# ------------------------------------------------------------------------------
 - name: OpenAI
   type: select
   filters:
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/ChatGPT.list
-  img-url: https://aws-sg.rundong.me/assets/ChatGPT_logo.png
+  img-url: https://github.com/GeQ1an/Rules/raw/master/Images/Icons/Policies/OpenAI.png
   proxies:
   - type: regex
     pattern: US|United\w{0,1}States|美国|🇺🇸|SG|Singapore|新加坡|🇸🇬
-  - Outside
-- name: Outside
+  - Global
+# ------------------------------------------------------------------------------
+# Speedtest.
+# ------------------------------------------------------------------------------
+- name: Speedtest
   type: select
   filters:
-  - type: quantumult
-    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Outside.list
-  - type: DOMAIN-SUFFIX
-    arg: s1s1s1.com
-  - type: DOMAIN-SUFFIX
-    arg: sehuatang.net
-  - type: DOMAIN-KEYWORD
-    arg: hegre
+  - type: domain-list
+    format: text
+    url: https://ruleset.skk.moe/Clash/domainset/speedtest.txt
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Speedtest.png
+  proxies:
+  - Mainland
+  - Global
+# ------------------------------------------------------------------------------
+# Global CDN.
+# ------------------------------------------------------------------------------
+- name: CDN
+  type: select
+  filters:
+  - type: domain-list
+    format: text
+    url: https://ruleset.skk.moe/Clash/domainset/cdn.txt
+  img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Cloudflare.png
+  proxies:
+  - Global
+  - "🌏 Custom" # Automatically grouped by the generator program.
+  - Mainland
+# ------------------------------------------------------------------------------
+# Global.
+# ------------------------------------------------------------------------------
+- name: Global
+  type: select
+  filters:
+  - DOMAIN-SUFFIX,s1s1s1.com
+  - DOMAIN-SUFFIX,sehuatang.net
+  - DOMAIN-KEYWORD,hegre
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/non_ip/global_plus.txt
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/non_ip/global.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Outside.png
   proxies:
   - PROXY
+# ------------------------------------------------------------------------------
+# Bilibili & iQIYI.
+# ------------------------------------------------------------------------------
 - name: Bilibili & iQIYI
   type: select
   filters:
-  - type: clash-classic
+  - type: clash-classical
+    format: yaml
     url: https://github.com/dler-io/Rules/raw/main/Clash/Provider/Media/Bilibili.yaml
-  - type: clash-classic
+  - type: clash-classical
+    format: yaml
     url: https://github.com/dler-io/Rules/raw/main/Clash/Provider/Media/IQIYI.yaml
   img-url: https://github.com/Koolson/Qure/raw/master/IconSet/iQIYI%26bilibili.png
   proxies:
   - Mainland
   - type: regex
     pattern: HK|Hong\s{0,1}Kong|香港|🇭🇰|TW|Taiwan|台湾|🇹🇼
+# ------------------------------------------------------------------------------
+# Microsoft.
+# ------------------------------------------------------------------------------
 - name: Microsoft
   type: select
   filters:
-  - type: clash-classic
+  - type: clash-classical
+    format: yaml
     url: https://github.com/dler-io/Rules/raw/main/Clash/Provider/Microsoft.yaml
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Microsoft.png
   proxies:
   - Mainland
-  - Outside
+  - Global
+# ------------------------------------------------------------------------------
+# Apple.
+# ------------------------------------------------------------------------------
 - name: Apple
   type: select
   filters:
-  - type: quantumult
-    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Apple.list
+  - type: domain-list
+    format: text
+    url: https://ruleset.skk.moe/Clash/domainset/apple_cdn.txt
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/non_ip/apple_services.txt
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/ip/apple_services.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Apple.png
   proxies:
   - Mainland
-  - Outside
-- name: Speedtest
-  type: select
-  filters:
-  - type: quantumult
-    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Speedtest.list
-  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Speedtest.png
-  proxies:
-  - Mainland
-  - Outside
+  - Global
+# ------------------------------------------------------------------------------
+# Mainland.
+# ------------------------------------------------------------------------------
 - name: Mainland
   type: select
   filters:
-  - type: quantumult
-    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Mainland.list
-  - type: DOMAIN-SUFFIX
-    arg: smartmidea.net
-  - type: DOMAIN-SUFFIX
-    arg: gree.com
-  - type: geoip
-    arg: CN
+  - DOMAIN-SUFFIX,smartmidea.net
+  - DOMAIN-SUFFIX,gree.com
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/non_ip/domestic.txt
+  - type: clash-classical
+    format: text
+    url: https://ruleset.skk.moe/Clash/ip/domestic.txt
+  - type: clash-ipcidr
+    format: text
+    url: https://ruleset.skk.moe/Clash/ip/china_ip.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Mainland.png
   proxies:
   - DIRECT
+# ------------------------------------------------------------------------------
+# The final match.
+# ------------------------------------------------------------------------------
 - name: Others
   type: select
   filters:
@@ -201,46 +314,30 @@ generates:
     - dns.msftncsi.com
     - www.msftncsi.com
     - www.msftconnecttest.com
-    # Otherwise IPv6 address acquisition will not operate properly.
-    - api6.ipify.org
     default-nameserver:
     - 114.114.114.114
     nameserver:
     - tls://dot.pub
+    use-hosts: true
+    search-domains:
+    - rundong.local
   hosts:
-    # TODO: Auto-gen from hosts.
-    router: 192.168.50.1
-    router.rundong.local: 192.168.50.1
-    gateway: 192.168.50.2
-    gateway.rundong.local: 192.168.50.2
-    raspberry: 192.168.50.2
-    raspberry.rundong.local: 192.168.50.2
-    bmc: 192.168.50.3
-    bmc.rundong.local: 192.168.50.3
-    pve: 192.168.50.4
-    pve.rundong.local: 192.168.50.4
-    truenas: 192.168.50.5
-    truenas.rundong.local: 192.168.50.5
-    freenas: 192.168.50.5
-    freenas.rundong.local: 192.168.50.5
-    synonas: 192.168.50.6
-    synonas.rundong.local: 192.168.50.6
-    nas: 192.168.50.6
-    nas.rundong.local: 192.168.50.6
-    gateway-x86: 192.168.50.7
-    gateway-x86.rundong.local: 192.168.50.7
-    tp-switch: 192.168.50.8
-    tp-switch.rundong.local: 192.168.50.8
     TL-SG2008: 192.168.50.8
-    TL-SG2008.rundong.local: 192.168.50.8
-    home-assistant: 192.168.50.9
-    home-assistant.rundong.local: 192.168.50.9
+    bmc: 192.168.50.3
+    freenas: 192.168.50.5
+    gateway: 192.168.50.2
+    gateway-x86: 192.168.50.7
     ha: 192.168.50.9
-    ha.rundong.local: 192.168.50.9
+    home-assistant: 192.168.50.9
+    nas: 192.168.50.6
     plex: 192.168.50.10
-    plex.rundong.local: 192.168.50.10
     plex-gpu: 192.168.50.10
-    plex-gpu.rundong.local: 192.168.50.10
+    pve: 192.168.50.4
+    raspberry: 192.168.50.2
+    router: 192.168.50.1
+    synonas: 192.168.50.6
+    tp-switch: 192.168.50.8
+    truenas: 192.168.50.5
   tun:
     enable: true
     stack: system

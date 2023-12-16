@@ -1,7 +1,7 @@
 import requests
 
 from rewrite._base_rewrite import RewriteBase
-from common import QUANTUMULT_COMMENT_BEGINS
+from common import COMMENT_BEGINS
 
 
 class QuantumultRewrite(RewriteBase):
@@ -15,7 +15,7 @@ class QuantumultRewrite(RewriteBase):
             l = l.strip()
             if (
                 not l
-                or any(l.startswith(prefix) for prefix in QUANTUMULT_COMMENT_BEGINS)
+                or any(l.startswith(prefix) for prefix in COMMENT_BEGINS)
                 or l.startswith("hostname")
             ):
                 continue
