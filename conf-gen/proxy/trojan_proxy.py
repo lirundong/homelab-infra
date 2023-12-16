@@ -46,3 +46,26 @@ class TrojanProxy(ProxyBase):
         if self.sni is not None:
             info.append(("tls-host", self.sni))
         return ",".join(f"{k}={v}" for k, v in info)
+
+    @property
+    def sing_box_proxy(self):
+        cfg = super().sing_box_proxy
+        tls_cfg = {
+            "enabled": True,
+            "insecure": self.skip_cert_verify,
+        }
+        if self.sni:
+            tls_cfg["server_name"] = self.sni
+        if self.alpn:
+            tls_cfg["alpn"] = self.alpn
+        cfg.update({
+            "type": "trojan",
+            "tag": self.name,
+            "server": self.server,
+            "server_port": self.port,
+            "password": self.password,
+            "tls": tls_cfg,
+        })
+        if not self.udp:
+            cfg["network"] = "tcp"
+        return cfg

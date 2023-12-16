@@ -4,27 +4,29 @@ import re
 import requests
 import yaml
 
-from rule.ir import _IR_REGISTRY, DomainListItem
+from rule.ir import (
+    _IR_REGISTRY,
+    Domain,
+    DomainKeyword,
+    DomainListItem,
+    DomainSuffix,
+    DomainWildcard,
+    ProcessName,
+)
 from common import CLASH_RULESET_FORMATS, COMMENT_BEGINS
 
 
-def parse_quantumult_filter(url):
-    r = requests.get(url)
-    if r.status_code != 200:
-        raise requests.HTTPError(r.reason)
-
-    ret = []
-    for l in r.text.splitlines():
-        l = l.strip()
-        if not l or any(l.startswith(prefix) for prefix in COMMENT_BEGINS):
-            continue
-        type, val = l.split(",")[:2]
-        rule_ir = _IR_REGISTRY[type](val)
-        ret.append(rule_ir)
-    return ret
+DNS_COMPATIBLE_IRS = (
+    Domain,
+    DomainKeyword,
+    DomainListItem,
+    DomainSuffix,
+    DomainWildcard,
+    ProcessName,
+)
 
 
-def _fetch_clash_rule_set_payload(url, format):
+def _fetch_rule_set_payload(url, format):
     if format not in CLASH_RULESET_FORMATS:
         raise ValueError(f"Unsupported format {format}, expect any of {CLASH_RULESET_FORMATS}")
 
@@ -41,8 +43,18 @@ def _fetch_clash_rule_set_payload(url, format):
     return filters
 
 
+def parse_quantumult_filter(url):
+    filters = _fetch_rule_set_payload(url, format="text")
+    ret = []
+    for l in filters:
+        type, val = l.split(",")[:2]
+        ir = _IR_REGISTRY[type](val)
+        ret.append(ir)
+    return ret
+
+
 def parse_clash_classical_filter(url, format):
-    filters = _fetch_clash_rule_set_payload(url, format)
+    filters = _fetch_rule_set_payload(url, format)
     ret = []
     for l in filters:
         type, val = l.split(",")[:2]
@@ -52,7 +64,7 @@ def parse_clash_classical_filter(url, format):
 
 
 def parse_clash_ipcidr_filter(url, format):
-    filters = _fetch_clash_rule_set_payload(url, format)
+    filters = _fetch_rule_set_payload(url, format)
     ret = []
     for l in filters:
         if re.search(r"[0-9]+(?:\.[0-9]+){3}", l):  # Is it IPv4?
@@ -65,7 +77,7 @@ def parse_clash_ipcidr_filter(url, format):
 
 
 def parse_domain_list(url, format):
-    filters = _fetch_clash_rule_set_payload(url, format)
+    filters = _fetch_rule_set_payload(url, format)
     ret = []
     for l in filters:
         ir = DomainListItem(l)
@@ -73,7 +85,20 @@ def parse_domain_list(url, format):
     return ret
 
 
-def parse_filter(filter_info):
+def parse_dnsmasq_conf(url):
+    dnsmasq_template = r"server=/([^/]+)/.*"
+    filters = _fetch_rule_set_payload(url, format="text")
+    ret = []
+    for l in filters:
+        m = re.search(dnsmasq_template, l)
+        if m:
+            d = m.group(1)
+            ir = DomainSuffix(d)
+            ret.append(ir)
+    return ret
+
+
+def parse_filter(filter_info, for_dns=False):
     ret = []
 
     if isinstance(filter_info, dict):
@@ -89,6 +114,8 @@ def parse_filter(filter_info):
             ret = parse_clash_ipcidr_filter(**kwargs)
         elif type == "domain-list":
             ret = parse_domain_list(**kwargs)
+        elif type == "dnsmasq":
+            ret = parse_dnsmasq_conf(**kwargs)
         elif type in _IR_REGISTRY:
             if "arg" in kwargs:
                 if isinstance(kwargs["arg"], (list, tuple)):
@@ -110,5 +137,8 @@ def parse_filter(filter_info):
             ret = [ir, ]
 
     if not ret:
-        raise ValueError(f"Unsupported filter: {type}")
+        raise ValueError(f"Got empty parsing result from: {filter_info}")
+    if for_dns:
+        ret = [r for r in ret if isinstance(r, DNS_COMPATIBLE_IRS)]
+
     return ret

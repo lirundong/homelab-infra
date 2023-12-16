@@ -45,3 +45,18 @@ class ShadowSocksProxy(ProxyBase):
             ),
         ]
         return ",".join(f"{k}={v}" for k, v in info)
+
+    @property
+    def sing_box_proxy(self):
+        cfg = super().sing_box_proxy
+        cfg.update({
+            "type": "shadowsocks",
+            "tag": self.name,
+            "server": self.server,
+            "server_port": self.port,
+            "method": self.cipher,
+            "password": self.password,
+        })
+        if not self.udp:
+            cfg["network"] = "tcp"
+        return cfg

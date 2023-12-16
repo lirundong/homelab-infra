@@ -3,6 +3,7 @@ import os
 
 from generator.clash_generator import ClashGenerator
 from generator.quantumult_generator import QuantumultGenerator
+from generator.sing_box_generator import SingBoxGenerator
 
 
 def generate_conf(
@@ -37,6 +38,23 @@ def generate_conf(
                 **additional_sections,
             )
             dst_filename = os.path.join(dst, f"{gen_info['name']}.conf")
+            gen.generate(dst_filename)
+        elif gen_info["type"] == "sing-box":
+            args = copy(gen_info)
+            gen = SingBoxGenerator(
+                src_file=src,
+                proxies=proxies,
+                per_region_proxies=per_region_proxies,
+                proxy_groups=proxy_groups,
+                dns=args["dns"],
+                route=args["route"],
+                inbounds=args.get("inbounds"),
+                log=args.get("log"),
+                ntp=args.get("ntp"),
+                experimental=args.get("experimental"),
+                skip_process_names=args.get("skip_process_names", False),
+            )
+            dst_filename = os.path.join(dst, f"{gen_info['name']}.json")
             gen.generate(dst_filename)
         else:
             raise ValueError(f"Unsupported generate type: {gen_info['type']}.")

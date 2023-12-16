@@ -33,3 +33,11 @@ class SelectProxyGroup(ProxyGroupBase):
             "type": "select",
             "proxies": self._proxies,
         }
+
+    @property
+    def sing_box_outbound(self) -> Dict:
+        return {
+            "tag": self.name,
+            "type": "selector",
+            "outbounds": self._proxies,
+        }

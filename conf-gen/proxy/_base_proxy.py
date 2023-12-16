@@ -11,3 +11,11 @@ class ProxyBase:
     @property
     def quantumult_proxy(self):
         raise NotImplementedError()
+
+    @property
+    def sing_box_proxy(self):
+        # Return dial fields.
+        cfg = {
+            "domain_strategy": "prefer_ipv6",
+        }
+        return cfg

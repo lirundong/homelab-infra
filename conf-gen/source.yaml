@@ -1,6 +1,6 @@
 # Source configuration that generates Clash and Quantumult X configs.
 global:
-  proxy_check_url: &proxy-check-url http://www.google.com/generate_204
+  proxy_check_url: &proxy-check-url https://www.gstatic.com/generate_204
   proxy_check_interval: 300
 subscriptions:
 - name: WestData Cloud
@@ -62,9 +62,9 @@ rules:
 # ------------------------------------------------------------------------------
 # Netflix.
 # ------------------------------------------------------------------------------
-- name: Netflix
+- name: &NETFLIX_LABEL Netflix
   type: select
-  filters:
+  filters: &NETFLIX_FILTERS
   - DOMAIN-SUFFIX,netflix.ca
   - DOMAIN-SUFFIX,netflix.com
   - DOMAIN-SUFFIX,netflix.net
@@ -152,7 +152,7 @@ rules:
     pattern: US|United\w{0,1}States|美国|🇺🇸|SG|Singapore|新加坡|🇸🇬
   - Overseas
 # ------------------------------------------------------------------------------
-# Speedtest.
+# Speed test.
 # ------------------------------------------------------------------------------
 - name: Speedtest
   type: select
@@ -181,7 +181,7 @@ rules:
 # ------------------------------------------------------------------------------
 # Overseas.
 # ------------------------------------------------------------------------------
-- name: Overseas
+- name: &OVERSEAS_LABEL Overseas
   type: select
   filters:
   - DOMAIN-SUFFIX,s1s1s1.com
@@ -268,7 +268,7 @@ rules:
 # ------------------------------------------------------------------------------
 # The final match.
 # ------------------------------------------------------------------------------
-- name: Others
+- name: &FINAL_LABEL Others
   type: select
   filters:
   - type: match
@@ -281,12 +281,18 @@ rewrites:
   type: quantumult
   url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Rewrite/Rewrite.list
 generates:
+# ------------------------------------------------------------------------------
+# Clash in general.
+# ------------------------------------------------------------------------------
 - name: clash
   type: clash
   allow-lan: false
   ipv6: true
   socks-port: 10080
   port: 10081
+# ------------------------------------------------------------------------------
+# Clash daemon.
+# ------------------------------------------------------------------------------
 - name: clash-daemon
   type: clash
   allow-lan: true
@@ -321,7 +327,7 @@ generates:
     use-hosts: true
     search-domains:
     - rundong.local
-  hosts:
+  hosts: &HOSTS
     TL-SG2008: 192.168.50.8
     bmc: 192.168.50.3
     freenas: 192.168.50.5
@@ -346,6 +352,9 @@ generates:
   profile:
     store-selected: true
     store-fake-ip: true
+# ------------------------------------------------------------------------------
+# Clash for Android.
+# ------------------------------------------------------------------------------
 - name: clash-android
   type: clash
   allow-lan: false
@@ -353,6 +362,10 @@ generates:
   socks-port: 10080
   port: 10081
   dns: *DNS_CONFIG
+  hosts: *HOSTS
+# ------------------------------------------------------------------------------
+# Quantumult-X.
+# ------------------------------------------------------------------------------
 - name: quantumult-x
   type: quantumult
   general:
@@ -379,3 +392,105 @@ generates:
     type: event-interaction
     url: https://github.com/KOP-XIAO/QuantumultX/raw/master/Scripts/geo_location.js
     img-url: location.fill.viewfinder.system
+# ------------------------------------------------------------------------------
+# Sing-Box daemon.
+# ------------------------------------------------------------------------------
+- name: sing-box-daemon
+  type: sing-box
+  skip_process_names: true  # Router cannot see clients' process names.
+  dns:
+    servers:
+    - address: tls://1.1.1.1
+      detour: *OVERSEAS_LABEL
+      tag: PROXY
+    - address: tls://1.1.1.1
+      detour: *NETFLIX_LABEL  # Prevent DNS leak detection from Netflix.
+      tag: Netflix
+    - address: local
+      detour: DIRECT
+      tag: DIRECT
+    - address: fakeip
+      tag: FakeIP
+    fakeip:
+      enabled: true
+      inet4_range: 198.18.0.0/15
+      inet6_range: fc00::/18
+    independent_cache: true
+    rules:
+    # 1) Return true IPs for several special hostnames.
+    - filters:
+      - DOMAIN-SUFFIX,local
+      - DOMAIN-SUFFIX,rundong.me
+      - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
+      - DOMAIN-SUFFIX,dns.msftncsi.com
+      - DOMAIN-SUFFIX,www.msftncsi.com
+      - DOMAIN-SUFFIX,www.msftconnecttest.com
+      server: DIRECT
+    # 2) Resolve proxy servers' hostnames and direct outbound hostnames.
+    #    No effect in pre-routing name query.
+    - outbound: any
+      server: DIRECT
+    # 3) Return FakeIPs for other hostnames.
+    #    No effect in pre-routing name query.
+    - query_type:
+      - A
+      - AAAA
+      server: FakeIP
+    # 4) Resolve Netflix hostnames in the pre-routing phase to prevent DNS leak.
+    #    Only take effect if any inbound's `domain_strategy` option is set.
+    - filters: *NETFLIX_FILTERS
+      server: Netflix
+    # 5) Resolve hostnames in the pre-routing phase such that the IP-CIDR rules can be matched against.
+    #    Only take effect if any inbound's `domain_strategy` option is set.
+    #    NOTE: This is a VERY long list, use with caution!
+    - filters:
+      - type: dnsmasq
+        url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
+      server: DIRECT
+    final: PROXY
+  inbounds:
+  - inet4_address: 172.19.0.1/30
+    inet6_address: fdfe:dcba:9876::1/126
+    interface_name: tun0
+    sniff: true
+    tag: tun
+    type: tun
+  - listen: '::'
+    listen_port: 10081
+    sniff: true
+    tag: mixed
+    type: mixed
+    users:
+    - password: '@secret:CLASH_PROXY_PASSWORD'
+      username: '@secret:CLASH_PROXY_USERNAME'
+  route:
+    rules:
+    - mode: or
+      outbound: DNS
+      rules:
+      - protocol: dns
+      - port: 53
+      type: logical
+    - clash_mode: direct
+      outbound: DIRECT
+    - clash_mode: global
+      outbound: PROXY
+    - mode: or
+      outbound: REJECT
+      rules:
+      - port: 853
+      - network: udp
+        port: 443
+      - protocol: stun
+      type: logical
+    final: *FINAL_LABEL
+  experimental:
+    clash_api:
+      external_controller: :9090
+      external_ui: /root/.config/clash/clash-dashboard
+      secret: '@secret:CLASH_SECRET'
+      # TODO: Move cache related options to cache_file once sing-box 1.8 release.
+      cache_file: /tmp/sing-box-cache.db
+      store_mode: true
+      store_selected: true
+      store_fakeip: true

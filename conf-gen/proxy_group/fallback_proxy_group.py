@@ -46,3 +46,13 @@ class FallbackProxyGroup(ProxyGroupBase):
             "url": self._proxy_check_url,
             "interval": self._proxy_check_interval,
         }
+
+    @property
+    def sing_box_outbound(self) -> Dict:
+        return {
+            "tag": self.name,
+            "type": "urltest",
+            "outbounds": self._proxies,
+            "url": self._proxy_check_url,
+            "interval": f"{self._proxy_check_interval}s",
+        }

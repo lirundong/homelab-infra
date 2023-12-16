@@ -1,8 +1,29 @@
+from collections import defaultdict
 import re
 from typing import Dict, Optional, List, Union
 
 from proxy import ProxyBase, ProxyT
 from rule import FilterT, parse_filter
+from rule.ir import IRBase, ProcessName
+
+
+def group_sing_box_filters(
+    filters: List[IRBase],
+    skip_process_names: bool = False,
+) -> Dict[str, List[str]]:
+    ret = defaultdict(list)
+    for f in filters:
+        if skip_process_names and isinstance(f, ProcessName):
+            continue
+        try:
+            k, v = f.sing_box_rule
+        except ValueError as e:
+            if str(e).endswith("is not supported by sing-box."):
+                continue
+            else:
+                raise e
+        ret[k].append(v)
+    return ret
 
 
 class ProxyGroupBase:
@@ -16,6 +37,7 @@ class ProxyGroupBase:
     ):
         self.name = name
         self.img_url = img_url
+        self.skip_process_names = False  # TODO: Consider expose this in interface?
         self._filters = []
         self._proxies = []
 
@@ -80,3 +102,15 @@ class ProxyGroupBase:
                 clash_rule.append(self.name)
             ret.append(",".join(clash_rule))
         return ret
+
+    @property
+    def sing_box_outbound(self) -> Dict:
+        raise NotImplementedError()
+
+    @property
+    def sing_box_filers(self) -> Dict:
+        matchers = group_sing_box_filters(self._filters, skip_process_names=self.skip_process_names)
+        if matchers:
+            return {"outbound": self.name, **matchers}
+        else:
+            return {}
