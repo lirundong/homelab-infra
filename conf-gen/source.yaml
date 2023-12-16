@@ -38,7 +38,7 @@ rules:
   img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Hijacking.png
   proxies:
   - DIRECT
-  - Global
+  - Overseas
 # ------------------------------------------------------------------------------
 # AdBlock.
 # ------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ rules:
   proxies:
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
-  - Global
+  - Overseas
 # ------------------------------------------------------------------------------
 # Spotify.
 # ------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ rules:
   proxies:
   - type: regex
     pattern: US|United\w{0,1}States|美国|🇺🇸
-  - Global
+  - Overseas
 # ------------------------------------------------------------------------------
 # Telegram.
 # ------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ rules:
     url: https://ruleset.skk.moe/Clash/ip/telegram.txt
   img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Telegram.png
   proxies:
-  - Global
+  - Overseas
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
 # ------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ rules:
   proxies:
   - type: regex
     pattern: US|United\w{0,1}States|美国|🇺🇸|SG|Singapore|新加坡|🇸🇬
-  - Global
+  - Overseas
 # ------------------------------------------------------------------------------
 # Speedtest.
 # ------------------------------------------------------------------------------
@@ -163,9 +163,9 @@ rules:
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Speedtest.png
   proxies:
   - Mainland
-  - Global
+  - Overseas
 # ------------------------------------------------------------------------------
-# Global CDN.
+# Overseas CDN.
 # ------------------------------------------------------------------------------
 - name: CDN
   type: select
@@ -175,13 +175,13 @@ rules:
     url: https://ruleset.skk.moe/Clash/domainset/cdn.txt
   img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Cloudflare.png
   proxies:
-  - Global
+  - Overseas
   - "🌏 Custom" # Automatically grouped by the generator program.
   - Mainland
 # ------------------------------------------------------------------------------
-# Global.
+# Overseas.
 # ------------------------------------------------------------------------------
-- name: Global
+- name: Overseas
   type: select
   filters:
   - DOMAIN-SUFFIX,s1s1s1.com
@@ -225,7 +225,7 @@ rules:
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Microsoft.png
   proxies:
   - Mainland
-  - Global
+  - Overseas
 # ------------------------------------------------------------------------------
 # Apple.
 # ------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ rules:
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Apple.png
   proxies:
   - Mainland
-  - Global
+  - Overseas
 # ------------------------------------------------------------------------------
 # Mainland.
 # ------------------------------------------------------------------------------
