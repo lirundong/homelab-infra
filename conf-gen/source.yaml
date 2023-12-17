@@ -166,6 +166,44 @@ rules:
     pattern: US|United\w{0,1}States|美国|🇺🇸|SG|Singapore|新加坡|🇸🇬
   - Overseas
 # ------------------------------------------------------------------------------
+# GitHub.
+# ------------------------------------------------------------------------------
+- name: GitHub
+  type: select
+  filters:
+  # From: https://github.com/v2fly/domain-list-community/blob/master/data/github
+  - DOMAIN-SUFFIX,atom.io
+  - DOMAIN-SUFFIX,dependabot.com
+  - DOMAIN-SUFFIX,ghcr.io
+  - DOMAIN-SUFFIX,git.io
+  - DOMAIN-SUFFIX,github.blog
+  - DOMAIN-SUFFIX,github.com
+  - DOMAIN-SUFFIX,github.community
+  - DOMAIN-SUFFIX,github.dev
+  - DOMAIN-SUFFIX,github.io
+  - DOMAIN-SUFFIX,githubapp.com
+  - DOMAIN-SUFFIX,githubassets.com
+  - DOMAIN-SUFFIX,githubhackathon.com
+  - DOMAIN-SUFFIX,githubnext.com
+  - DOMAIN-SUFFIX,githubpreview.dev
+  - DOMAIN-SUFFIX,githubstatus.com
+  - DOMAIN-SUFFIX,githubuniverse.com
+  - DOMAIN-SUFFIX,githubusercontent.com
+  - DOMAIN-SUFFIX,myoctocat.com
+  - DOMAIN-SUFFIX,opensource.guide
+  - DOMAIN-SUFFIX,repo.new
+  - DOMAIN-SUFFIX,thegithubshop.com
+  - DOMAIN,github-cloud.s3.amazonaws.com
+  - domain_regex,github-production-release-asset-[0-9a-zA-Z]{6}\.s3\.amazonaws\.com
+  - DOMAIN-SUFFIX,npm.community
+  - DOMAIN-SUFFIX,npmjs.com
+  - DOMAIN-SUFFIX,npmjs.org
+  img-url: https://github.com/Semporia/Quantumult-X/raw/master/Bubble/IconSet/GitHub.png
+  proxies:
+  - "🌏 Custom" # Automatically grouped by the generator program.
+  - Overseas
+  - Mainland
+# ------------------------------------------------------------------------------
 # Speed test.
 # ------------------------------------------------------------------------------
 - name: Speedtest

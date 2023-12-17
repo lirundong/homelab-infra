@@ -97,7 +97,7 @@ class DomainListItem(IRBase):
             if domain.startswith("."):
                 domain = domain[1:]
             return f"host,{domain}"
-    
+
     @property
     def sing_box_rule(self):
         domain = self._val
@@ -123,6 +123,12 @@ class DomainListItem(IRBase):
             if domain.startswith("."):
                 domain = domain[1:]
             return "domain", domain
+
+
+@_IR_REGISTRY.register()
+class DomainRegex(IRBase):
+
+    _sing_box_prefix = "domain_regex"
 
 
 @_IR_REGISTRY.register()
