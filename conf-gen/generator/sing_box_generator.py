@@ -8,6 +8,7 @@ from generator._base_generator import GeneratorBase
 from proxy import (
     ProxyBase,
     ShadowSocksProxy,
+    ShadowSocks2022Proxy,
     TrojanProxy,
 )
 from proxy_group import group_sing_box_filters, ProxyGroupBase
@@ -19,6 +20,7 @@ from rule.parser import parse_filter
 class SingBoxGenerator(GeneratorBase):
     _SUPPORTED_PROXY_TYPE = (
         ShadowSocksProxy,
+        ShadowSocks2022Proxy,
         TrojanProxy,
     )
     _DEFAULT_PROXY_NAMES = {"PROXY", "DIRECT", "REJECT", "DNS"}

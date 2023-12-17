@@ -21,6 +21,20 @@ proxies:
   cipher: chacha20-ietf-poly1305
   password: '@secret:NODE_SS_CHACHA_PASSWORD'
   udp: true
+- name: 🇯🇵「SS20222-AES」bwh-jp-01
+  type: ss
+  server: '@secret:JP_NODE_HOSTNAME'
+  port: '@secret:JP_NODE_SS2022_AES_256_PORT!int'
+  cipher: 2022-blake3-aes-256-gcm
+  password: '@secret:JP_NODE_SS2022_AES_256_PASSWORD'
+  udp: true
+- name: 🇯🇵「SS2022-ChaCha」bwh-jp-01
+  type: ss
+  server: '@secret:JP_NODE_HOSTNAME'
+  port: '@secret:JP_NODE_SS2022_CHACHA_PORT!int'
+  cipher: 2022-blake3-chacha20-poly1305
+  password: '@secret:JP_NODE_SS2022_CHACHA_PASSWORD'
+  udp: true
 rules:
 # ------------------------------------------------------------------------------
 # Guard.

@@ -3,7 +3,11 @@ from typing import Dict, List, Union
 import yaml
 
 from proxy import ProxyBase
-from proxy.shadowsocks_proxy import ShadowSocksProxy
+from proxy.shadowsocks_proxy import (
+    SHADOWSOCKS_2022_CIPHERS,
+    ShadowSocks2022Proxy,
+    ShadowSocksProxy,
+)
 from proxy.socks_proxy import Socks5Proxy
 from proxy.trojan_proxy import TrojanProxy
 from proxy.v2ray_proxy import VMessProxy, VMessGRPCProxy, VMessWebSocketProxy
@@ -16,14 +20,24 @@ def parse_clash_proxies(
     ret = []
     for proxy_info in proxies_info:
         if proxy_info["type"] == "ss":
-            proxy = ShadowSocksProxy(
-                name=proxy_info["name"],
-                server=proxy_info["server"],
-                port=proxy_info["port"],
-                password=proxy_info["password"],
-                cipher=proxy_info["cipher"],
-                udp=proxy_info.get("udp", False),
-            )
+            if proxy_info["cipher"] in SHADOWSOCKS_2022_CIPHERS:
+                proxy = ShadowSocks2022Proxy(
+                    name=proxy_info["name"],
+                    server=proxy_info["server"],
+                    port=proxy_info["port"],
+                    password=proxy_info["password"],
+                    cipher=proxy_info["cipher"],
+                    udp=proxy_info.get("udp", False),
+                )
+            else:
+                proxy = ShadowSocksProxy(
+                    name=proxy_info["name"],
+                    server=proxy_info["server"],
+                    port=proxy_info["port"],
+                    password=proxy_info["password"],
+                    cipher=proxy_info["cipher"],
+                    udp=proxy_info.get("udp", False),
+                )
         elif proxy_info["type"] == "vmess":
             if proxy_info.get("network", None) == "ws":
                 tls_version = proxy_info.get("tls-version", 1.3)

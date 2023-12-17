@@ -60,3 +60,16 @@ class ShadowSocksProxy(ProxyBase):
         if not self.udp:
             cfg["network"] = "tcp"
         return cfg
+
+
+SHADOWSOCKS_2022_CIPHERS = (
+    "2022-blake3-aes-128-gcm",
+    "2022-blake3-aes-256-gcm",
+    "2022-blake3-chacha20-poly1305"
+)
+
+
+# Distinct from other normal Shadowsocks proxies merely in cipher choices. Build such a subclass so
+# services without Shadowsocks-2022 ciphers can safely exclude this proxy.
+class ShadowSocks2022Proxy(ShadowSocksProxy):
+    pass
