@@ -65,15 +65,21 @@ class DomainListItem(IRBase):
     @property
     def clash_rule(self):
         domain = self._val
+        is_domain_suffix = False
         if "+" in domain:
             domain = domain.split("+")[-1]
+            is_domain_suffix = True
         if "*" in domain:
             domain = domain.split("*")[-1]
+            is_domain_suffix = True
         if domain.startswith("."):
             domain = domain[1:]
         if not domain:
             raise ValueError(f"Domain-list item {self._val} cannot be parsed to a Clash rule")
-        return f"DOMAIN-SUFFIX,{domain}"
+        if is_domain_suffix:
+            return f"DOMAIN-SUFFIX,{domain}"
+        else:
+            return f"DOMAIN,{domain}"
     
     @property
     def quantumult_rule(self):
@@ -90,7 +96,7 @@ class DomainListItem(IRBase):
         else:
             if domain.startswith("."):
                 domain = domain[1:]
-            return f"host-suffix,{domain}"
+            return f"host,{domain}"
     
     @property
     def sing_box_rule(self):
@@ -116,7 +122,7 @@ class DomainListItem(IRBase):
         else:
             if domain.startswith("."):
                 domain = domain[1:]
-            return "domain_suffix", domain
+            return "domain", domain
 
 
 @_IR_REGISTRY.register()

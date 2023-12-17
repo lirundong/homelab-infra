@@ -1,13 +1,13 @@
 # Source configuration that generates Clash and Quantumult X configs.
 global:
-  proxy_check_url: &proxy-check-url https://www.gstatic.com/generate_204
+  proxy_check_url: &PROXY_CHECK_URL http://www.google.com/generate_204
   proxy_check_interval: 300
 subscriptions:
 - name: WestData Cloud
   type: clash
   url: '@secret:SUBSCRIPTION_URL'
 proxies:
-- name: &udp-fallback 🇯🇵「SS-AES」bwh-jp-01
+- name: &UDP_FALLBACK 🇯🇵「SS-AES」bwh-jp-01
   type: ss
   server: '@secret:JP_NODE_HOSTNAME'
   port: '@secret:NODE_SS_AES_PORT!int'
@@ -49,9 +49,9 @@ rules:
     format: text
     url: https://ruleset.skk.moe/Clash/non_ip/reject.txt
   # NOTE: This is a VERY long list, use with caution!
-  - type: domain-list
-    format: text
-    url: https://ruleset.skk.moe/Clash/domainset/reject.txt
+  # - type: domain-list
+  #   format: text
+  #   url: https://ruleset.skk.moe/Clash/domainset/reject.txt
   - type: clash-classical
     format: text
     url: https://ruleset.skk.moe/Clash/ip/reject.txt
@@ -251,8 +251,13 @@ rules:
 - name: Mainland
   type: select
   filters:
+  # Handle smart home devices, especially the weird "Mijia Cloud" hostname.
+  - DOMAIN-SUFFIX,aqara.cn
   - DOMAIN-SUFFIX,smartmidea.net
+  - DOMAIN-SUFFIX,midea.com.cn
   - DOMAIN-SUFFIX,gree.com
+  - DOMAIN-SUFFIX,tplinkcloud.com.cn
+  - 'DOMAIN,Mijia Cloud'
   - type: clash-classical
     format: text
     url: https://ruleset.skk.moe/Clash/non_ip/domestic.txt
@@ -378,11 +383,11 @@ generates:
     geo_location_checker:
     - http://ip-api.com/json/?lang=zh-CN
     - https://github.com/KOP-XIAO/QuantumultX/raw/master/Scripts/IP_API.js
-    server_check_url: *proxy-check-url
+    server_check_url: *PROXY_CHECK_URL
     ssid_suspended_list:
     - Rundong's AP
     - Rundong's AP 5GHz
-    fallback_udp_policy: *udp-fallback
+    fallback_udp_policy: *UDP_FALLBACK
   task_local:
   - name: 流媒体-解锁查询
     type: event-interaction
@@ -411,6 +416,8 @@ generates:
       tag: DIRECT
     - address: fakeip
       tag: FakeIP
+    - address: rcode://success
+      tag: REJECT
     fakeip:
       enabled: true
       inet4_range: 198.18.0.0/15
@@ -426,22 +433,28 @@ generates:
       - DOMAIN-SUFFIX,www.msftncsi.com
       - DOMAIN-SUFFIX,www.msftconnecttest.com
       server: DIRECT
-    # 2) Resolve proxy servers' hostnames and direct outbound hostnames.
-    #    No effect in pre-routing name query.
-    - outbound: any
-      server: DIRECT
-    # 3) Return FakeIPs for other hostnames.
+    # 2) Return FakeIPs for other hostnames and reject secured DNS queries, as
+    #    secure DNS services are heavily polluted in mainland China.
     #    No effect in pre-routing name query.
     - query_type:
       - A
       - AAAA
       server: FakeIP
+    - query_type:
+      - SVCB
+      - HTTPS
+      server: REJECT
+    # 3) Resolve proxy servers' hostnames and direct outbound hostnames.
+    #    No effect in pre-routing name query.
+    - outbound: any
+      server: DIRECT
     # 4) Resolve Netflix hostnames in the pre-routing phase to prevent DNS leak.
     #    Only take effect if any inbound's `domain_strategy` option is set.
     - filters: *NETFLIX_FILTERS
       server: Netflix
-    # 5) Resolve hostnames in the pre-routing phase such that the IP-CIDR rules can be matched against.
-    #    Only take effect if any inbound's `domain_strategy` option is set.
+    # 5) Resolve hostnames in the pre-routing phase such that the IP-CIDR rules
+    #    can be matched against. Only take effect if any inbound's
+    #    `domain_strategy` option is set.
     #    NOTE: This is a VERY long list, use with caution!
     - filters:
       - type: dnsmasq
