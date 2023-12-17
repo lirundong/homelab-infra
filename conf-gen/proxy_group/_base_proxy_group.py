@@ -72,13 +72,17 @@ class ProxyGroupBase:
         filters = []
         for filter in self._filters:
             try:
-                filter = f"{filter.quantumult_rule},{self.name}"
+                filter = filter.quantumult_rule.split(",")
             except ValueError as e:
                 if str(e).endswith("is not supported by quantumult x."):
                     continue
                 else:
                     raise e
-            filters.append(filter)
+            if filter[-1] == "no-resolve":
+                filter.insert(-1, self.name)
+            else:
+                filter.append(self.name)
+            filters.append(",".join(filter))
         return filters
 
     @property
