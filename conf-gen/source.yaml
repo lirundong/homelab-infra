@@ -79,6 +79,7 @@ rules:
 - name: &NETFLIX_LABEL Netflix
   type: select
   filters: &NETFLIX_FILTERS
+  - USER-AGENT,Argo*
   - DOMAIN-SUFFIX,netflix.ca
   - DOMAIN-SUFFIX,netflix.com
   - DOMAIN-SUFFIX,netflix.net
@@ -93,7 +94,6 @@ rules:
   - DOMAIN-KEYWORD,dualstack.apiproxy-
   - DOMAIN-KEYWORD,dualstack.ichnaea-web-
   - DOMAIN-KEYWORD,apiproxy-device-prod-nlb-
-  - USER-AGENT,Argo*
   - PROCESS-NAME,com.netflix.mediaclient
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Netflix.list
@@ -108,6 +108,7 @@ rules:
 - name: Spotify
   type: select
   filters:
+  - USER-AGENT,*Spotify*
   - DOMAIN-KEYWORD,-spotify-com
   - DOMAIN-SUFFIX,pscdn.co
   - DOMAIN-SUFFIX,scdn.co
@@ -126,7 +127,6 @@ rules:
   - DOMAIN-SUFFIX,spotifynewsroom.jp
   - DOMAIN-SUFFIX,spotilocal.com
   - DOMAIN-SUFFIX,tospotify.com
-  - USER-AGENT,*Spotify*
   - IP-CIDR,35.186.224.47/32
   - type: quantumult
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Spotify.list
@@ -495,6 +495,7 @@ generates:
     - query_type:
       - SVCB
       - HTTPS
+      disable_cache: true
       server: REJECT
     # 3) Resolve proxy servers' hostnames and direct outbound hostnames.
     #    No effect in pre-routing name query.
