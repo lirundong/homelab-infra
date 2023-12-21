@@ -12,5 +12,3 @@ python3-requests
 python3-yaml
 qemu-ga
 vim-fuller
-vim-help
-vim-runtime
