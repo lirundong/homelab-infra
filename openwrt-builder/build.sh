@@ -45,7 +45,7 @@ CUSTOM_FILES_DIR=$(realpath -- ./files)
 # Sing-Box.
 SING_BOX_VERSION=${SING_BOX_VERSION:-$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/SagerNet/sing-box/releases/latest | grep -Po 'v\K\d+\.\d+\.\d+')}
 curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-amd64v3.tar.gz -o sing-box.tar.gz
-tar -xf sing-box-tar.gz
+tar -xf sing-box.tar.gz
 chmod +x sing-box-${SING_BOX_VERSION}-linux-amd64v3/sing-box
 mv sing-box-${SING_BOX_VERSION}-linux-amd64v3/sing-box $CUSTOM_FILES_DIR/usr/bin/
 
