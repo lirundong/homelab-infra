@@ -1,5 +1,7 @@
 # HomeLab Infra Monorepo
 
+[![Artifacts Release Nightly](https://github.com/lirundong/homelab-infra/actions/workflows/artifacts-release-nightly.yaml/badge.svg)](https://github.com/lirundong/homelab-infra/actions/workflows/artifacts-release-nightly.yaml)
+
 This is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing all software infrastructures of Rundong's home-lab. Projects include:
 
 * [conf-gen](./conf-gen): Generating [Clash](https://github.com/Dreamacro/clash) and [Quantumult-X](https://apps.apple.com/us/app/quantumult-x/id1443988620) configuration files for various deployment scenarios (PC clients, home routers, mobile apps, etc.) from one single unified source configuration file
