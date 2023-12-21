@@ -137,6 +137,7 @@ class GeoIP(IRBase):
     _clash_prefix = "GEOIP"
     _quantumult_prefix = "geoip"
     _sing_box_prefix = "geoip"
+    _might_resolvable = True
 
 
 @_IR_REGISTRY.register()
@@ -145,14 +146,7 @@ class IPCIDR(IRBase):
     _clash_prefix = "IP-CIDR"
     _quantumult_prefix = "ip-cidr"
     _sing_box_prefix = "ip_cidr"
-
-    @property
-    def clash_rule(self):
-        return f"{super().clash_rule},no-resolve"
-
-    @property
-    def quantumult_rule(self):
-        return f"{super().quantumult_rule},no-resolve"
+    _might_resolvable = True
 
 
 @_IR_REGISTRY.register()
@@ -160,14 +154,7 @@ class IPCIDR6(IRBase):
 
     _clash_prefix = "IP-CIDR6"
     _quantumult_prefix = "ip6-cidr"
-
-    @property
-    def clash_rule(self):
-        return f"{super().clash_rule},no-resolve"
-
-    @property
-    def quantumult_rule(self):
-        return f"{super().quantumult_rule},no-resolve"
+    _might_resolvable = True
     
     @property
     def sing_box_rule(self):
@@ -178,7 +165,6 @@ class IPCIDR6(IRBase):
 class SrcIPCIDR(IRBase):
 
     _clash_prefix = "SRC-IP-CIDR"
-    _quantumult_prefix = None
     _sing_box_prefix = "source_ip_cidr"
 
 
@@ -202,8 +188,8 @@ class Match(IRBase):
     _clash_prefix = "MATCH"
     _quantumult_prefix = "final"
 
-    def __init__(self):
-        super().__init__(val=None)
+    def __init__(self, val=None, resolve=None):
+        super().__init__(val=val, resolve=resolve)
 
     @property
     def clash_rule(self):

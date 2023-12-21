@@ -43,27 +43,35 @@ def _fetch_rule_set_payload(url, format):
     return filters
 
 
-def parse_quantumult_filter(url):
-    filters = _fetch_rule_set_payload(url, format="text")
-    ret = []
-    for l in filters:
-        type, val = l.split(",")[:2]
-        ir = _IR_REGISTRY[type](val)
-        ret.append(ir)
-    return ret
-
-
-def parse_clash_classical_filter(url, format):
+def parse_clash_classical_filter(url, format, resolve):
     filters = _fetch_rule_set_payload(url, format)
     ret = []
     for l in filters:
-        type, val = l.split(",")[:2]
-        ir = _IR_REGISTRY[type](val)
+        type, *args = l.split(",")
+        if len(args) < 1:
+            raise ValueError(f"Got unparsable rule {l}")
+        elif len(args) == 1:
+            val = args[0]
+            rule_requires_resolve = resolve
+        else:
+            val = args[0]
+            # resolve argument take precedences over the rule tail literals.
+            if args[-1].lower() in ("no-resolve", "resolve"):
+                rule_literal_requires_resolve = False if args[-1].lower() == "no-resolve" else True
+                if rule_literal_requires_resolve == resolve:
+                    rule_requires_resolve = rule_literal_requires_resolve
+                else:
+                    rule_requires_resolve = resolve
+            else:
+                rule_requires_resolve = resolve
+        ir = _IR_REGISTRY[type](val, rule_requires_resolve)
         ret.append(ir)
     return ret
 
 
-def parse_clash_ipcidr_filter(url, format):
+def parse_clash_ipcidr_filter(url, format, resolve):
+    if resolve is None:
+        raise ValueError("Must explicitly specify IP rules resolve, but got None instead.")
     filters = _fetch_rule_set_payload(url, format)
     ret = []
     for l in filters:
@@ -71,7 +79,7 @@ def parse_clash_ipcidr_filter(url, format):
             type = "IP-CIDR"
         else:
             type = "IP-CIDR6"
-        ir = _IR_REGISTRY[type](l)
+        ir = _IR_REGISTRY[type](l, resolve)
         ret.append(ir)
     return ret
 
@@ -107,7 +115,7 @@ def parse_filter(filter_info, for_dns=False):
         kwargs = copy.copy(filter_info)
         type = kwargs.pop("type")
         if type == "quantumult":
-            ret = parse_quantumult_filter(**kwargs)
+            ret = parse_clash_classical_filter(format="text", **kwargs)
         elif type == "clash-classical":
             ret = parse_clash_classical_filter(**kwargs)
         elif type == "clash-ipcidr":
@@ -129,6 +137,17 @@ def parse_filter(filter_info, for_dns=False):
             ret = [ir, ]
     elif isinstance(filter_info, str):
         type, *args = filter_info.split(",")
+        if 1 < len(args):  # The last flag should specify resolve or not.
+            if args[-1].lower() == "no-resolve":
+                args[-1] = False
+            elif args[-1].lower() == "resolve":
+                args[-1] = True
+            else:
+                raise ValueError(
+                    f"Cannot parse the last part ({args[-1]}) of rule {filter_info}. That part "
+                    f"should be either `no-resolve` or `resolve` to specify this rule requires "
+                    f"hostname resolving or not."
+                )
         if type in _IR_REGISTRY:
             if args:
                 ir = _IR_REGISTRY[type](*args)
