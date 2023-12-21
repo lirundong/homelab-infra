@@ -12,7 +12,6 @@ set direct_macs {
     type ether_addr
     elements = {
         00:11:32:ac:77:2e, # synonas eth0
-        64:ff:0a:4b:8c:c1, # Sony-TV WiFi
         00:e4:21:6a:eb:a3, # PS5 WiFi
         00:e4:21:fd:9f:0b, # PS5 Ethernet
         16:43:4b:30:19:84, # qemu-win10-compute

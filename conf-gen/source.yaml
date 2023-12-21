@@ -553,10 +553,10 @@ generates:
   experimental:
     clash_api:
       external_controller: :9090
-      external_ui: /root/.config/clash/clash-dashboard
+      external_ui: /root/.config/sing-box/ui
       secret: '@secret:CLASH_SECRET'
       # TODO: Move cache related options to cache_file once sing-box 1.8 release.
-      cache_file: /tmp/sing-box-cache.db
+      cache_file: /root/.config/sing-box/cache.db
       store_mode: true
       store_selected: true
       store_fakeip: true

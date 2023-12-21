@@ -2,10 +2,15 @@ ca-bundle
 coreutils-timeout
 curl
 gnupg
+htop
 kmod-nft-tproxy
+kmod-tun
 luci
 python3-cryptography
 python3-ifaddr
 python3-requests
 python3-yaml
 qemu-ga
+vim-fuller
+vim-help
+vim-runtime

@@ -1,6 +1,25 @@
 #!/bin/sh
 
 # ==============================================================================
+#   Zone rules.
+# ==============================================================================
+# Create a zone for sing-box tunnels and enable approperate forwardings.
+zone_id=$(uci add firewall zone)
+uci set firewall.$zone_id.name='sing-box'
+uci set firewall.$zone_id.device='tun+'
+uci set firewall.$zone_id.input='ACCEPT'
+uci set firewall.$zone_id.output='ACCEPT'
+uci set firewall.$zone_id.forward='REJECT'
+
+forwarding_id=$(uci add firewall forwarding)
+uci set firewall.$forwarding_id.src='sing-box'
+uci set firewall.$forwarding_id.dest='lan'
+
+forwarding_id=$(uci add firewall forwarding)
+uci set firewall.$forwarding_id.src='lan'
+uci set firewall.$forwarding_id.dest='sing-box'
+
+# ==============================================================================
 #   Input rules.
 # ==============================================================================
 # Allow KMS inputs from WAN.

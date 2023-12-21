@@ -29,42 +29,44 @@ else
 fi
 pushd $WORK_DIR
 
-# Cross-compiled projects.
+# OpenWRT cross-compilation SDK.
 curl -sSLO $SDK_URL
-tar -Jxf $SDK.tar.xz
+tar -xf $SDK.tar.xz
 STAGING_DIR=$(realpath -- $SDK/staging_dir)
 SDK_BIN_DIR=$(realpath -- $SDK/staging_dir/toolchain-${TARGET/\//_}_gcc-$GCC_VERSION/bin)
-# VLMCSD.
-git clone https://github.com/Wind4/vlmcsd.git
-pushd vlmcsd
-STAGING_DIR=$STAGING_DIR PATH=$SDK_BIN_DIR:$PATH make CC=${TARGET/\//_}-openwrt-linux-gcc LD=${TARGET/\//_}-openwrt-linux-ld
-chmod +x bin/vlmcs bin/vlmcsd
-popd
+SDK_CC=${SDK_BIN_DIR}/${TARGET/\//_}-openwrt-linux-gcc
+SDK_LD=${SDK_BIN_DIR}/${TARGET/\//_}-openwrt-linux-ld
 
 # Prepare custom files.
 $ROOT_DIR/common/secret_decoder.py -r $SRC_DIR/files ./files -e '.*skip$' '__pycache__'
 mkdir -p files/usr/bin files/root
 CUSTOM_FILES_DIR=$(realpath -- ./files)
-# Clash.
-CLASH_VERSION=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/Dreamacro/clash/releases/latest | grep -Po 'v\K\d+\.\d+\.\d+')
-curl -sSL https://github.com/Dreamacro/clash/releases/download/v$CLASH_VERSION/clash-linux-amd64-v3-v$CLASH_VERSION.gz -o clash.gz
-gzip -d clash.gz
-chmod +x clash
-mv clash $CUSTOM_FILES_DIR/usr/bin/
-# Clash config and dashboard.
-mkdir -p $CUSTOM_FILES_DIR/root/.config/clash
-git clone https://github.com/Dreamacro/clash-dashboard.git --branch=gh-pages --single-branch --depth=1 $CUSTOM_FILES_DIR/root/.config/clash/clash-dashboard
-$ROOT_DIR/conf-gen/generate.py -s $ROOT_DIR/conf-gen/source.yaml -o clash-conf/
-cp clash-conf/clash-daemon.yaml $CUSTOM_FILES_DIR/root/.config/clash/config.yaml
-curl -sSL https://github.com/Dreamacro/maxmind-geoip/releases/latest/download/Country.mmdb -o $CUSTOM_FILES_DIR/root/.config/clash/Country.mmdb
-# Naive proxy.
-NAIVE_PROXY_VERSION=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/klzgrad/naiveproxy/releases/latest | grep -Po 'v\d+\.\d+\.\d+\.\d+-\d+')
-curl -sSLO "https://github.com/klzgrad/naiveproxy/releases/download/${NAIVE_PROXY_VERSION}/naiveproxy-${NAIVE_PROXY_VERSION}-openwrt-x86_64.tar.xz"
-tar -Jxvf naiveproxy-${NAIVE_PROXY_VERSION}-openwrt-x86_64.tar.xz
-cp naiveproxy-${NAIVE_PROXY_VERSION}-openwrt-x86_64/naive $CUSTOM_FILES_DIR/usr/bin/
-chmod +x $CUSTOM_FILES_DIR/usr/bin/naive
+
+# Sing-Box.
+SING_BOX_VERSION=${SING_BOX_VERSION:-$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/SagerNet/sing-box/releases/latest | grep -Po 'v\K\d+\.\d+\.\d+')}
+curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-amd64v3.tar.gz -o sing-box.tar.gz
+tar -xf sing-box-tar.gz
+chmod +x sing-box-${SING_BOX_VERSION}-linux-amd64v3/sing-box
+mv sing-box-${SING_BOX_VERSION}-linux-amd64v3/sing-box $CUSTOM_FILES_DIR/usr/bin/
+
+# Sing-Box web dashbord.
+mkdir -p $CUSTOM_FILES_DIR/root/.config/sing-box
+curl -sSLO https://github.com/MetaCubeX/yacd/archive/gh-pages.zip
+unzip gh-pages.zip
+mv Yacd-meta-gh-pages $CUSTOM_FILES_DIR/root/.config/sing-box/ui
+
+# Sing-Box config.
+$ROOT_DIR/conf-gen/generate.py -s $ROOT_DIR/conf-gen/source.yaml -o generated-conf/
+cp generated-conf/sing-box-daemon.json $CUSTOM_FILES_DIR/root/.config/sing-box/config.json
+
 # VLMCSD.
+git clone https://github.com/Wind4/vlmcsd.git
+pushd vlmcsd
+STAGING_DIR=$STAGING_DIR PATH=$SDK_BIN_DIR:$PATH make CC=${SDK_CC} LD=${SDK_LD}
+chmod +x bin/vlmcs bin/vlmcsd
+popd
 cp vlmcsd/bin/vlmcs vlmcsd/bin/vlmcsd $CUSTOM_FILES_DIR/usr/bin/
+
 # DDNS.
 rsync -aP --exclude='__pycache__' $ROOT_DIR/common $CUSTOM_FILES_DIR/root/
 rsync -aP --exclude='__pycache__' $ROOT_DIR/util-cookbook/tencent-cloud $CUSTOM_FILES_DIR/root/util-cookbook/

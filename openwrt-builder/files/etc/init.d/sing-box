@@ -5,11 +5,11 @@ START=99
 STOP=01
 
 start_service() {
-  local sing_box_root=/tmp/.config/sing-box
+  local sing_box_root=/root/.config/sing-box
   local sing_box_config=${sing_box_root}/config.json
 
   procd_open_instance "sing-box-daemon"
-  procd_set_param command /tmp/bin/sing-box run -c ${sing_box_config}
+  procd_set_param command /usr/bin/sing-box run -c ${sing_box_config}
   procd_set_param file ${sing_box_config}
   procd_set_param stdout 1
   procd_set_param stderr 1
@@ -18,7 +18,7 @@ start_service() {
 }
 
 reload_service() {
-  local sing_box_root=/tmp/.config/sing-box
+  local sing_box_root=/root/.config/sing-box
   local sing_box_config=${sing_box_root}/config.json
   local clash_secret=@secret:CLASH_SECRET
 
