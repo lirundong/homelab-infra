@@ -76,7 +76,11 @@ curl -sSLO $IMG_BUILDER_URL
 tar -Jxf $IMG_BUILDER.tar.xz
 pushd $IMG_BUILDER
 sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" repositories.conf
-make image FILES=$CUSTOM_FILES_DIR PACKAGES="$PACKAGES"
+make image \
+  FILES=$CUSTOM_FILES_DIR \
+  PACKAGES="$PACKAGES" \
+  CONFIG_TARGET_ROOTFS_PARTSIZE=512 \
+  CONFIG_TARGET_KERNEL_PARTSIZE=32
 
 popd  # Image builder.
 popd  # Working directory.
