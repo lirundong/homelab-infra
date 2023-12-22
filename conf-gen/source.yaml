@@ -46,6 +46,7 @@ rules:
   - DOMAIN-SUFFIX,plex.redirect
   - DOMAIN-SUFFIX,@secret:DOMAIN
   - IP-CIDR,@secret:JP_NODE_IPV4/32,no-resolve
+  - IP-CIDR6,@secret:JP_NODE_IPV6/64,no-resolve
   - type: clash-classical
     format: text
     resolve: false
