@@ -1,11 +1,14 @@
+from typing import Dict, Hashable, Optional, Tuple, Type
+
+
 class IRBase:
 
-    _clash_prefix = None
-    _quantumult_prefix = None
-    _sing_box_prefix = None
-    _might_resolvable = False
+    _clash_prefix: Optional[str] = None
+    _quantumult_prefix: Optional[str] = None
+    _sing_box_prefix: Optional[str] = None
+    _might_resolvable: bool = False
 
-    def __init__(self, val, resolve=None):
+    def __init__(self, val: str, resolve: Optional[bool]=None):
         if self._might_resolvable and resolve is None:
             raise ValueError(
                 f"{self.__class__.__name__} requires explicitly specify whether this rule requires "
@@ -28,7 +31,7 @@ class IRBase:
         return type(rhs) == type(self) and rhs._val == self._val
 
     @property
-    def clash_rule(self):
+    def clash_rule(self) -> str:
         if self._clash_prefix is None:
             raise ValueError(f"{self.__class__.__name__} is not supported by clash.")
         if self._might_resolvable:
@@ -45,7 +48,7 @@ class IRBase:
             return f"{self._clash_prefix},{self._val}"
 
     @property
-    def quantumult_rule(self):
+    def quantumult_rule(self) -> str:
         if self._quantumult_prefix is None:
             raise ValueError(f"{self.__class__.__name__} is not supported by quantumult x.")
         if self._might_resolvable:
@@ -62,7 +65,7 @@ class IRBase:
             return f"{self._quantumult_prefix},{self._val}"
 
     @property
-    def sing_box_rule(self):
+    def sing_box_rule(self) -> Tuple[str, str]:
         if self._sing_box_prefix is None:
             raise ValueError(f"{self.__class__.__name__} is not supported by sing-box.")
         return self._sing_box_prefix, self._val
@@ -70,10 +73,10 @@ class IRBase:
 
 class IRRegistry:
     def __init__(self):
-        self._registry = {}
+        self._registry: Dict[str, Type[IRBase]] = {}
 
     def register(self):
-        def _do_register(cls):
+        def _do_register(cls: Type[IRBase]) -> Type[IRBase]:
             assert issubclass(cls, IRBase), f"{cls} is not a subclass of IRBase"
             if cls._clash_prefix is not None:
                 self._registry[cls._clash_prefix.lower()] = cls
@@ -85,14 +88,14 @@ class IRRegistry:
 
         return _do_register
 
-    def __contains__(self, key):
-        if key.lower() in self._registry:
+    def __contains__(self, key: Hashable) -> bool:
+        if isinstance(key, str) and key.lower() in self._registry:
             return True
         else:
             return False
 
-    def __getitem__(self, key):
-        if key.lower() in self._registry:
+    def __getitem__(self, key: Hashable) -> Type[IRBase]:
+        if isinstance(key, str) and key.lower() in self._registry:
             return self._registry[key.lower()]
         else:
             raise RuntimeError(f"{key} was not registered as an IR.")

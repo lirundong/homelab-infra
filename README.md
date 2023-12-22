@@ -1,6 +1,6 @@
 # HomeLab Infra Monorepo
 
-[![Artifacts Release Nightly](https://github.com/lirundong/homelab-infra/actions/workflows/artifacts-release-nightly.yaml/badge.svg)](https://github.com/lirundong/homelab-infra/actions/workflows/artifacts-release-nightly.yaml)
+[![Artifacts Release Nightly](https://github.com/lirundong/homelab-infra/actions/workflows/artifacts-release-nightly.yaml/badge.svg)](https://github.com/lirundong/homelab-infra/releases/tag/nightly)
 
 This is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing all software infrastructures of Rundong's home-lab. Projects include:
 

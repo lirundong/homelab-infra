@@ -33,17 +33,23 @@ def _fetch_rule_set_payload(url, format):
     r = requests.get(url, headers={"user-agent": "clash"})
     if r.status_code != 200:
         raise requests.HTTPError(r.reason)
-    
+
     filters = []
     if format == "yaml":
         filters = [l.strip() for l in yaml.load(r.text, Loader=yaml.SafeLoader)["payload"]]
     elif format == "text":
-        filters = [l.strip() for l in r.text.splitlines() if l and not l.lstrip().startswith(COMMENT_BEGINS)]
+        filters = [
+            l.strip()
+            for l in r.text.splitlines()
+            if l and not l.lstrip().startswith(COMMENT_BEGINS)
+        ]
 
     return filters
 
 
 def parse_clash_classical_filter(url, format, resolve):
+    if not resolve in ("literal", True, False):
+        raise ValueError(f"Unsupported resolve argument {resolve}, expect boolean or 'literal'")
     filters = _fetch_rule_set_payload(url, format)
     ret = []
     for l in filters:
@@ -55,13 +61,22 @@ def parse_clash_classical_filter(url, format, resolve):
             rule_requires_resolve = resolve
         else:
             val = args[0]
-            # resolve argument take precedences over the rule tail literals.
-            if args[-1].lower() in ("no-resolve", "resolve"):
-                rule_literal_requires_resolve = False if args[-1].lower() == "no-resolve" else True
-                if rule_literal_requires_resolve == resolve:
-                    rule_requires_resolve = rule_literal_requires_resolve
+            # Resolve condition in the rule literal only takes effect when resolve set to "literal".
+            if resolve == "literal":
+                if (
+                    args[-1].lower() not in ("no-resolve", "resolve")
+                    and _IR_REGISTRY[type]._might_resolvable
+                ):
+                    raise ValueError(
+                        f"Specified resolve=literal but the rule {l} did not indicate whether to "
+                        f"resolve hostname or not"
+                    )
+                elif args[-1].lower() == "no-resolve":
+                    rule_requires_resolve = False
+                elif args[-1].lower() == "resolve":
+                    rule_requires_resolve = True
                 else:
-                    rule_requires_resolve = resolve
+                    rule_requires_resolve = None
             else:
                 rule_requires_resolve = resolve
         ir = _IR_REGISTRY[type](val, rule_requires_resolve)

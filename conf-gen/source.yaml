@@ -336,7 +336,7 @@ rules:
     url: https://ruleset.skk.moe/Clash/ip/domestic.txt
   - type: clash-ipcidr
     format: text
-    resolve: true
+    resolve: true  # Same here, enable resolve to ensure necessary final match.
     url: https://ruleset.skk.moe/Clash/ip/china_ip.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Mainland.png
   proxies:
