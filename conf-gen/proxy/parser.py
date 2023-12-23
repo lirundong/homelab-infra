@@ -1,10 +1,10 @@
 import requests
-from typing import Dict, List, Union
+from typing import Dict, get_args, List, Union
 import yaml
 
 from proxy import ProxyBase
 from proxy.shadowsocks_proxy import (
-    SHADOWSOCKS_2022_CIPHERS,
+    ShadowSocks2022CiphersT,
     ShadowSocks2022Proxy,
     ShadowSocksProxy,
 )
@@ -20,7 +20,7 @@ def parse_clash_proxies(
     ret = []
     for proxy_info in proxies_info:
         if proxy_info["type"] == "ss":
-            if proxy_info["cipher"] in SHADOWSOCKS_2022_CIPHERS:
+            if proxy_info["cipher"] in get_args(ShadowSocks2022CiphersT):
                 proxy = ShadowSocks2022Proxy(
                     name=proxy_info["name"],
                     server=proxy_info["server"],
