@@ -4,7 +4,8 @@ from typing import Dict, Optional, List, Union
 
 from proxy import ProxyBase, ProxyT
 from rule import FilterT, parse_filter
-from rule.ir import IRBase, ProcessName
+from rule._base_ir import IRBase
+from rule.ir import ProcessName
 
 
 def group_sing_box_filters(

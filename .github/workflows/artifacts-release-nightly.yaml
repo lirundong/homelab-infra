@@ -9,7 +9,10 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
     - name: setup-dependencies
       run: |
         pip3 install --user --upgrade cryptography emoji pycountry pytz pyyaml requests

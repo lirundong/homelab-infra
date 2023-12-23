@@ -1,4 +1,4 @@
-from typing import Dict, Hashable, Optional, Tuple, Type
+from typing import Any, Callable, Dict, Hashable, Optional, Tuple, Type
 
 
 class IRBase:
@@ -17,7 +17,7 @@ class IRBase:
         self._val = val
         self._resolve = resolve
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(
             f"{self._clash_prefix},"
             f"{self._quantumult_prefix},"
@@ -27,7 +27,7 @@ class IRBase:
             f"{self._resolve},"
         )
 
-    def __eq__(self, rhs):
+    def __eq__(self, rhs: Any) -> bool:
         return type(rhs) == type(self) and rhs._val == self._val
 
     @property
@@ -72,10 +72,10 @@ class IRBase:
 
 
 class IRRegistry:
-    def __init__(self):
+    def __init__(self) -> None:
         self._registry: Dict[str, Type[IRBase]] = {}
 
-    def register(self):
+    def register(self) -> Callable[[Type[IRBase]], Type[IRBase]]:
         def _do_register(cls: Type[IRBase]) -> Type[IRBase]:
             assert issubclass(cls, IRBase), f"{cls} is not a subclass of IRBase"
             if cls._clash_prefix is not None:
@@ -101,4 +101,4 @@ class IRRegistry:
             raise RuntimeError(f"{key} was not registered as an IR.")
 
 
-_IR_REGISTRY = IRRegistry()
+_IR_REGISTRY: IRRegistry = IRRegistry()
