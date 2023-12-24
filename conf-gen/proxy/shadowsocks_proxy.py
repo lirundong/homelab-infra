@@ -82,7 +82,7 @@ class ShadowSocksProxy(ProxyBase):
                 f"{self.udp}".lower(),
             ),
         ]
-        return proxy + ",".join(f"{k}={v}" for k, v in info)
+        return proxy + "," + ",".join(f"{k}={v}" for k, v in info)
 
     @property
     def sing_box_proxy(self) -> SingBoxShadowSocksProxyT:

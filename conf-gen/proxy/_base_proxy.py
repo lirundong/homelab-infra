@@ -1,4 +1,4 @@
-from typing import Dict, Literal, TypedDict, Union
+from typing import Dict, Literal, NotRequired, Sequence, TypedDict, Union
 
 
 class ClashProxyT(TypedDict):
@@ -12,6 +12,13 @@ class SingBoxProxyT(TypedDict):
     server: str
     server_port: int
     domain_strategy: Literal["prefer_ipv4", "prefer_ipv6", "ipv4_only", "ipv6_only"]
+
+
+class SingBoxTlsT(TypedDict):
+    enabled: bool
+    insecure: bool
+    server_name: NotRequired[str]
+    alpn: NotRequired[Sequence[str]]
 
 
 class ProxyBase:
