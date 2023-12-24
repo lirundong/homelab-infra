@@ -227,20 +227,6 @@ rules:
   - Mainland
   - Overseas
 # ------------------------------------------------------------------------------
-# Overseas CDN.
-# ------------------------------------------------------------------------------
-- name: CDN
-  type: select
-  filters:
-  - type: domain-list
-    format: text
-    url: https://ruleset.skk.moe/Clash/domainset/cdn.txt
-  img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Cloudflare.png
-  proxies:
-  - Overseas
-  - "🌏 Custom" # Automatically grouped by the generator program.
-  - Mainland
-# ------------------------------------------------------------------------------
 # Overseas.
 # ------------------------------------------------------------------------------
 - name: &OVERSEAS_LABEL Overseas
@@ -289,6 +275,10 @@ rules:
     format: yaml
     resolve: false
     url: https://github.com/dler-io/Rules/raw/main/Clash/Provider/Microsoft.yaml
+  - type: clash-classical
+    format: text
+    resolve: false
+    url: https://ruleset.skk.moe/Clash/non_ip/microsoft_cdn.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Microsoft.png
   proxies:
   - Mainland
