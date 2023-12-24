@@ -331,13 +331,21 @@ rules:
     format: text
     resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/domestic.txt
+  # NOTE: Mainland IPCIDR filters are in the last group, thus enable hostname
+  # resolving to ensure taking effect.
+  - type: quantumult
+    resolve: true
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/CMedia.list
+  - type: quantumult
+    resolve: true
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Mainland.list
   - type: clash-classical
     format: text
-    resolve: true  # NOTE: The final IP match, must resolve.
+    resolve: true
     url: https://ruleset.skk.moe/Clash/ip/domestic.txt
   - type: clash-ipcidr
     format: text
-    resolve: true  # Same here, enable resolve to ensure necessary final match.
+    resolve: true
     url: https://ruleset.skk.moe/Clash/ip/china_ip.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Mainland.png
   proxies:
@@ -345,7 +353,7 @@ rules:
 # ------------------------------------------------------------------------------
 # The final match.
 # ------------------------------------------------------------------------------
-- name: &FINAL_LABEL Others
+- name: &FINAL_LABEL Final
   type: select
   filters:
   - type: match
