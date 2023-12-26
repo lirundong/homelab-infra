@@ -83,7 +83,9 @@ rules:
 - name: &NETFLIX_LABEL Netflix
   type: select
   filters: &NETFLIX_FILTERS
+  # https://github.com/SukkaW/Surge/blob/50ae7c06/Source/stream.js#L517-L562
   - USER-AGENT,Argo*
+  - PROCESS-NAME,com.netflix.mediaclient
   - DOMAIN-SUFFIX,netflix.ca
   - DOMAIN-SUFFIX,netflix.com
   - DOMAIN-SUFFIX,netflix.net
@@ -98,7 +100,6 @@ rules:
   - DOMAIN-KEYWORD,dualstack.apiproxy-
   - DOMAIN-KEYWORD,dualstack.ichnaea-web-
   - DOMAIN-KEYWORD,apiproxy-device-prod-nlb-
-  - PROCESS-NAME,com.netflix.mediaclient
   - type: quantumult
     resolve: false
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Netflix.list
@@ -113,6 +114,7 @@ rules:
 - name: Spotify
   type: select
   filters:
+  # https://github.com/SukkaW/Surge/blob/50ae7c06/Source/stream.js#L645-L675
   - USER-AGENT,*Spotify*
   - DOMAIN-KEYWORD,-spotify-com
   - DOMAIN-SUFFIX,pscdn.co
@@ -214,6 +216,33 @@ rules:
   - Overseas
   - Mainland
 # ------------------------------------------------------------------------------
+# Microsoft CDN.
+# ------------------------------------------------------------------------------
+- name: Microsoft CDN
+  type: select
+  filters:
+  - type: clash-classical
+    format: text
+    resolve: false
+    url: https://ruleset.skk.moe/Clash/non_ip/microsoft_cdn.txt
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Microsoft.png
+  proxies:
+  - Mainland
+  - Microsoft
+# ------------------------------------------------------------------------------
+# Apple CDN.
+# ------------------------------------------------------------------------------
+- name: Apple CDN
+  type: select
+  filters:
+  - type: domain-list
+    format: text
+    url: https://ruleset.skk.moe/Clash/domainset/apple_cdn.txt
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Apple.png
+  proxies:
+  - Mainland
+  - Apple
+# ------------------------------------------------------------------------------
 # Speed test.
 # ------------------------------------------------------------------------------
 - name: Speedtest
@@ -232,9 +261,6 @@ rules:
 - name: &OVERSEAS_LABEL Overseas
   type: select
   filters:
-  - DOMAIN-SUFFIX,s1s1s1.com
-  - DOMAIN-SUFFIX,sehuatang.net
-  - DOMAIN-KEYWORD,hegre
   - type: clash-classical
     format: text
     resolve: false
@@ -243,6 +269,9 @@ rules:
     format: text
     resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/global.txt
+  - DOMAIN-SUFFIX,s1s1s1.com
+  - DOMAIN-SUFFIX,sehuatang.net
+  - DOMAIN-KEYWORD,hegre
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Outside.png
   proxies:
   - PROXY
@@ -252,6 +281,9 @@ rules:
 - name: Bilibili & iQIYI
   type: select
   filters:
+  - USER-AGENT,bili*
+  - USER-AGENT,*QIYI*
+  - USER-AGENT,iQiYi*
   - type: clash-classical
     format: yaml
     resolve: false
@@ -272,13 +304,9 @@ rules:
   type: select
   filters:
   - type: clash-classical
-    format: yaml
-    resolve: false
-    url: https://github.com/dler-io/Rules/raw/main/Clash/Provider/Microsoft.yaml
-  - type: clash-classical
     format: text
     resolve: false
-    url: https://ruleset.skk.moe/Clash/non_ip/microsoft_cdn.txt
+    url: https://ruleset.skk.moe/Clash/non_ip/microsoft.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Microsoft.png
   proxies:
   - Mainland
@@ -289,9 +317,17 @@ rules:
 - name: Apple
   type: select
   filters:
-  - type: domain-list
-    format: text
-    url: https://ruleset.skk.moe/Clash/domainset/apple_cdn.txt
+  # AppleTV rules: https://github.com/SukkaW/Surge/blob/50ae7c06/Source/stream.js#L95C1-L111
+  - USER-AGENT,AppleTV*
+  - USER-AGENT,com.apple.tv*
+  - PROCESS-NAME,tv
+  - DOMAIN,ocvideo.apple.com
+  - DOMAIN,linear.tv.apple.com
+  - DOMAIN,play-edge.itunes.apple.com
+  - DOMAIN,np-edge.itunes.apple.com
+  - DOMAIN,uts-api.itunes.apple.com
+  - DOMAIN,hls-amt.itunes.apple.com
+  - DOMAIN,hls.itunes.apple.com
   - type: clash-classical
     format: text
     resolve: false
