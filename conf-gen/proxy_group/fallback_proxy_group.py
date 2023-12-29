@@ -1,7 +1,6 @@
-from typing import Dict, Optional, List, Union
+from typing import Dict, get_args, Optional, List, Union
 
-from proxy import ProxyBase, ProxyT
-from proxy_group._base_proxy_group import ProxyGroupBase
+from proxy_group._base_proxy_group import ProxyGroupBase, ProxyT, ProxyLeafT
 from rule import FilterT
 
 
@@ -19,7 +18,7 @@ class FallbackProxyGroup(ProxyGroupBase):
         if filters is not None:
             raise ValueError(f"{self.__class.__name__} doesn't accept filters/rules.")
         for proxy in proxies:
-            if not isinstance(proxy, (str, ProxyBase)):
+            if not isinstance(proxy, get_args(ProxyLeafT)):
                 raise ValueError(f"{self.__class__.__name__} only accept leaf proxy specs.")
         if proxy_check_interval <= 0:
             raise ValueError(f"Invalid proxy check interval {proxy_check_interval}")

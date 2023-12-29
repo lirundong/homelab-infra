@@ -245,7 +245,8 @@ def parse_filter(
             else:
                 if filter["type"] not in ("final", "match"):
                     raise RuntimeError(f"Got incomplete rule {filter}")
-                ir = _IR_REGISTRY[filter["type"]](val="match")
+                # Set the final match resolvable to ensure it goes to the last of rule-list.
+                ir = _IR_REGISTRY[filter["type"]](val="match", resolve=True)
             ret = [
                 ir,
             ]
@@ -270,7 +271,7 @@ def parse_filter(
             else:
                 if type not in ("final", "match"):
                     raise RuntimeError(f"Got incomplete rule {filter}")
-                ir = _IR_REGISTRY[type](val="match")
+                ir = _IR_REGISTRY[type](val="match", resolve=True)
             ret = [
                 ir,
             ]

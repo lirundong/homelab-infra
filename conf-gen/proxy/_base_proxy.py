@@ -47,6 +47,3 @@ class ProxyBase:
             "server_port": self.port,
             "domain_strategy": "prefer_ipv6",
         }
-
-
-ProxyT = Union[ProxyBase, str, Dict[str, str]]

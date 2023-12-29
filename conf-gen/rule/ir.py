@@ -189,6 +189,7 @@ class Match(_IRBase):
 
     _clash_prefix = "MATCH"
     _quantumult_prefix = "final"
+    _might_resolvable = True  # Ensure this is the last rule for Clash and Quantumult-X.
 
     def __init__(self, val: Optional[str]=None, resolve: Optional[bool]=None) -> None:
         if val is None:

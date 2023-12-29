@@ -12,7 +12,6 @@ from proxy_group.selective_proxy_group import SelectProxyGroup
 
 
 class QuantumultGenerator(GeneratorBase):
-
     _MANDATORY_SECTIONS = (
         "dns",
         "general",
@@ -108,20 +107,25 @@ class QuantumultGenerator(GeneratorBase):
             # Filter.
             f.write("[filter_local]\n")
             missing_sections.remove("filter_local")
-            filters = []
+            no_resolve_filters = []
+            resolve_filters = []
             existing_matchers = set()
             num_duplications = 0
             for g in self._proxy_groups:
-                for filter in g.quantumult_filters:
-                    matcher = ",".join(filter.split(",")[:2])
-                    if matcher not in existing_matchers:
-                        existing_matchers.add(matcher)
-                        filters.append(filter)
-                    else:
-                        num_duplications += 1
+                for filters, filters_in_g in zip(
+                    [no_resolve_filters, resolve_filters], g.quantumult_filters
+                ):
+                    for filter in filters_in_g:
+                        matcher = ",".join(filter.split(",")[:2])
+                        if matcher not in existing_matchers:
+                            existing_matchers.add(matcher)
+                            filters.append(filter)
+                        else:
+                            num_duplications += 1
             if 0 < num_duplications:
-                print(f"Filtered out {num_duplications} duplications in " "Quantumult-x filters.")
-            f.write("\n".join(filters) + "\n")
+                print(f"Filtered out {num_duplications} duplications in Quantumult-x filters.")
+            f.write("\n".join(no_resolve_filters) + "\n")
+            f.write("\n".join(resolve_filters) + "\n")
             # Rewrite.
             f.write("[rewrite_local]\n")
             missing_sections.remove("rewrite_local")

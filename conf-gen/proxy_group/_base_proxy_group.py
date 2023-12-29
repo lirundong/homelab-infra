@@ -1,11 +1,15 @@
 from collections import defaultdict
 import re
-from typing import Dict, Optional, List, Union
+from typing import Dict, Optional, List, Tuple, Union
 
-from proxy import ProxyBase, ProxyT
+from proxy import ProxyBase
 from rule import FilterT, parse_filter
 from rule._base_ir import IRBase
 from rule.ir import ProcessName
+
+
+ProxyT = Union[ProxyBase, str, Dict[str, str]]
+ProxyLeafT = Union[ProxyBase, str]
 
 
 def group_sing_box_filters(
@@ -69,9 +73,14 @@ class ProxyGroupBase:
         raise NotImplementedError()
 
     @property
-    def quantumult_filters(self) -> List[str]:
-        filters = []
+    def quantumult_filters(self) -> Tuple[List[str], List[str]]:
+        no_resolve_filters = []
+        resolve_filters = []
         for filter in self._filters:
+            if filter._might_resolvable and filter._resolve:
+                filters = resolve_filters
+            else:
+                filters = no_resolve_filters
             try:
                 filter = filter.quantumult_rule.split(",")
             except ValueError as e:
@@ -84,16 +93,21 @@ class ProxyGroupBase:
             else:
                 filter.append(self.name)
             filters.append(",".join(filter))
-        return filters
+        return no_resolve_filters, resolve_filters
 
     @property
     def clash_proxy_group(self) -> Dict[str, Union[str, List[str], int]]:
         raise NotImplementedError()
 
     @property
-    def clash_rules(self) -> List[str]:
-        ret = []
+    def clash_rules(self) -> Tuple[List[str], List[str]]:
+        no_resolve_rules = []
+        resolve_rules = []
         for filter in self._filters:
+            if filter._might_resolvable and filter._resolve:
+                rules = resolve_rules
+            else:
+                rules = no_resolve_rules
             try:
                 clash_rule = filter.clash_rule.split(",")
             except ValueError as e:
@@ -105,8 +119,8 @@ class ProxyGroupBase:
                 clash_rule.insert(-1, self.name)
             else:
                 clash_rule.append(self.name)
-            ret.append(",".join(clash_rule))
-        return ret
+            rules.append(",".join(clash_rule))
+        return no_resolve_rules, resolve_rules
 
     @property
     def sing_box_outbound(self) -> Dict:

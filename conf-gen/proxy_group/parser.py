@@ -6,8 +6,8 @@ from typing import List, Union
 import emoji
 import pycountry
 
-from proxy import ProxyBase
 from proxy_group import ProxyGroupBase
+from proxy_group._base_proxy_group import ProxyBase
 from proxy_group.fallback_proxy_group import FallbackProxyGroup
 from proxy_group.selective_proxy_group import SelectProxyGroup
 

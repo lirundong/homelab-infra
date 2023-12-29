@@ -65,6 +65,9 @@ rules:
     format: text
     resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/reject.txt
+  - type: quantumult
+    resolve: false
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/AdBlock.list
   # NOTE: This is a VERY long list, use with caution!
   # - type: domain-list
   #   format: text
@@ -235,9 +238,10 @@ rules:
 - name: Apple CDN
   type: select
   filters:
-  - type: domain-list
+  - type: clash-classical
     format: text
-    url: https://ruleset.skk.moe/Clash/domainset/apple_cdn.txt
+    resolve: false
+    url: https://ruleset.skk.moe/Clash/non_ip/apple_cdn.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Apple.png
   proxies:
   - Mainland
@@ -331,6 +335,10 @@ rules:
   - type: clash-classical
     format: text
     resolve: false
+    url: https://ruleset.skk.moe/Clash/non_ip/apple_cn.txt
+  - type: clash-classical
+    format: text
+    resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/apple_services.txt
   - type: clash-classical
     format: text
@@ -346,7 +354,7 @@ rules:
 - name: Mainland
   type: select
   filters:
-  # Handle smart home devices, especially the weird "Mijia Cloud" hostname.
+  # Handle smart home devices, including the weird "Mijia Cloud" hostname.
   - DOMAIN-SUFFIX,aqara.cn
   - DOMAIN-SUFFIX,smartmidea.net
   - DOMAIN-SUFFIX,midea.com.cn

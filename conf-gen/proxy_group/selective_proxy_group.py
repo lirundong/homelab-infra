@@ -1,7 +1,6 @@
 from typing import Dict, Optional, List, Union
 
-from proxy import ProxyT
-from proxy_group import ProxyGroupBase
+from proxy_group._base_proxy_group import ProxyGroupBase, ProxyT
 from rule import FilterT
 
 

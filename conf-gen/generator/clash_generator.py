@@ -42,9 +42,15 @@ class ClashGenerator(GeneratorBase):
         conf.update(self._general_options)
         conf["proxies"] = [p.clash_proxy for p in self._proxies]
         conf["proxy-groups"] = [g.clash_proxy_group for g in self._proxy_groups]
-        conf["rules"] = []
+
+        # Ensure rules that require hostname resolving go to the ending of Clash rules.
+        no_resolve_rules = []
+        resolve_rules = []
         for g in self._proxy_groups:
-            conf["rules"] += g.clash_rules
+            no_resolve_r, resolve_r = g.clash_rules
+            no_resolve_rules += no_resolve_r
+            resolve_rules += resolve_r
+        conf["rules"] = no_resolve_rules + resolve_rules
 
         # Deduplicate rules. Clash performs rule traversal in O(N) thus this could improve perf.
         num_duplicates = 0
