@@ -8,7 +8,7 @@ zone_id=$(uci add firewall zone)
 uci set firewall.$zone_id.name='sing-box'
 uci set firewall.$zone_id.device='tun+'
 uci set firewall.$zone_id.input='ACCEPT'
-uci set firewall.$zone_id.output='ACCEPT'
+uci set firewall.$zone_id.output='REJECT'
 uci set firewall.$zone_id.forward='REJECT'
 
 forwarding_id=$(uci add firewall forwarding)
