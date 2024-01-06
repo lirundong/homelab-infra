@@ -517,6 +517,7 @@ generates:
 - name: sing-box-daemon
   type: sing-box
   skip_process_names: true  # Router cannot see clients' process names.
+  proxy_domain_strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   dns:
     servers:
     - address: tls://1.1.1.1
@@ -617,8 +618,7 @@ generates:
       external_controller: :9090
       external_ui: /root/.config/sing-box/ui
       secret: '@secret:CLASH_SECRET'
-      # TODO: Move cache related options to cache_file once sing-box 1.8 release.
-      cache_file: /root/.config/sing-box/cache.db
-      store_mode: true
-      store_selected: true
+    cache_file:
+      enabled: true
+      path: /root/.config/sing-box/cache.db
       store_fakeip: true

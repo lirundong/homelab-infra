@@ -6,6 +6,7 @@ from warnings import warn
 
 from generator._base_generator import GeneratorBase
 from proxy import (
+    DomainStrategyT,
     ProxyBase,
     ShadowSocksProxy,
     ShadowSocks2022Proxy,
@@ -38,6 +39,7 @@ class SingBoxGenerator(GeneratorBase):
         ntp: Optional[Dict] = None,
         experimental: Optional[Dict] = None,
         skip_process_names: bool = False,
+        proxy_domain_strategy: Optional[DomainStrategyT] = None,
     ):
         # Construct the special group `PROXY` for sing-box.
         proxy_groups = copy(proxy_groups)
@@ -78,10 +80,6 @@ class SingBoxGenerator(GeneratorBase):
             ]
         if route is None:
             route = {"rules": []}
-        if "geoip" not in route or "geosite" not in route:
-            route.update(
-                {"geoip": {"path": "/tmp/geoip.db"}, "geosite": {"path": "/tmp/geosite.db"}}
-            )
         if experimental is None:
             experimental = {}
         self.log = log
@@ -92,6 +90,7 @@ class SingBoxGenerator(GeneratorBase):
         self.route = route
         self.experimental = experimental
         self.skip_process_names = skip_process_names
+        self.proxy_domain_strategy = proxy_domain_strategy
 
         self._build_outbounds()
         self._build_route()
@@ -106,6 +105,8 @@ class SingBoxGenerator(GeneratorBase):
         # 2. Build outbounds for each of the proxy servers.
         proxy_server_outbounds = []
         for p in self._proxies:
+            if self.proxy_domain_strategy is not None:
+                p.domain_strategy = self.proxy_domain_strategy
             proxy_server_outbounds.append(p.sing_box_proxy)
         # 3. Build outbounds for each of the proxy groups.
         proxy_group_outbounds = []

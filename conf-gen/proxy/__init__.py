@@ -1,4 +1,4 @@
-from proxy._base_proxy import ProxyBase
+from proxy._base_proxy import DomainStrategyT, ProxyBase
 from proxy.parser import (
     parse_clash_proxies,
     parse_clash_subscription,
@@ -11,6 +11,7 @@ from proxy.v2ray_proxy import VMessProxy, VMessGRPCProxy, VMessWebSocketProxy
 
 
 __all__ = (
+    "DomainStrategyT",
     "ProxyBase",
     "ShadowSocks2022CiphersT",
     "ShadowSocksProxy",

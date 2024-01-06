@@ -53,6 +53,7 @@ def generate_conf(
                 ntp=args.get("ntp"),
                 experimental=args.get("experimental"),
                 skip_process_names=args.get("skip_process_names", False),
+                proxy_domain_strategy=args.get("proxy_domain_strategy"),
             )
             dst_filename = os.path.join(dst, f"{gen_info['name']}.json")
             gen.generate(dst_filename)
