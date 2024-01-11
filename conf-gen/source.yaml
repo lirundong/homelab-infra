@@ -361,6 +361,9 @@ rules:
   - DOMAIN-SUFFIX,gree.com
   - DOMAIN-SUFFIX,tplinkcloud.com.cn
   - 'DOMAIN,Mijia Cloud'
+  # Handle 云视听极光 TV.
+  - cdn.meta.ndmdhs.com
+  - aiseet.atianqi.com
   - type: clash-classical
     format: text
     resolve: false
