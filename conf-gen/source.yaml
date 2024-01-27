@@ -65,6 +65,10 @@ rules:
     format: text
     resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/reject.txt
+  - type: clash-classical
+    format: text
+    resolve: false
+    url: https://ruleset.skk.moe/Clash/non_ip/sogouinput.txt
   - type: quantumult
     resolve: false
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/AdBlock.list
@@ -246,6 +250,20 @@ rules:
   proxies:
   - Mainland
   - Apple
+# ------------------------------------------------------------------------------
+# Overseas CDN.
+# ------------------------------------------------------------------------------
+- name: Overseas CDN
+  type: select
+  filters:
+  - type: domain-list
+    format: text
+    url: https://ruleset.skk.moe/Clash/domainset/cdn.txt
+  img-url: https://github.com/Semporia/Quantumult-X/raw/master/Bubble/IconSet/Cloudflare.png
+  proxies:
+  - "🌏 Custom"
+  - Overseas
+  - Mainland
 # ------------------------------------------------------------------------------
 # Speed test.
 # ------------------------------------------------------------------------------
