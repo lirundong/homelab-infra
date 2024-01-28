@@ -22,6 +22,7 @@ class Domain(_IRBase):
     _clash_prefix = "DOMAIN"
     _quantumult_prefix = "host"
     _sing_box_prefix = "domain"
+    _val_is_domain = True
 
 
 @_IR_REGISTRY.register()
@@ -30,6 +31,7 @@ class DomainSuffix(_IRBase):
     _clash_prefix = "DOMAIN-SUFFIX"
     _quantumult_prefix = "host-suffix"
     _sing_box_prefix = "domain_suffix"
+    _val_is_domain = True
 
 
 @_IR_REGISTRY.register()
@@ -38,12 +40,14 @@ class DomainKeyword(_IRBase):
     _clash_prefix = "DOMAIN-KEYWORD"
     _quantumult_prefix = "host-keyword"
     _sing_box_prefix = "domain_keyword"
+    _val_is_domain = True
 
 
 @_IR_REGISTRY.register()
 class DomainWildcard(_IRBase):
 
     _quantumult_prefix = "host-wildcard"
+    _val_is_domain = True
 
     @property
     def clash_rule(self) -> str:
@@ -63,6 +67,7 @@ class DomainListItem(_IRBase):
     _clash_prefix = None
     _quantumult_prefix = None
     _sing_box_prefix = None
+    _val_is_domain = True
 
     @property
     def clash_rule(self) -> str:
@@ -131,6 +136,7 @@ class DomainListItem(_IRBase):
 class DomainRegex(_IRBase):
 
     _sing_box_prefix = "domain_regex"
+    _val_is_domain = True
 
 
 @_IR_REGISTRY.register()

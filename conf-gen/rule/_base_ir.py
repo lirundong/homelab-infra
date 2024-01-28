@@ -1,4 +1,5 @@
 from typing import Any, Callable, Dict, Hashable, Optional, Tuple, Type
+from warnings import warn
 
 
 class IRBase:
@@ -7,6 +8,7 @@ class IRBase:
     _quantumult_prefix: Optional[str] = None
     _sing_box_prefix: Optional[str] = None
     _might_resolvable: bool = False
+    _val_is_domain: Optional[bool] = None
 
     def __init__(self, val: str, resolve: Optional[bool]=None):
         if self._might_resolvable and resolve is None:
@@ -14,6 +16,10 @@ class IRBase:
                 f"{self.__class__.__name__} requires explicitly specify whether this rule requires "
                 f"hostname resolution, but got resolve={resolve}"
             )
+        if self._val_is_domain and ":" in val:  # Domain list item contained port number.
+            warn(f"Got port numbers in {self.__class__.__name__} item: {val}, trying to remove...")
+            val = val.split(":")[0]
+
         self._val = val
         self._resolve = resolve
 
