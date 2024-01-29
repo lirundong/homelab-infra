@@ -659,4 +659,5 @@ generates:
     inet6_address: fdfe:dcba:9876::1/126
   route:
     auto_detect_interface: true
+    override_android_vpn: true
   experimental: null
