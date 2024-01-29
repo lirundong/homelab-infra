@@ -1,7 +1,7 @@
 from copy import copy
 import json
 import os
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Self, Union
 from warnings import warn
 
 from generator._base_generator import GeneratorBase
@@ -131,6 +131,18 @@ class SingBoxGenerator(GeneratorBase):
         if "final" not in self.route:
             warn(f"The final outbound was not set in route, fallback to the default `PROXY`")
             self.route.setdefault("final", "PROXY")
+
+    # TODO: Make this method more general and robust.
+    @classmethod
+    def from_base(cls, base_object: Self, inbounds, route, experimental):
+        new_object = copy(base_object)
+        new_object.inbounds = inbounds
+        new_object.route.update(route)
+        if experimental is None:
+            new_object.experimental.clear()
+        else:
+            new_object.experimental.update(experimental)
+        return new_object
 
     def generate(self, file):
         conf = {

@@ -535,7 +535,7 @@ generates:
 # ------------------------------------------------------------------------------
 # Sing-Box daemon.
 # ------------------------------------------------------------------------------
-- name: sing-box-daemon
+- name: &SING_BOX_CONF_BASE sing-box-daemon
   type: sing-box
   skip_process_names: true  # Router cannot see clients' process names.
   proxy_domain_strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
@@ -643,3 +643,20 @@ generates:
       enabled: true
       path: /root/.config/sing-box/cache.db
       store_fakeip: true
+# ------------------------------------------------------------------------------
+# Sing-Box clients (for Android and Apple platforms).
+# ------------------------------------------------------------------------------
+- name: sing-box-clients
+  type: sing-box
+  base: *SING_BOX_CONF_BASE
+  inbounds:
+  - tag: tun
+    type: tun
+    stack: gvisor
+    auto_route: true
+    sniff: true
+    inet4_address: 172.19.0.1/30
+    inet6_address: fdfe:dcba:9876::1/126
+  route:
+    auto_detect_interface: true
+  experimental: null

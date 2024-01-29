@@ -33,3 +33,7 @@ class GeneratorBase:
 
     def generate(self, file):
         raise NotImplementedError()
+
+    @classmethod
+    def from_base(cls, base_object, *args, **kwargs):
+        raise NotImplementedError()

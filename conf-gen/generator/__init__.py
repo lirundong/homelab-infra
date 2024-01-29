@@ -9,6 +9,7 @@ from generator.sing_box_generator import SingBoxGenerator
 def generate_conf(
     generate_info, src, dst, proxies, per_region_proxies, proxy_groups, rewrites=None
 ):
+    generators = {}
     for gen_info in generate_info:
         if gen_info["type"] == "clash":
             general_options = copy(gen_info)
@@ -40,25 +41,34 @@ def generate_conf(
             dst_filename = os.path.join(dst, f"{gen_info['name']}.conf")
             gen.generate(dst_filename)
         elif gen_info["type"] == "sing-box":
-            args = copy(gen_info)
-            gen = SingBoxGenerator(
-                src_file=src,
-                proxies=proxies,
-                per_region_proxies=per_region_proxies,
-                proxy_groups=proxy_groups,
-                dns=args["dns"],
-                route=args["route"],
-                inbounds=args.get("inbounds"),
-                log=args.get("log"),
-                ntp=args.get("ntp"),
-                experimental=args.get("experimental"),
-                skip_process_names=args.get("skip_process_names", False),
-                proxy_domain_strategy=args.get("proxy_domain_strategy"),
-            )
+            if gen_info.get("base"):
+                gen = SingBoxGenerator.from_base(
+                    base_object=generators[gen_info["base"]],
+                    inbounds=gen_info["inbounds"],
+                    route=gen_info["route"],
+                    experimental=gen_info["experimental"],
+                )
+            else:
+                args = copy(gen_info)
+                gen = SingBoxGenerator(
+                    src_file=src,
+                    proxies=proxies,
+                    per_region_proxies=per_region_proxies,
+                    proxy_groups=proxy_groups,
+                    dns=args["dns"],
+                    route=args["route"],
+                    inbounds=args.get("inbounds"),
+                    log=args.get("log"),
+                    ntp=args.get("ntp"),
+                    experimental=args.get("experimental"),
+                    skip_process_names=args.get("skip_process_names", False),
+                    proxy_domain_strategy=args.get("proxy_domain_strategy"),
+                )
             dst_filename = os.path.join(dst, f"{gen_info['name']}.json")
             gen.generate(dst_filename)
         else:
             raise ValueError(f"Unsupported generate type: {gen_info['type']}.")
+        generators[gen_info["name"]] = gen
 
 
 __all__ = (
