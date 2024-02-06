@@ -138,7 +138,7 @@ class SingBoxGenerator(GeneratorBase):
         new_object = copy(base_object)
         # TODO: Define a former behavior of replacements and overwrites.
         # `dns` only overwrites or appends DNS servers.
-        if dns.get("servers"):
+        if dns is not None and dns.get("servers"):
             old_servers = {s["tag"]: s for s in base_object.dns["servers"]}
             for new_server in dns["servers"]:
                 tag = new_server["tag"]

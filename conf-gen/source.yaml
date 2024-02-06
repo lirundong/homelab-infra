@@ -645,11 +645,7 @@ generates:
 - name: sing-box-clients
   type: sing-box
   base: *SING_BOX_CONF_BASE
-  dns:
-    servers:
-    - address: tls://1.12.12.12
-      detour: DIRECT
-      tag: DIRECT
+  dns: null
   inbounds:
   - tag: tun
     type: tun
