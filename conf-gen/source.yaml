@@ -286,10 +286,6 @@ rules:
   - type: clash-classical
     format: text
     resolve: false
-    url: https://ruleset.skk.moe/Clash/non_ip/global_plus.txt
-  - type: clash-classical
-    format: text
-    resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/global.txt
   - DOMAIN-SUFFIX,s1s1s1.com
   - DOMAIN-SUFFIX,sehuatang.net
@@ -654,10 +650,16 @@ generates:
     type: tun
     stack: gvisor
     auto_route: true
+    strict_route: true
     sniff: true
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
   route:
     auto_detect_interface: true
     override_android_vpn: true
-  experimental: null
+  experimental:
+    clash_api: null
+    cache_file:
+      enabled: true
+      path: cache.db
+      store_fakeip: true
