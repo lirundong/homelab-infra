@@ -647,9 +647,14 @@ generates:
   base: *SING_BOX_CONF_BASE
   dns:
     servers:
-    - address: tls://1.12.12.12
+    - tag: &BOOTSTRAP_DNS bootstrap
+      address: https://1.12.12.12/dns-query
       detour: DIRECT
-      tag: DIRECT
+    - tag: DIRECT
+      address: tls://dot-a328bfed.dot.pub
+      address_resolver: *BOOTSTRAP_DNS
+      address_strategy: prefer_ipv4
+      detour: DIRECT
   inbounds:
   - tag: tun
     type: tun

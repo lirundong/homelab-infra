@@ -144,6 +144,7 @@ class SingBoxGenerator(GeneratorBase):
                 tag = new_server["tag"]
                 old_servers.setdefault(tag, {}).clear()
                 old_servers[tag].update(new_server)
+            new_object.dns["servers"] = list(old_servers.values())
         new_object.inbounds = inbounds
         new_object.route.update(route)
         if experimental is None:
