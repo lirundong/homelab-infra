@@ -44,6 +44,7 @@ def generate_conf(
             if gen_info.get("base"):
                 gen = SingBoxGenerator.from_base(
                     base_object=generators[gen_info["base"]],
+                    dns=gen_info["dns"],
                     inbounds=gen_info["inbounds"],
                     route=gen_info["route"],
                     experimental=gen_info["experimental"],

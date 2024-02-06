@@ -134,8 +134,16 @@ class SingBoxGenerator(GeneratorBase):
 
     # TODO: Make this method more general and robust.
     @classmethod
-    def from_base(cls, base_object: Self, inbounds, route, experimental):
+    def from_base(cls, base_object: Self, dns, inbounds, route, experimental):
         new_object = copy(base_object)
+        # TODO: Define a former behavior of replacements and overwrites.
+        # `dns` only overwrites or appends DNS servers.
+        if dns.get("servers"):
+            old_servers = {s["tag"]: s for s in base_object.dns["servers"]}
+            for new_server in dns["servers"]:
+                tag = new_server["tag"]
+                old_servers.setdefault(tag, {}).clear()
+                old_servers[tag].update(new_server)
         new_object.inbounds = inbounds
         new_object.route.update(route)
         if experimental is None:
