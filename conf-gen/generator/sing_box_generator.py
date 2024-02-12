@@ -166,4 +166,4 @@ class SingBoxGenerator(GeneratorBase):
         base, _ = os.path.split(file)
         os.makedirs(base, exist_ok=True)
         with open(file, "w", encoding="utf-8") as f:
-            json.dump(conf, f, ensure_ascii=False, indent=4)
+            json.dump(conf, f, ensure_ascii=False, indent=4, sort_keys=True)

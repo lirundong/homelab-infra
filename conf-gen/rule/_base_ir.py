@@ -1,3 +1,5 @@
+import functools
+import re
 from typing import Any, Callable, Dict, Hashable, Optional, Tuple, Type
 from warnings import warn
 
@@ -29,6 +31,7 @@ class IRBase:
             f"{self._quantumult_prefix},"
             f"{self._sing_box_prefix},"
             f"{self._might_resolvable},"
+            f"{self._val_is_domain}",
             f"{self._val},"
             f"{self._resolve},"
         )
@@ -79,30 +82,41 @@ class IRBase:
 
 class IRRegistry:
     def __init__(self) -> None:
-        self._registry: Dict[str, Type[IRBase]] = {}
+        self._registry: Dict[Tuple[str], Type[IRBase]] = {}
+
+    @staticmethod
+    @functools.lru_cache(maxsize=128)
+    def prefix2key(prefix: str):
+        if not isinstance(prefix, str):
+            raise ValueError(f"IRRegistry key must be a string, got {prefix} instead")
+        key = tuple(re.split(r"_|-", prefix.lower()))
+        return key
 
     def register(self) -> Callable[[Type[IRBase]], Type[IRBase]]:
         def _do_register(cls: Type[IRBase]) -> Type[IRBase]:
             assert issubclass(cls, IRBase), f"{cls} is not a subclass of IRBase"
+            keys = set()
             if cls._clash_prefix is not None:
-                self._registry[cls._clash_prefix.lower()] = cls
+                keys.add(self.prefix2key(cls._clash_prefix))
             if cls._quantumult_prefix is not None:
-                self._registry[cls._quantumult_prefix.lower()] = cls
+                keys.add(self.prefix2key(cls._quantumult_prefix))
             if cls._sing_box_prefix is not None:
-                self._registry[cls._sing_box_prefix.lower()] = cls
+                keys.add(self.prefix2key(cls._sing_box_prefix))
+            for k in keys:
+                self._registry[k] = cls
             return cls
 
         return _do_register
 
     def __contains__(self, key: Hashable) -> bool:
-        if isinstance(key, str) and key.lower() in self._registry:
+        if isinstance(key, str) and self.prefix2key(key) in self._registry:
             return True
         else:
             return False
 
     def __getitem__(self, key: Hashable) -> Type[IRBase]:
-        if isinstance(key, str) and key.lower() in self._registry:
-            return self._registry[key.lower()]
+        if isinstance(key, str) and self.prefix2key(key) in self._registry:
+            return self._registry[self.prefix2key(key)]
         else:
             raise RuntimeError(f"{key} was not registered as an IR.")
 

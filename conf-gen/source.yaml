@@ -93,6 +93,7 @@ rules:
   # https://github.com/SukkaW/Surge/blob/50ae7c06/Source/stream.js#L517-L562
   - USER-AGENT,Argo*
   - PROCESS-NAME,com.netflix.mediaclient
+  - PACKAGE-NAME,com.netflix.ninja
   - DOMAIN-SUFFIX,netflix.ca
   - DOMAIN-SUFFIX,netflix.com
   - DOMAIN-SUFFIX,netflix.net
@@ -664,6 +665,7 @@ generates:
     sniff: true
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
+    interface_name: tun0
   route:
     auto_detect_interface: true
     override_android_vpn: true

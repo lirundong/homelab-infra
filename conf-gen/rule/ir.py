@@ -17,6 +17,12 @@ class ProcessName(_IRBase):
 
 
 @_IR_REGISTRY.register()
+class PackageName(_IRBase):
+
+    _sing_box_prefix = "package_name"
+
+
+@_IR_REGISTRY.register()
 class Domain(_IRBase):
 
     _clash_prefix = "DOMAIN"
