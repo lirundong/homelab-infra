@@ -114,7 +114,7 @@ rules:
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Netflix.png
   proxies:
   - type: regex
-    pattern: SG|Singapore|新加坡|🇸🇬
+    pattern: SG|Singapore|新加坡|🇸🇬|TW|Taiwan|台湾|🇹🇼
   - Overseas
 # ------------------------------------------------------------------------------
 # Spotify.
@@ -652,7 +652,7 @@ generates:
       address: https://1.12.12.12/dns-query
       detour: DIRECT
     - tag: DIRECT
-      address: tls://dot-a328bfed.dot.pub
+      address: tls://@secret:DOT_PUB
       address_resolver: *BOOTSTRAP_DNS
       address_strategy: prefer_ipv4
       detour: DIRECT
