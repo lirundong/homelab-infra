@@ -538,12 +538,6 @@ generates:
   proxy_domain_strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   dns:
     servers:
-    - address: tls://1.1.1.1
-      detour: *OVERSEAS_LABEL
-      tag: PROXY
-    - address: tls://1.1.1.1
-      detour: *NETFLIX_LABEL  # Prevent DNS leak detection from Netflix.
-      tag: Netflix
     - address: local
       detour: DIRECT
       tag: DIRECT
@@ -557,7 +551,8 @@ generates:
       inet6_range: fc00::/18
     independent_cache: true
     rules:
-    # 1) Return true IPs for several special hostnames.
+    - outbound: any
+      server: DIRECT
     - filters:
       - DOMAIN-SUFFIX,local
       - DOMAIN-SUFFIX,rundong.me
@@ -566,35 +561,11 @@ generates:
       - DOMAIN-SUFFIX,www.msftncsi.com
       - DOMAIN-SUFFIX,www.msftconnecttest.com
       server: DIRECT
-    # 2) Return FakeIPs for other hostnames and reject secured DNS queries, as
-    #    secure DNS services are heavily polluted in mainland China.
-    #    No effect in pre-routing name query.
     - query_type:
       - A
       - AAAA
       server: FakeIP
-    - query_type:
-      - SVCB
-      - HTTPS
-      disable_cache: true
-      server: REJECT
-    # 3) Resolve proxy servers' hostnames and direct outbound hostnames.
-    #    No effect in pre-routing name query.
-    - outbound: any
-      server: DIRECT
-    # 4) Resolve Netflix hostnames in the pre-routing phase to prevent DNS leak.
-    #    Only take effect if any inbound's `domain_strategy` option is set.
-    - filters: *NETFLIX_FILTERS
-      server: Netflix
-    # 5) Resolve hostnames in the pre-routing phase such that the IP-CIDR rules
-    #    can be matched against. Only take effect if any inbound's
-    #    `domain_strategy` option is set.
-    #    NOTE: This is a VERY long list, use with caution!
-    - filters:
-      - type: dnsmasq
-        url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
-      server: DIRECT
-    final: PROXY
+    final: REJECT
   inbounds:
   - inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
@@ -618,8 +589,12 @@ generates:
       - protocol: dns
       - port: 53
       type: logical
-    - clash_mode: direct
+    - mode: or
       outbound: DIRECT
+      rules:
+      - clash_mode: direct
+      - ip_is_private: true
+      type: logical
     - clash_mode: global
       outbound: PROXY
     - mode: or
