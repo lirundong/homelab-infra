@@ -4,22 +4,30 @@ from typing import Dict, Optional, List, Tuple, Union
 
 from proxy import ProxyBase
 from rule import FilterT, parse_filter
-from rule._base_ir import IRBase
-from rule.ir import ProcessName
+from rule._base_ir import _IR_REGISTRY, IRBase
+from rule.ir import PackageName, ProcessName
 
 
 ProxyT = Union[ProxyBase, str, Dict[str, str]]
 ProxyLeafT = Union[ProxyBase, str]
 
 
+_PROCESS_IRS = frozenset({PackageName, ProcessName})
+
+
 def group_sing_box_filters(
     filters: List[IRBase],
-    skip_process_names: bool = False,
+    included_process_irs: Optional[List[str]] = None,
 ) -> Dict[str, List[str]]:
-    ret = defaultdict(list)
+    normal_filters = defaultdict(list)
+    process_filters = defaultdict(list)
+    if included_process_irs is not None:
+        included_process_irs = tuple(_IR_REGISTRY[t] for t in included_process_irs)
+        excluded_process_irs = tuple(_PROCESS_IRS - set(included_process_irs))
+    else:
+        included_process_irs = None
+        excluded_process_irs = tuple(_PROCESS_IRS)
     for f in filters:
-        if skip_process_names and isinstance(f, ProcessName):
-            continue
         try:
             k, v = f.sing_box_rule
         except ValueError as e:
@@ -27,8 +35,25 @@ def group_sing_box_filters(
                 continue
             else:
                 raise e
-        ret[k].append(v)
-    return ret
+        if excluded_process_irs and isinstance(f, excluded_process_irs):
+            continue
+        elif included_process_irs and isinstance(f, included_process_irs):
+            process_filters[k].append(v)
+        else:
+            normal_filters[k].append(v)
+    # NOTE: We enforce process-related IRs to take precedence over others if applicable.
+    if process_filters:
+        filters = {
+            "type": "logical",
+            "mode": "or",
+            "rules": [
+                process_filters,
+                normal_filters,
+            ]
+        }
+    else:
+        filters = normal_filters
+    return filters
 
 
 class ProxyGroupBase:
@@ -42,7 +67,7 @@ class ProxyGroupBase:
     ):
         self.name = name
         self.img_url = img_url
-        self.skip_process_names = False  # TODO: Consider expose this in interface?
+        self.included_process_irs = False  # TODO: Consider expose this in interface?
         self._filters = []
         self._proxies = []
 
@@ -128,8 +153,11 @@ class ProxyGroupBase:
 
     @property
     def sing_box_filers(self) -> Dict:
-        matchers = group_sing_box_filters(self._filters, skip_process_names=self.skip_process_names)
-        if matchers:
-            return {"outbound": self.name, **matchers}
+        filters = group_sing_box_filters(
+            filters=self._filters,
+            included_process_irs=self.included_process_irs,
+        )
+        if filters:
+            return {"outbound": self.name, **filters}
         else:
             return {}

@@ -38,7 +38,7 @@ class SingBoxGenerator(GeneratorBase):
         log: Optional[Dict] = None,
         ntp: Optional[Dict] = None,
         experimental: Optional[Dict] = None,
-        skip_process_names: bool = False,
+        included_process_irs: Optional[List[str]] = None,
         proxy_domain_strategy: Optional[DomainStrategyT] = None,
     ):
         # Construct the special group `PROXY` for sing-box.
@@ -59,7 +59,7 @@ class SingBoxGenerator(GeneratorBase):
                 filters = []
                 for f in rule.pop("filters"):
                     filters += parse_filter(f, for_dns=True)
-                filters = group_sing_box_filters(filters, skip_process_names=skip_process_names)
+                filters = group_sing_box_filters(filters, included_process_irs=included_process_irs)
                 rule.update(filters)
 
         # Sane default options for sing-box.
@@ -89,8 +89,9 @@ class SingBoxGenerator(GeneratorBase):
         self.outbounds = []
         self.route = route
         self.experimental = experimental
-        self.skip_process_names = skip_process_names
+        self.included_process_irs = included_process_irs
         self.proxy_domain_strategy = proxy_domain_strategy
+        self._initial_route_rules = copy(self.route["rules"])
 
         self._build_outbounds()
         self._build_route()
@@ -113,7 +114,7 @@ class SingBoxGenerator(GeneratorBase):
         for g in self._proxy_groups:
             proxy_group_outbounds.append(g.sing_box_outbound)
         # ...and finally we merge them together!
-        self.outbounds += proxy_group_outbounds + proxy_server_outbounds + mandatory_outbounds
+        self.outbounds = proxy_group_outbounds + proxy_server_outbounds + mandatory_outbounds
         self._valid_outbound_tags = set(o["tag"] for o in self.outbounds)
 
     def _build_route(self):
@@ -121,7 +122,7 @@ class SingBoxGenerator(GeneratorBase):
             if not r["outbound"] in self._valid_outbound_tags:
                 raise ValueError(f"#{i} rule's outbound {r['outbound']} is invalid")
         for g in self._proxy_groups:
-            g.skip_process_names = self.skip_process_names
+            g.included_process_irs = self.included_process_irs
             filters = g.sing_box_filers
             if filters:
                 # Not every proxy group contains matching filters, e.g., the PROXY group.
@@ -134,9 +135,9 @@ class SingBoxGenerator(GeneratorBase):
 
     # TODO: Make this method more general and robust.
     @classmethod
-    def from_base(cls, base_object: Self, dns, inbounds, route, experimental):
-        new_object = copy(base_object)
+    def from_base(cls, base_object: Self, dns, inbounds, route, experimental, included_process_irs):
         # TODO: Define a former behavior of replacements and overwrites.
+        new_object = copy(base_object)
         # `dns` only overwrites or appends DNS servers.
         if dns is not None and dns.get("servers"):
             old_servers = {s["tag"]: s for s in base_object.dns["servers"]}
@@ -145,12 +146,20 @@ class SingBoxGenerator(GeneratorBase):
                 old_servers.setdefault(tag, {}).clear()
                 old_servers[tag].update(new_server)
             new_object.dns["servers"] = list(old_servers.values())
-        new_object.inbounds = inbounds
-        new_object.route.update(route)
-        if experimental is None:
-            new_object.experimental.clear()
-        else:
+        if inbounds is not None:
+            new_object.inbounds = inbounds
+        if route is not None:
+            new_object.route.update(route)
+        if experimental is not None:
             new_object.experimental.update(experimental)
+        # Always overwrite included_process_irs. Default fallback was handed by upper-level logic.
+        new_object.included_process_irs = included_process_irs
+
+        # Rebuild route rules.
+        new_object.route["rules"].clear()
+        new_object.route["rules"] += new_object._initial_route_rules
+        new_object._build_route()
+
         return new_object
 
     def generate(self, file):

@@ -42,12 +42,20 @@ def generate_conf(
             gen.generate(dst_filename)
         elif gen_info["type"] == "sing-box":
             if gen_info.get("base"):
+                if gen_info.get("included_process_irs"):
+                    if gen_info["included_process_irs"] == "!clear":
+                        included_process_irs = None
+                    else:
+                        included_process_irs = gen_info["included_process_irs"]
+                else:
+                    included_process_irs = generators[gen_info["base"]].included_process_irs
                 gen = SingBoxGenerator.from_base(
                     base_object=generators[gen_info["base"]],
-                    dns=gen_info["dns"],
-                    inbounds=gen_info["inbounds"],
-                    route=gen_info["route"],
-                    experimental=gen_info["experimental"],
+                    dns=gen_info.get("dns"),
+                    inbounds=gen_info.get("inbounds"),
+                    route=gen_info.get("route"),
+                    experimental=gen_info.get("experimental"),
+                    included_process_irs=included_process_irs,
                 )
             else:
                 args = copy(gen_info)
@@ -62,7 +70,7 @@ def generate_conf(
                     log=args.get("log"),
                     ntp=args.get("ntp"),
                     experimental=args.get("experimental"),
-                    skip_process_names=args.get("skip_process_names", False),
+                    included_process_irs=args.get("included_process_irs"),
                     proxy_domain_strategy=args.get("proxy_domain_strategy"),
                 )
             dst_filename = os.path.join(dst, f"{gen_info['name']}.json")

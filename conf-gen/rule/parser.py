@@ -11,6 +11,7 @@ from rule.ir import (
     DomainListItem,
     DomainSuffix,
     DomainWildcard,
+    PackageName,
     ProcessName,
 )
 from common import CLASH_RULESET_FORMATS, COMMENT_BEGINS
@@ -22,6 +23,7 @@ DNS_COMPATIBLE_IRS = (
     DomainListItem,
     DomainSuffix,
     DomainWildcard,
+    PackageName,
     ProcessName,
 )
 

@@ -65,10 +65,6 @@ rules:
     format: text
     resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/reject.txt
-  - type: clash-classical
-    format: text
-    resolve: false
-    url: https://ruleset.skk.moe/Clash/non_ip/sogouinput.txt
   - type: quantumult
     resolve: false
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/AdBlock.list
@@ -532,9 +528,9 @@ generates:
 # ------------------------------------------------------------------------------
 # Sing-Box daemon.
 # ------------------------------------------------------------------------------
-- name: &SING_BOX_CONF_BASE sing-box-daemon
+- name: &SING_BOX_BASE sing-box-daemon
   type: sing-box
-  skip_process_names: true  # Router cannot see clients' process names.
+  included_process_irs: null  # Router cannot see clients' process names.
   proxy_domain_strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   dns:
     servers:
@@ -616,11 +612,11 @@ generates:
       path: /root/.config/sing-box/cache.db
       store_fakeip: true
 # ------------------------------------------------------------------------------
-# Sing-Box clients (for Android and Apple platforms).
+# Sing-Box clients (for Android platforms).
 # ------------------------------------------------------------------------------
-- name: sing-box-clients
+- name: &SING_BOX_CLIENT_BASE sing-box-clients
   type: sing-box
-  base: *SING_BOX_CONF_BASE
+  base: *SING_BOX_BASE
   dns:
     servers:
     - tag: &BOOTSTRAP_DNS bootstrap
@@ -650,3 +646,12 @@ generates:
       enabled: true
       path: cache.db
       store_fakeip: true
+  included_process_irs:
+  - PACKAGE-NAME
+# ------------------------------------------------------------------------------
+# Sing-Box clients (for Apple platforms).
+# ------------------------------------------------------------------------------
+- name: sing-box-apple
+  type: sing-box
+  base: *SING_BOX_CLIENT_BASE
+  included_process_irs: '!clear'
