@@ -534,13 +534,14 @@ generates:
   proxy_domain_strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   dns:
     servers:
+    - address: tls://1.1.1.1
+      detour: *NETFLIX_LABEL
+      tag: PROXY
     - address: local
       detour: DIRECT
       tag: DIRECT
     - address: fakeip
       tag: FakeIP
-    - address: rcode://success
-      tag: REJECT
     fakeip:
       enabled: true
       inet4_range: 198.18.0.0/15
@@ -561,7 +562,7 @@ generates:
       - A
       - AAAA
       server: FakeIP
-    final: REJECT
+    final: PROXY
   inbounds:
   - inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
@@ -594,7 +595,7 @@ generates:
     - clash_mode: global
       outbound: PROXY
     - mode: or
-      outbound: REJECT
+      outbound: *NETFLIX_LABEL
       rules:
       - port: 853
       - network: udp
