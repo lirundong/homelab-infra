@@ -83,7 +83,7 @@ rules:
 # ------------------------------------------------------------------------------
 # Netflix.
 # ------------------------------------------------------------------------------
-- name: &NETFLIX_LABEL Netflix
+- name: &NETFLIX Netflix
   type: select
   filters: &NETFLIX_FILTERS
   # https://github.com/SukkaW/Surge/blob/50ae7c06/Source/stream.js#L517-L562
@@ -184,7 +184,7 @@ rules:
 # ------------------------------------------------------------------------------
 # GitHub.
 # ------------------------------------------------------------------------------
-- name: &GITHUB_LABEL GitHub
+- name: &GITHUB GitHub
   type: select
   filters:
   # From: https://github.com/v2fly/domain-list-community/blob/master/data/github
@@ -277,7 +277,7 @@ rules:
 # ------------------------------------------------------------------------------
 # Overseas.
 # ------------------------------------------------------------------------------
-- name: &OVERSEAS_LABEL Overseas
+- name: &OVERSEAS Overseas
   type: select
   filters:
   - type: clash-classical
@@ -401,7 +401,7 @@ rules:
 # ------------------------------------------------------------------------------
 # The final match.
 # ------------------------------------------------------------------------------
-- name: &FINAL_LABEL Final
+- name: &FINAL Final
   type: select
   filters:
   - type: match
@@ -533,20 +533,17 @@ generates:
   included_process_irs: null  # Router cannot see clients' process names.
   proxy_domain_strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   inbounds:
-  - inet4_address: 172.19.0.1/30
-    inet6_address: fdfe:dcba:9876::1/126
+  - tag: tun
+    type: tun
     interface_name: tun0
     sniff: true
-    stack: gvisor
-    domain_strategy: prefer_ipv4
-    tag: tun
-    type: tun
-  - listen: '::'
+    inet4_address: 172.19.0.1/30
+    inet6_address: fdfe:dcba:9876::1/126
+  - tag: mixed
+    type: mixed
+    listen: '::'
     listen_port: 10081
     sniff: true
-    domain_strategy: prefer_ipv4
-    tag: mixed
-    type: mixed
     users:
     - password: '@secret:CLASH_PROXY_PASSWORD'
       username: '@secret:CLASH_PROXY_USERNAME'
@@ -574,7 +571,7 @@ generates:
         port: 443
       - protocol: stun
       type: logical
-    final: *FINAL_LABEL
+    final: *FINAL
   dns:
     servers:
     - address: local
@@ -584,16 +581,6 @@ generates:
       tag: REJECT
     - address: fakeip
       tag: FakeIP
-    - address: tls://1.1.1.1
-      detour: *NETFLIX_LABEL
-      tag: Netflix
-    - address: tls://1.1.1.1
-      detour: *OVERSEAS_LABEL
-      tag: Overseas
-    fakeip:
-      enabled: true
-      inet4_range: 198.18.0.0/15
-      inet6_range: fc00::/18
     independent_cache: true
     rules:
     - mode: or
@@ -612,22 +599,11 @@ generates:
       - A
       - AAAA
       server: FakeIP
-    - query_type:
-      - HTTPS
-      - SVCB
-      server: REJECT
-      disable_cache: true
-    - filters: *NETFLIX_FILTERS
-      server: Netflix
-    - mode: or
-      server: DIRECT
-      rules:
-      - clash_mode: direct
-      - filters:
-        - type: dnsmasq
-          url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
-      type: logical
-    final: Overseas
+    final: REJECT
+    fakeip:
+      enabled: true
+      inet4_range: 198.18.0.0/15
+      inet6_range: fc00::/18
   experimental:
     clash_api:
       external_controller: :9090
@@ -660,7 +636,6 @@ generates:
     auto_route: true
     strict_route: true
     sniff: true
-    domain_strategy: prefer_ipv4
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
     interface_name: tun0
