@@ -544,6 +544,7 @@ generates:
   - listen: '::'
     listen_port: 10081
     sniff: true
+    domain_strategy: prefer_ipv4
     tag: mixed
     type: mixed
     users:
@@ -574,12 +575,6 @@ generates:
       - protocol: stun
       type: logical
     final: *FINAL_LABEL
-    rule_set:
-    - tag: &GEO_SITE_CN_LABEL geosite-geolocation-cn
-      format: binary
-      type: remote
-      url: https://github.com/SagerNet/sing-geosite/raw/rule-set/geosite-geolocation-cn.srs
-      download_detour: *GITHUB_LABEL
   dns:
     servers:
     - address: local
@@ -628,7 +623,9 @@ generates:
       server: DIRECT
       rules:
       - clash_mode: direct
-      - rule_set: *GEO_SITE_CN_LABEL
+      - filters:
+        - type: dnsmasq
+          url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
       type: logical
     final: Overseas
   experimental:
