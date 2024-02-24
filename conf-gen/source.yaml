@@ -184,7 +184,7 @@ rules:
 # ------------------------------------------------------------------------------
 # GitHub.
 # ------------------------------------------------------------------------------
-- name: GitHub
+- name: &GITHUB_LABEL GitHub
   type: select
   filters:
   # From: https://github.com/v2fly/domain-list-community/blob/master/data/github
@@ -532,41 +532,13 @@ generates:
   type: sing-box
   included_process_irs: null  # Router cannot see clients' process names.
   proxy_domain_strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
-  dns:
-    servers:
-    - address: local
-      detour: DIRECT
-      tag: DIRECT
-    - address: fakeip
-      tag: FakeIP
-    - address: rcode://refused
-      tag: REJECT
-    fakeip:
-      enabled: true
-      inet4_range: 198.18.0.0/15
-      inet6_range: fc00::/18
-    independent_cache: true
-    rules:
-    - outbound: any
-      server: DIRECT
-    - filters:
-      - DOMAIN-SUFFIX,local
-      - DOMAIN-SUFFIX,rundong.me
-      - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
-      - DOMAIN-SUFFIX,dns.msftncsi.com
-      - DOMAIN-SUFFIX,www.msftncsi.com
-      - DOMAIN-SUFFIX,www.msftconnecttest.com
-      server: DIRECT
-    - query_type:
-      - A
-      - AAAA
-      server: FakeIP
-    final: REJECT
   inbounds:
   - inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
     interface_name: tun0
     sniff: true
+    stack: gvisor
+    domain_strategy: prefer_ipv4
     tag: tun
     type: tun
   - listen: '::'
@@ -602,6 +574,63 @@ generates:
       - protocol: stun
       type: logical
     final: *FINAL_LABEL
+    rule_set:
+    - tag: &GEO_SITE_CN_LABEL geosite-geolocation-cn
+      format: binary
+      type: remote
+      url: https://github.com/SagerNet/sing-geosite/raw/rule-set/geosite-geolocation-cn.srs
+      download_detour: *GITHUB_LABEL
+  dns:
+    servers:
+    - address: local
+      detour: DIRECT
+      tag: DIRECT
+    - address: rcode://refused
+      tag: REJECT
+    - address: fakeip
+      tag: FakeIP
+    - address: tls://1.1.1.1
+      detour: *NETFLIX_LABEL
+      tag: Netflix
+    - address: tls://1.1.1.1
+      detour: *OVERSEAS_LABEL
+      tag: Overseas
+    fakeip:
+      enabled: true
+      inet4_range: 198.18.0.0/15
+      inet6_range: fc00::/18
+    independent_cache: true
+    rules:
+    - mode: or
+      server: DIRECT
+      rules:
+      - outbound: any
+      - filters:
+        - DOMAIN-SUFFIX,local
+        - DOMAIN-SUFFIX,rundong.me
+        - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
+        - DOMAIN-SUFFIX,dns.msftncsi.com
+        - DOMAIN-SUFFIX,www.msftncsi.com
+        - DOMAIN-SUFFIX,www.msftconnecttest.com
+      type: logical
+    - query_type:
+      - A
+      - AAAA
+      server: FakeIP
+    - query_type:
+      - HTTPS
+      - SVCB
+      server: REJECT
+      disable_cache: true
+    - filters: *NETFLIX_FILTERS
+      server: Netflix
+    - mode: or
+      server: DIRECT
+      rules:
+      - clash_mode: direct
+      - rule_set: *GEO_SITE_CN_LABEL
+      type: logical
+    final: Overseas
   experimental:
     clash_api:
       external_controller: :9090
@@ -634,6 +663,7 @@ generates:
     auto_route: true
     strict_route: true
     sniff: true
+    domain_strategy: prefer_ipv4
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
     interface_name: tun0

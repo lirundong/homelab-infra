@@ -1,6 +1,6 @@
 from collections import defaultdict
 import re
-from typing import Dict, Optional, List, Tuple, Union
+from typing import Dict, Optional, List, Literal, Tuple, Union
 
 from proxy import ProxyBase
 from rule import FilterT, parse_filter
@@ -18,6 +18,7 @@ _PROCESS_IRS = frozenset({PackageName, ProcessName})
 def group_sing_box_filters(
     filters: List[IRBase],
     included_process_irs: Optional[List[str]] = None,
+    process_irs_combination_mode: Literal["and", "or"] = "or",
 ) -> Dict[str, List[str]]:
     normal_filters = defaultdict(list)
     process_filters = defaultdict(list)
@@ -45,7 +46,7 @@ def group_sing_box_filters(
     if process_filters:
         filters = {
             "type": "logical",
-            "mode": "or",
+            "mode": process_irs_combination_mode,
             "rules": [
                 process_filters,
                 normal_filters,
