@@ -11,13 +11,15 @@ from rule.ir import (
     DomainListItem,
     DomainSuffix,
     DomainWildcard,
+    IPCIDR,
+    IPCIDR6,
     PackageName,
     ProcessName,
 )
 from common import CLASH_RULESET_FORMATS, COMMENT_BEGINS
 
 
-DNS_COMPATIBLE_IRS = (
+DNS_REQUEST_MATCHERS = (
     Domain,
     DomainKeyword,
     DomainListItem,
@@ -26,6 +28,15 @@ DNS_COMPATIBLE_IRS = (
     PackageName,
     ProcessName,
 )
+
+
+DNS_RESPONSE_MATCHERS = (
+    IPCIDR,
+    IPCIDR6,
+)
+
+
+EXCLUDED_DOMAIN_KEYWORDS = ("this_ruleset_is_made_by_sukkaw",)
 
 
 def _fetch_rule_set_payload(url: str, format: Literal["yaml", "text"]) -> Sequence[str]:
@@ -38,12 +49,18 @@ def _fetch_rule_set_payload(url: str, format: Literal["yaml", "text"]) -> Sequen
 
     filters = []
     if format == "yaml":
-        filters = [l.strip() for l in yaml.load(r.text, Loader=yaml.SafeLoader)["payload"]]
+        filters = [
+            l.strip()
+            for l in yaml.load(r.text, Loader=yaml.SafeLoader)["payload"]
+            if not any(p in l for p in EXCLUDED_DOMAIN_KEYWORDS)
+        ]
     elif format == "text":
         filters = [
             l.strip()
             for l in r.text.splitlines()
-            if l and not l.lstrip().startswith(COMMENT_BEGINS)
+            if l
+            and not l.lstrip().startswith(COMMENT_BEGINS)
+            and not any(p in l for p in EXCLUDED_DOMAIN_KEYWORDS)
         ]
 
     return filters
@@ -201,7 +218,7 @@ FilterT = Union[str, RuleItemT, QuantumultXRuleSetT, DomainListT, ClashRuleSetT,
 
 def parse_filter(
     filter: FilterT,
-    for_dns: bool = False,
+    match_with_dns: Optional[Literal["response", "request"]] = None,
 ) -> Sequence[IRBase]:
     ret: Sequence[IRBase]
 
@@ -280,7 +297,8 @@ def parse_filter(
 
     if not ret:
         raise ValueError(f"Got empty parsing result from: {filter}")
-    if for_dns:
-        ret = [r for r in ret if isinstance(r, DNS_COMPATIBLE_IRS)]
+    if match_with_dns is not None:
+        dns_matcher = DNS_REQUEST_MATCHERS if match_with_dns == "request" else DNS_RESPONSE_MATCHERS
+        ret = [r for r in ret if isinstance(r, dns_matcher)]
 
     return ret

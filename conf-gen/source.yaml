@@ -280,13 +280,13 @@ rules:
 - name: &OVERSEAS Overseas
   type: select
   filters:
+  - DOMAIN-SUFFIX,s1s1s1.com
+  - DOMAIN-SUFFIX,sehuatang.net
+  - DOMAIN-KEYWORD,hegre
   - type: clash-classical
     format: text
     resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/global.txt
-  - DOMAIN-SUFFIX,s1s1s1.com
-  - DOMAIN-SUFFIX,sehuatang.net
-  - DOMAIN-KEYWORD,hegre
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Outside.png
   proxies:
   - PROXY
@@ -537,6 +537,7 @@ generates:
     type: tun
     interface_name: tun0
     sniff: true
+    domain_strategy: prefer_ipv4
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
   - tag: mixed
@@ -544,6 +545,7 @@ generates:
     listen: '::'
     listen_port: 10081
     sniff: true
+    domain_strategy: prefer_ipv4
     users:
     - password: '@secret:CLASH_PROXY_PASSWORD'
       username: '@secret:CLASH_PROXY_USERNAME'
@@ -574,6 +576,12 @@ generates:
     final: *FINAL
   dns:
     servers:
+    - address: tls://1.1.1.1
+      detour: *NETFLIX
+      tag: Netflix
+    - address: tls://1.1.1.1
+      detour: PROXY
+      tag: PROXY
     - address: local
       detour: DIRECT
       tag: DIRECT
@@ -599,7 +607,32 @@ generates:
       - A
       - AAAA
       server: FakeIP
-    final: REJECT
+    - query_type:
+      - SVCB
+      - HTTPS
+      server: REJECT
+      disable_cache: true
+    - filters: *NETFLIX_FILTERS
+      match_with_dns: request
+      server: Netflix
+    - filters:
+      - type: dnsmasq
+        url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
+      match_with_dns: request
+      server: DIRECT
+    - filters:
+      - type: clash-classical
+        format: text
+        resolve: true
+        url: https://ruleset.skk.moe/Clash/ip/domestic.txt
+      - type: clash-ipcidr
+        format: text
+        resolve: true
+        url: https://ruleset.skk.moe/Clash/ip/china_ip.txt
+      match_with_dns: response
+      server: PROXY
+      client_subnet: 139.226.3.159
+    final: PROXY
     fakeip:
       enabled: true
       inet4_range: 198.18.0.0/15
@@ -636,6 +669,7 @@ generates:
     auto_route: true
     strict_route: true
     sniff: true
+    domain_strategy: prefer_ipv4
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
     interface_name: tun0

@@ -58,7 +58,7 @@ class SingBoxGenerator(GeneratorBase):
         if "rules" not in dns:
             raise ValueError("The dns argument didn't include a `rules` field")
         for rule in dns["rules"]:
-            self._expand_filters_in_rule(rule, for_dns=True, filters_key="filters")
+            self._expand_filters_in_rule(rule, filters_key="filters")
 
         # Sane default options for sing-box.
         if log is None:
@@ -92,25 +92,27 @@ class SingBoxGenerator(GeneratorBase):
         self._build_outbounds()
         self._build_route()
 
-    def _expand_filters_in_rule(self, rule_obj, for_dns, filters_key="filters"):
+    def _expand_filters_in_rule(self, rule_obj, filters_key="filters"):
         if isinstance(rule_obj, dict) and filters_key in rule_obj:
+            # We assume that match_with_dns might live in the same level as filters.
             filters = []
             for f in rule_obj.pop(filters_key):
-                filters += parse_filter(f, for_dns=for_dns)
+                filters += parse_filter(f, match_with_dns=rule_obj.get("match_with_dns"))
             filters = group_sing_box_filters(filters, included_process_irs=self.included_process_irs)
             rule_obj.update(filters)
+            if "match_with_dns" in rule_obj: rule_obj.pop("match_with_dns")
             return
         elif isinstance(rule_obj, dict):
             for v in rule_obj.values():
-                self._expand_filters_in_rule(v, for_dns, filters_key)
+                self._expand_filters_in_rule(v, filters_key)
         elif isinstance(rule_obj, (list, tuple)):
             for v in rule_obj:
-                self._expand_filters_in_rule(v, for_dns, filters_key)
+                self._expand_filters_in_rule(v, filters_key)
 
     def _build_outbounds(self):
         # 1. Build the mandatory DIRECT, REJECT, and DNS outbounds.
         mandatory_outbounds = [
-            {"tag": "DIRECT", "type": "direct", "domain_strategy": "prefer_ipv6"},
+            {"tag": "DIRECT", "type": "direct", "domain_strategy": "prefer_ipv4"},
             {"tag": "REJECT", "type": "block"},
             {"tag": "DNS", "type": "dns"},
         ]
