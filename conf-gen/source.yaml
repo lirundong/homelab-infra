@@ -54,7 +54,7 @@ rules:
   img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Hijacking.png
   proxies:
   - DIRECT
-  - Overseas
+  - PROXY
 # ------------------------------------------------------------------------------
 # AdBlock.
 # ------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ rules:
   proxies:
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬|TW|Taiwan|台湾|🇹🇼
-  - Overseas
+  - PROXY
 # ------------------------------------------------------------------------------
 # Spotify.
 # ------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ rules:
   proxies:
   - type: regex
     pattern: US|United\w{0,1}States|美国|🇺🇸
-  - Overseas
+  - PROXY
 # ------------------------------------------------------------------------------
 # Telegram.
 # ------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ rules:
     url: https://ruleset.skk.moe/Clash/ip/telegram.txt
   img-url: https://github.com/Koolson/Qure/raw/master/IconSet/Telegram.png
   proxies:
-  - Overseas
+  - PROXY
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
 # ------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ rules:
   proxies:
   - type: regex
     pattern: US|United\w{0,1}States|美国|🇺🇸|SG|Singapore|新加坡|🇸🇬
-  - Overseas
+  - PROXY
 # ------------------------------------------------------------------------------
 # GitHub.
 # ------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ rules:
   img-url: https://github.com/Semporia/Quantumult-X/raw/master/Bubble/IconSet/GitHub.png
   proxies:
   - "🌏 Custom" # Automatically grouped by the generator program.
-  - Overseas
+  - PROXY
   - Mainland
 # ------------------------------------------------------------------------------
 # Microsoft CDN.
@@ -259,7 +259,7 @@ rules:
   img-url: https://github.com/Semporia/Quantumult-X/raw/master/Bubble/IconSet/Cloudflare.png
   proxies:
   - "🌏 Custom"
-  - Overseas
+  - PROXY
   - Mainland
 # ------------------------------------------------------------------------------
 # Speed test.
@@ -273,22 +273,6 @@ rules:
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Speedtest.png
   proxies:
   - Mainland
-  - Overseas
-# ------------------------------------------------------------------------------
-# Overseas.
-# ------------------------------------------------------------------------------
-- name: &OVERSEAS Overseas
-  type: select
-  filters:
-  - DOMAIN-SUFFIX,s1s1s1.com
-  - DOMAIN-SUFFIX,sehuatang.net
-  - DOMAIN-KEYWORD,hegre
-  - type: clash-classical
-    format: text
-    resolve: false
-    url: https://ruleset.skk.moe/Clash/non_ip/global.txt
-  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Outside.png
-  proxies:
   - PROXY
 # ------------------------------------------------------------------------------
 # Bilibili & iQIYI.
@@ -325,7 +309,7 @@ rules:
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Microsoft.png
   proxies:
   - Mainland
-  - Overseas
+  - PROXY
 # ------------------------------------------------------------------------------
 # Apple.
 # ------------------------------------------------------------------------------
@@ -358,7 +342,7 @@ rules:
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Apple.png
   proxies:
   - Mainland
-  - Overseas
+  - PROXY
 # ------------------------------------------------------------------------------
 # Mainland.
 # ------------------------------------------------------------------------------
