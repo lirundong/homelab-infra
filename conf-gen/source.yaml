@@ -560,10 +560,11 @@ generates:
     final: *FINAL
   dns:
     servers:
-    - address: tls://1.1.1.1
+    - address: 1.1.1.1
       detour: *NETFLIX
       tag: Netflix
-    - address: tls://1.1.1.1
+    - address: 1.1.1.1
+      client_subnet: 139.226.3.159
       detour: PROXY
       tag: PROXY
     - address: local
@@ -604,18 +605,6 @@ generates:
         url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
       match_with_dns: request
       server: DIRECT
-    - filters:
-      - type: clash-classical
-        format: text
-        resolve: true
-        url: https://ruleset.skk.moe/Clash/ip/domestic.txt
-      - type: clash-ipcidr
-        format: text
-        resolve: true
-        url: https://ruleset.skk.moe/Clash/ip/china_ip.txt
-      match_with_dns: response
-      server: PROXY
-      client_subnet: 139.226.3.159
     final: PROXY
     fakeip:
       enabled: true
