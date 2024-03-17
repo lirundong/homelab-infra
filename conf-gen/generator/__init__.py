@@ -56,6 +56,7 @@ def generate_conf(
                     route=gen_info.get("route"),
                     experimental=gen_info.get("experimental"),
                     included_process_irs=included_process_irs,
+                    direct_domain_strategy=gen_info.get("direct_domain_strategy"),
                 )
             else:
                 args = copy(gen_info)
@@ -66,6 +67,7 @@ def generate_conf(
                     proxy_groups=proxy_groups,
                     dns=args["dns"],
                     route=args["route"],
+                    direct_domain_strategy=args["direct_domain_strategy"],
                     inbounds=args.get("inbounds"),
                     log=args.get("log"),
                     ntp=args.get("ntp"),

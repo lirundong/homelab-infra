@@ -18,7 +18,6 @@ from proxy_group.selective_proxy_group import SelectProxyGroup
 from rule.parser import parse_filter
 
 
-
 class SingBoxGenerator(GeneratorBase):
     _SUPPORTED_PROXY_TYPE = (
         ShadowSocksProxy,
@@ -35,6 +34,7 @@ class SingBoxGenerator(GeneratorBase):
         proxy_groups: List[ProxyGroupBase],
         dns: Dict,
         route: Dict,
+        direct_domain_strategy: DomainStrategyT,
         inbounds: Optional[List] = None,
         log: Optional[Dict] = None,
         ntp: Optional[Dict] = None,
@@ -52,6 +52,7 @@ class SingBoxGenerator(GeneratorBase):
 
         super().__init__(src_file, proxies, proxy_groups)
         self.included_process_irs = included_process_irs
+        self.direct_domain_strategy = direct_domain_strategy
         self.proxy_domain_strategy = proxy_domain_strategy
 
         # Parse DNS rules using the same infra as in parsing route rules.
@@ -98,9 +99,12 @@ class SingBoxGenerator(GeneratorBase):
             filters = []
             for f in rule_obj.pop(filters_key):
                 filters += parse_filter(f, match_with_dns=rule_obj.get("match_with_dns"))
-            filters = group_sing_box_filters(filters, included_process_irs=self.included_process_irs)
+            filters = group_sing_box_filters(
+                filters, included_process_irs=self.included_process_irs
+            )
             rule_obj.update(filters)
-            if "match_with_dns" in rule_obj: rule_obj.pop("match_with_dns")
+            if "match_with_dns" in rule_obj:
+                rule_obj.pop("match_with_dns")
             return
         elif isinstance(rule_obj, dict):
             for v in rule_obj.values():
@@ -112,7 +116,7 @@ class SingBoxGenerator(GeneratorBase):
     def _build_outbounds(self):
         # 1. Build the mandatory DIRECT, REJECT, and DNS outbounds.
         mandatory_outbounds = [
-            {"tag": "DIRECT", "type": "direct", "domain_strategy": "prefer_ipv4"},
+            {"tag": "DIRECT", "type": "direct", "domain_strategy": self.direct_domain_strategy},
             {"tag": "REJECT", "type": "block"},
             {"tag": "DNS", "type": "dns"},
         ]
@@ -146,11 +150,20 @@ class SingBoxGenerator(GeneratorBase):
             warn(f"The final outbound was not set in route, fallback to the default `PROXY`")
             self.route.setdefault("final", "PROXY")
 
-    # TODO: 
+    # TODO:
     # - Make this method more general and robust.
     # - Define a former behavior of replacements and overwrites.
     @classmethod
-    def from_base(cls, base_object: Self, dns, inbounds, route, experimental, included_process_irs):
+    def from_base(
+        cls,
+        base_object: Self,
+        dns,
+        inbounds,
+        route,
+        experimental,
+        included_process_irs,
+        direct_domain_strategy,
+    ):
         new_object = copy(base_object)
         # `dns` only overwrites or appends DNS servers.
         if dns is not None and dns.get("servers"):
@@ -168,8 +181,11 @@ class SingBoxGenerator(GeneratorBase):
             new_object.experimental.update(experimental)
         # Always overwrite included_process_irs. Default fallback was handed by upper-level logic.
         new_object.included_process_irs = included_process_irs
+        if direct_domain_strategy is not None:
+            new_object.direct_domain_strategy = direct_domain_strategy
 
-        # Rebuild route rules.
+        # Rebuild outbounds and route rules.
+        new_object._build_outbounds()
         new_object.route["rules"].clear()
         new_object.route["rules"] += new_object._initial_route_rules
         new_object._build_route()

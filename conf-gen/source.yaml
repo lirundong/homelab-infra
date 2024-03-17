@@ -515,13 +515,14 @@ generates:
 - name: &SING_BOX_BASE sing-box-daemon
   type: sing-box
   included_process_irs: null  # Router cannot see clients' process names.
+  direct_domain_strategy: prefer_ipv6
   proxy_domain_strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   inbounds:
   - tag: tun
     type: tun
     interface_name: tun0
     sniff: true
-    domain_strategy: prefer_ipv4
+    # domain_strategy: prefer_ipv4
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
   - tag: mixed
@@ -529,7 +530,7 @@ generates:
     listen: '::'
     listen_port: 10081
     sniff: true
-    domain_strategy: prefer_ipv4
+    # domain_strategy: prefer_ipv4
     users:
     - password: '@secret:CLASH_PROXY_PASSWORD'
       username: '@secret:CLASH_PROXY_USERNAME'
@@ -564,7 +565,7 @@ generates:
       detour: *NETFLIX
       tag: Netflix
     - address: 1.1.1.1
-      client_subnet: 139.226.3.159
+      # client_subnet: 139.226.3.159
       detour: PROXY
       tag: PROXY
     - address: local
@@ -642,7 +643,7 @@ generates:
     auto_route: true
     strict_route: true
     sniff: true
-    domain_strategy: prefer_ipv4
+    # domain_strategy: prefer_ipv4
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
     interface_name: tun0
@@ -657,6 +658,7 @@ generates:
       store_fakeip: true
   included_process_irs:
   - PACKAGE-NAME
+  direct_domain_strategy: prefer_ipv4
 # ------------------------------------------------------------------------------
 # Sing-Box clients (for Apple platforms).
 # ------------------------------------------------------------------------------
@@ -664,3 +666,4 @@ generates:
   type: sing-box
   base: *SING_BOX_CLIENT_BASE
   included_process_irs: '!clear'
+  direct_domain_strategy: prefer_ipv4
