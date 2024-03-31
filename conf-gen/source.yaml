@@ -355,10 +355,12 @@ rules:
   - DOMAIN-SUFFIX,midea.com.cn
   - DOMAIN-SUFFIX,gree.com
   - DOMAIN-SUFFIX,tplinkcloud.com.cn
-  - 'DOMAIN,Mijia Cloud'
   # Handle 云视听极光 TV.
   - DOMAIN-SUFFIX,cdn.meta.ndmdhs.com
   - DOMAIN-SUFFIX,aiseet.atianqi.com
+  # Handle additional Xiaomi hostnames.
+  - 'DOMAIN,Mijia Cloud'
+  - DOMAIN-SUFFIX,xiaomiev.com
   - type: clash-classical
     format: text
     resolve: false
