@@ -361,6 +361,7 @@ rules:
   # Handle additional Xiaomi hostnames.
   - 'DOMAIN,Mijia Cloud'
   - DOMAIN-SUFFIX,xiaomiev.com
+  - DOMAIN-SUFFIX,nio.com
   - type: clash-classical
     format: text
     resolve: false
