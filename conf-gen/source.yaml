@@ -686,7 +686,7 @@ generates:
       store_fakeip: true
   included_process_irs:
   - PACKAGE-NAME
-  direct_domain_strategy: prefer_ipv4
+  direct_domain_strategy: prefer_ipv6
 # ------------------------------------------------------------------------------
 # Sing-Box clients (for Apple platforms).
 # ------------------------------------------------------------------------------
@@ -701,4 +701,4 @@ generates:
     - *ROUTE_RULE_MATCH_GLOBAL_PROXY
     - *ROUTE_RULE_MATCH_SECURED_DNS
   included_process_irs: '!clear'
-  direct_domain_strategy: prefer_ipv4
+  direct_domain_strategy: prefer_ipv6
