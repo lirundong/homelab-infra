@@ -136,7 +136,7 @@ class SingBoxGenerator(GeneratorBase):
 
     def _build_route(self):
         for i, r in enumerate(self.route["rules"]):
-            if not r["outbound"] in self._valid_outbound_tags:
+            if r["outbound"] not in self._valid_outbound_tags:
                 raise ValueError(f"#{i} rule's outbound {r['outbound']} is invalid")
         for g in self._proxy_groups:
             g.included_process_irs = self.included_process_irs
@@ -176,6 +176,8 @@ class SingBoxGenerator(GeneratorBase):
         if inbounds is not None:
             new_object.inbounds = inbounds
         if route is not None:
+            if "rules" in route:
+                new_object._initial_route_rules = copy(route["rules"])
             new_object.route.update(route)
         if experimental is not None:
             new_object.experimental.update(experimental)

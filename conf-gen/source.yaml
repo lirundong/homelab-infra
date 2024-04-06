@@ -88,7 +88,7 @@ rules:
   filters: &NETFLIX_FILTERS
   # https://github.com/SukkaW/Surge/blob/50ae7c06/Source/stream.js#L517-L562
   - USER-AGENT,Argo*
-  - PROCESS-NAME,com.netflix.mediaclient
+  - PACKAGE-NAME,com.netflix.mediaclient
   - PACKAGE-NAME,com.netflix.ninja
   - DOMAIN-SUFFIX,netflix.ca
   - DOMAIN-SUFFIX,netflix.com
@@ -538,21 +538,25 @@ generates:
       username: '@secret:CLASH_PROXY_USERNAME'
   route:
     rules:
-    - mode: or
+    - &ROUTE_RULE_MATCH_DNS
+      mode: or
       outbound: DNS
       rules:
       - protocol: dns
       - port: 53
       type: logical
-    - mode: or
+    - &ROUTE_RULE_MATCH_DIRECT
+      mode: or
       outbound: DIRECT
       rules:
       - clash_mode: direct
       - ip_is_private: true
       type: logical
-    - clash_mode: global
+    - &ROUTE_RULE_MATCH_GLOBAL_PROXY
+      clash_mode: global
       outbound: PROXY
-    - mode: or
+    - &ROUTE_RULE_MATCH_SECURED_DNS
+      mode: or
       outbound: REJECT
       rules:
       - port: 853
@@ -652,6 +656,27 @@ generates:
   route:
     auto_detect_interface: true
     override_android_vpn: true
+    rules:
+    - *ROUTE_RULE_MATCH_DNS
+    - *ROUTE_RULE_MATCH_DIRECT
+    - *ROUTE_RULE_MATCH_GLOBAL_PROXY
+    - # Only reject secured DNS requests from non-Netflix apps; Netflix trafffic
+      # will be fully sent to the proxy.
+      mode: and
+      outbound: REJECT
+      rules:
+      - package_name:
+        - com.netflix.mediaclient
+        - com.netflix.ninja
+        invert: true
+      - mode: or
+        rules:
+        - port: 853
+        - network: udp
+          port: 443
+        - protocol: stun
+        type: logical
+      type: logical
   experimental:
     clash_api: null
     cache_file:
@@ -667,5 +692,12 @@ generates:
 - name: sing-box-apple
   type: sing-box
   base: *SING_BOX_CLIENT_BASE
+  route:
+    auto_detect_interface: true
+    rules:
+    - *ROUTE_RULE_MATCH_DNS
+    - *ROUTE_RULE_MATCH_DIRECT
+    - *ROUTE_RULE_MATCH_GLOBAL_PROXY
+    - *ROUTE_RULE_MATCH_SECURED_DNS
   included_process_irs: '!clear'
   direct_domain_strategy: prefer_ipv4

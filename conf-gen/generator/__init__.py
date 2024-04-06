@@ -85,5 +85,6 @@ def generate_conf(
 __all__ = (
     "ClashGenerator",
     "QuantumultGenerator",
+    "SingBoxGenerator",
     "generate_conf",
 )
