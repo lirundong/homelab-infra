@@ -15,7 +15,7 @@ from pprint import pprint
 import socket
 import sys
 import re
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional, Type
 
 # TODO: Remove this path hack.
 sys.path.insert(0, str(Path(os.path.realpath(__file__)).parents[2]))
@@ -52,38 +52,105 @@ QCLOUD_DNS_API = {
 }
 
 
+class PublicIPGetter:
+
+    request_url = None
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def parse_ipv4_response(self, r: requests.Response) -> str:
+        raise NotImplementedError()
+
+    def parse_ipv6_response(self, r: requests.Response) -> str:
+        raise NotImplementedError()
+
+    def get_public_ip(self, type: Literal["A", "AAAA"]) -> str:
+        if self.request_url is None:
+            raise ValueError(f"request_url not provided for {self.__class__.__name__}")
+        if type == "AAAA" and not urllib3_cn.HAS_IPV6:
+            raise RuntimeError("Network stack doesn't support IPv6")
+        # Force requests library to use either IPv4 or IPv6.
+        # https://stackoverflow.com/a/46972341
+        urllib3_cn.allowed_gai_family = lambda: (
+            socket.AF_INET6 if type == "AAAA" else socket.AF_INET
+        )
+        r = requests.get(self.request_url)
+        if r.status_code != 200:
+            raise RuntimeError(r.reason)
+        ip_str = self.parse_ipv6_response(r) if type == "AAAA" else self.parse_ipv4_response(r)
+        ip_obj = ip.ip_address(ip_str)
+        if not ip_obj.is_global:
+            raise RuntimeError(f"{type} address {ip_str} was not global")
+        return ip_str
+
+
+class taobao(PublicIPGetter):
+
+    request_url = "https://www.taobao.com/help/getip.php"
+
+    def parse_ipv4_response(self, r: requests.Response) -> str:
+        pattern = re.compile(r"ipCallback\({ip:\"(.*)\"}\)")
+        if match := pattern.search(r.text):
+            return match.group(1)
+        else:
+            raise ValueError(f"Did not find IPv4 address in response {r.text}")
+
+    def parse_ipv6_response(self, r: requests.Response) -> str:
+        pattern = re.compile(r"ipCallback\({ip:\"(.*)\"}\)")
+        if match := pattern.search(r.text):
+            return match.group(1)
+        else:
+            raise ValueError(f"Did not find IPv6 address in response {r.text}")
+
+
+class RawTextGetter(PublicIPGetter):
+
+    def parse_ipv4_response(self, r: requests.Response) -> str:
+        return r.text.strip()
+
+    def parse_ipv6_response(self, r: requests.Response) -> str:
+        return r.text.strip()
+
+
+class ipify(RawTextGetter):
+
+    request_url = "https://api64.ipify.org"
+
+
+class ifconfig(RawTextGetter):
+
+    request_url = "https://ifconfig.me"
+
+
+PUBLIC_IP_GETTERS: Dict[str, Type[PublicIPGetter]] = {
+    "taobao": taobao,
+    "ipify": ipify,
+    "ifconfig": ifconfig,
+}
+
+
 def get_public_ip_addresses(method: str = "ipify", type: str = "A", **kwargs) -> str:
-    if method not in ("ipify", "taobao", "netifaces", "ifaddr"):
+    if method not in ("ipify", "taobao", "ifconfig", "requests", "netifaces", "ifaddr"):
         raise ValueError(f"Invalid IP acquisition method {method}")
     if type not in ("A", "AAAA"):
         raise ValueError(f"Invalid target IP type {type}")
 
-    if method == "ipify":
-        url = "https://api6.ipify.org" if type == "AAAA" else "https://api.ipify.org"
-        try:
-            ip_addr = requests.get(url).text
-        except requests.ConnectionError as e:
-            raise RuntimeError(f"Seems that we don't have {type} addresses: {e}") from e
-    elif method == "taobao":
-        # Taobao API accept both IPv4 and IPv6 calls, thus need patch requests to set preference.
-        # https://stackoverflow.com/a/46972341
-        def _allowed_gai_family():
-            """
-            https://github.com/shazow/urllib3/blob/master/urllib3/util/connection.py
-            """
-            if urllib3_cn.HAS_IPV6 and type == "AAAA":
-                family = socket.AF_INET6  # force ipv6 only if it is available
-            else:
-                family = socket.AF_INET
-            return family
-
-        urllib3_cn.allowed_gai_family = _allowed_gai_family
-        try:
-            ret = requests.get("https://www.taobao.com/help/getip.php").text
-            pattern = re.compile(r"ipCallback\({ip:\"(.*)\"}\)")
-            ip_addr = pattern.search(ret).group(1)
-        except requests.ConnectionError as e:
-            raise RuntimeError(f"Seems that we don't have {type} addresses: {e}") from e
+    if method in PUBLIC_IP_GETTERS:
+        ip_addr = PUBLIC_IP_GETTERS[method]().get_public_ip(type=type)
+    elif method == "requests":
+        last_error, ip_addr = None, None
+        for _, getter in PUBLIC_IP_GETTERS.items():
+            try:
+                ip_addr = getter().get_public_ip(type=type)
+            except Exception as e:
+                last_error = e
+            if ip_addr is not None:
+                break
+        if ip_addr is None:
+            raise RuntimeError(
+                f"Cannot get public IP by methods {list(PUBLIC_IP_GETTERS.keys())}"
+            ) from last_error
     elif method == "netifaces":
         import netifaces as ni
 
