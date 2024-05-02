@@ -10,15 +10,17 @@ SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( cd -- "$( dirname -- "${SRC_DIR}" )" &> /dev/null && pwd )
 PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages/${VERSION}.txt)
 if [[ $VERSION == "snapshots" ]]; then
+  TAR_EXT='tar.zst'
   SDK=openwrt-sdk-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
-  SDK_URL=$REPOSITORY/$VERSION/targets/$TARGET/$SDK.tar.xz
+  SDK_URL=$REPOSITORY/$VERSION/targets/$TARGET/$SDK.$TAR_EXT
   IMG_BUILDER=openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}
-  IMG_BUILDER_URL=$REPOSITORY/$VERSION/targets/$TARGET/$IMG_BUILDER.tar.xz
+  IMG_BUILDER_URL=$REPOSITORY/$VERSION/targets/$TARGET/$IMG_BUILDER.$TAR_EXT
 else
+  TAR_EXT='tar.xz'
   SDK=openwrt-sdk-$VERSION-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
-  SDK_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$SDK.tar.xz
+  SDK_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$SDK.$TAR_EXT
   IMG_BUILDER=openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}
-  IMG_BUILDER_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$IMG_BUILDER.tar.xz
+  IMG_BUILDER_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$IMG_BUILDER.$TAR_EXT
 fi
 
 # Prepare working directory.
@@ -31,7 +33,7 @@ pushd $WORK_DIR
 
 # OpenWRT cross-compilation SDK.
 curl -sSLO $SDK_URL
-tar -xf $SDK.tar.xz
+tar -xf $SDK.$TAR_EXT
 STAGING_DIR=$(realpath -- $SDK/staging_dir)
 SDK_BIN_DIR=$(realpath -- $SDK/staging_dir/toolchain-${TARGET/\//_}_gcc-$GCC_VERSION/bin)
 SDK_CC=${SDK_BIN_DIR}/${TARGET/\//_}-openwrt-linux-gcc
@@ -73,7 +75,7 @@ rsync -aP --exclude='__pycache__' $ROOT_DIR/util-cookbook/tencent-cloud $CUSTOM_
 
 # Image builder.
 curl -sSLO $IMG_BUILDER_URL
-tar -Jxf $IMG_BUILDER.tar.xz
+tar -Jxf $IMG_BUILDER.$TAR_EXT
 pushd $IMG_BUILDER
 sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" repositories.conf
 make image ROOTFS_PARTSIZE=256 FILES=$CUSTOM_FILES_DIR PACKAGES="$PACKAGES"
