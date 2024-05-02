@@ -75,7 +75,7 @@ rsync -aP --exclude='__pycache__' $ROOT_DIR/util-cookbook/tencent-cloud $CUSTOM_
 
 # Image builder.
 curl -sSLO $IMG_BUILDER_URL
-tar -Jxf $IMG_BUILDER.$TAR_EXT
+tar -xf $IMG_BUILDER.$TAR_EXT
 pushd $IMG_BUILDER
 sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" repositories.conf
 make image ROOTFS_PARTSIZE=256 FILES=$CUSTOM_FILES_DIR PACKAGES="$PACKAGES"
