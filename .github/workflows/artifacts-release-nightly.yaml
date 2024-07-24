@@ -34,7 +34,7 @@ jobs:
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
         TARGET: x86/64
-        VERSION: '23.05.3'
+        VERSION: '23.05.4'
         REPOSITORY: https://downloads.openwrt.org
         GCC_VERSION: 12.3.0_musl
         WORK_DIR: ${{ github.workspace }}/openwrt
@@ -51,7 +51,7 @@ jobs:
         TARGET: x86/64
         VERSION: 'snapshots'
         REPOSITORY: https://downloads.openwrt.org
-        GCC_VERSION: 13.2.0_musl
+        GCC_VERSION: 13.3.0_musl
         WORK_DIR: ${{ github.workspace }}/openwrt
       run: |
         bash openwrt-builder/build.sh
