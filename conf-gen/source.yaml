@@ -573,7 +573,7 @@ generates:
       detour: *NETFLIX
       tag: Netflix
     - address: 1.1.1.1
-      # client_subnet: 139.226.3.159
+      client_subnet: 139.226.3.159
       detour: PROXY
       tag: PROXY
     - address: local
@@ -694,6 +694,15 @@ generates:
 - name: sing-box-apple
   type: sing-box
   base: *SING_BOX_CLIENT_BASE
+  inbounds:
+  - tag: tun
+    type: tun
+    stack: gvisor
+    auto_route: true
+    sniff: true
+    # domain_strategy: prefer_ipv4
+    inet4_address: 172.19.0.1/30
+    inet6_address: fdfe:dcba:9876::1/126
   route:
     auto_detect_interface: true
     rules:
