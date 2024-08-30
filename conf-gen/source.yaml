@@ -49,6 +49,7 @@ rules:
   - IP-CIDR6,@secret:JP_NODE_IPV6/64,no-resolve
   - DOMAIN-SUFFIX,vpn.nvidia.com
   - DOMAIN-SUFFIX,horizon.nvidia.com
+  - DOMAIN-SUFFIX,nvidia.glean.com
   - DOMAIN-SUFFIX,nvidia-be.glean.com
   - DOMAIN-SUFFIX,nvidia.workspaceair.com
   - type: clash-classical
