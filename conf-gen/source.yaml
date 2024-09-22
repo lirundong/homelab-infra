@@ -653,12 +653,10 @@ generates:
     type: tun
     stack: gvisor
     auto_route: true
-    strict_route: true
     sniff: true
     # domain_strategy: prefer_ipv4
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
-    interface_name: tun0
   route:
     auto_detect_interface: true
     override_android_vpn: true
@@ -698,15 +696,6 @@ generates:
 - name: sing-box-apple
   type: sing-box
   base: *SING_BOX_CLIENT_BASE
-  inbounds:
-  - tag: tun
-    type: tun
-    stack: gvisor
-    auto_route: true
-    sniff: true
-    # domain_strategy: prefer_ipv4
-    inet4_address: 172.19.0.1/30
-    inet6_address: fdfe:dcba:9876::1/126
   route:
     auto_detect_interface: true
     rules:
