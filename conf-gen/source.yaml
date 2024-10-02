@@ -379,11 +379,13 @@ rules:
   - type: quantumult
     resolve: true
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Mainland.list
-  - type: clash-classical
+  - &DOMESTIC_IP
+    type: clash-classical
     format: text
     resolve: true
     url: https://ruleset.skk.moe/Clash/ip/domestic.txt
-  - type: clash-ipcidr
+  - &CHINA_IP
+    type: clash-ipcidr
     format: text
     resolve: true
     url: https://ruleset.skk.moe/Clash/ip/china_ip.txt
@@ -530,7 +532,6 @@ generates:
     type: tun
     interface_name: tun0
     sniff: true
-    # domain_strategy: prefer_ipv4
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
   - tag: mixed
@@ -538,7 +539,6 @@ generates:
     listen: '::'
     listen_port: 10081
     sniff: true
-    # domain_strategy: prefer_ipv4
     users:
     - password: '@secret:CLASH_PROXY_PASSWORD'
       username: '@secret:CLASH_PROXY_USERNAME'
@@ -573,24 +573,32 @@ generates:
     final: *FINAL
   dns:
     servers:
-    - address: 1.1.1.1
-      detour: *NETFLIX
-      tag: Netflix
-    - address: 1.1.1.1
-      client_subnet: 139.226.3.159
+    # Possibly proxy-able hostnames are resolved to IPv4 in the assumption that
+    # proxy servers don't have IPv6 support.
+    - tag: PROXY
+      address: 1.1.1.1
       detour: PROXY
-      tag: PROXY
-    - address: local
+      strategy: ipv4_only
+    - tag: Netflix
+      address: 1.1.1.1
+      detour: *NETFLIX
+      strategy: ipv4_only
+    # Domestic hostnames are resolved to IPv6 if applicable.
+    - tag: DIRECT
+      address: local
       detour: DIRECT
-      tag: DIRECT
+      strategy: prefer_ipv6
     - address: rcode://refused
       tag: REJECT
-    - address: fakeip
-      tag: FakeIP
-    independent_cache: true
     rules:
-    - mode: or
-      server: DIRECT
+    - server: REJECT
+      query_type:
+      - SVCB
+      - HTTPS
+      disable_cache: true
+    - server: DIRECT
+      type: logical
+      mode: or
       rules:
       - outbound: any
       - filters:
@@ -600,29 +608,19 @@ generates:
         - DOMAIN-SUFFIX,dns.msftncsi.com
         - DOMAIN-SUFFIX,www.msftncsi.com
         - DOMAIN-SUFFIX,www.msftconnecttest.com
-      type: logical
-    - query_type:
-      - A
-      - AAAA
-      server: FakeIP
-    - query_type:
-      - SVCB
-      - HTTPS
-      server: REJECT
-      disable_cache: true
-    - filters: *NETFLIX_FILTERS
+        - type: dnsmasq
+          url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
+        match_with_dns: request
+    - server: Netflix
+      filters: *NETFLIX_FILTERS
       match_with_dns: request
-      server: Netflix
-    - filters:
-      - type: dnsmasq
-        url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
-      match_with_dns: request
-      server: DIRECT
+    - server: PROXY
+      client_subnet: 139.226.3.159
+      filters:
+      - *DOMESTIC_IP
+      - *CHINA_IP
+      match_with_dns: response
     final: PROXY
-    fakeip:
-      enabled: true
-      inet4_range: 198.18.0.0/15
-      inet6_range: fc00::/18
   experimental:
     clash_api:
       external_controller: :9090
@@ -631,7 +629,6 @@ generates:
     cache_file:
       enabled: true
       path: /root/.config/sing-box/cache.db
-      store_fakeip: true
 # ------------------------------------------------------------------------------
 # Sing-Box clients (for Android platforms).
 # ------------------------------------------------------------------------------
@@ -643,18 +640,18 @@ generates:
     - tag: &BOOTSTRAP_DNS bootstrap
       address: https://1.12.12.12/dns-query
       detour: DIRECT
+      strategy: prefer_ipv6
     - tag: DIRECT
       address: tls://@secret:DOT_PUB
-      address_resolver: *BOOTSTRAP_DNS
       address_strategy: prefer_ipv4
+      address_resolver: *BOOTSTRAP_DNS
       detour: DIRECT
+      strategy: prefer_ipv6
   inbounds:
   - tag: tun
     type: tun
-    stack: gvisor
     auto_route: true
     sniff: true
-    # domain_strategy: prefer_ipv4
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
   route:
@@ -686,7 +683,6 @@ generates:
     cache_file:
       enabled: true
       path: cache.db
-      store_fakeip: true
   included_process_irs:
   - PACKAGE-NAME
   direct_domain_strategy: prefer_ipv6
