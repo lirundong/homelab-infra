@@ -576,11 +576,11 @@ generates:
     # Possibly proxy-able hostnames are resolved to IPv4 in the assumption that
     # proxy servers don't have IPv6 support.
     - tag: PROXY
-      address: 1.1.1.1
+      address: tls://8.8.8.8
       detour: PROXY
       strategy: ipv4_only
     - tag: Netflix
-      address: 1.1.1.1
+      address: 8.8.8.8 # In case proxy servers rely on DNS-spoofing to unlock Netflix.
       detour: *NETFLIX
       strategy: ipv4_only
     # Domestic hostnames are resolved to IPv6 if applicable.
