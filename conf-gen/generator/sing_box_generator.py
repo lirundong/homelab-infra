@@ -71,7 +71,6 @@ class SingBoxGenerator(GeneratorBase):
                 {
                     "tag": "tun",
                     "type": "tun",
-                    "interface_name": "tun0",
                     "inet4_address": "172.19.0.1/24",
                     "inet6_address": "fdfe:dcba:9876::1/126",
                     "sniff": True,
@@ -153,6 +152,7 @@ class SingBoxGenerator(GeneratorBase):
     # TODO:
     # - Make this method more general and robust.
     # - Define a former behavior of replacements and overwrites.
+    # - Make '!clear' behavior more general.
     @classmethod
     def from_base(
         cls,
@@ -178,7 +178,11 @@ class SingBoxGenerator(GeneratorBase):
         if route is not None:
             if "rules" in route:
                 new_object._initial_route_rules = copy(route["rules"])
-            new_object.route.update(route)
+            for k, v in route.items():
+                if v == "!clear":
+                    del new_object.route[k]
+                else:
+                    new_object.route[k] = v
         if experimental is not None:
             new_object.experimental.update(experimental)
         # Always overwrite included_process_irs. Default fallback was handed by upper-level logic.

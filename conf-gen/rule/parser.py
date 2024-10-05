@@ -43,6 +43,7 @@ def _fetch_rule_set_payload(url: str, format: Literal["yaml", "text"]) -> Sequen
     if format not in CLASH_RULESET_FORMATS:
         raise ValueError(f"Unsupported format {format}, expect any of {CLASH_RULESET_FORMATS}")
 
+    print(f"Requesting to get from {url}...")
     r = requests.get(url, headers={"user-agent": "clash"})
     if r.status_code != 200:
         raise requests.HTTPError(r.reason)
