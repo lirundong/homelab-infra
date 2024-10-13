@@ -156,7 +156,7 @@ jobs:
         mkdir -p ${{ github.workspace }}/release
         for f in $(find ${{ github.workspace }}/openwrt -iname "*.gz"); do
           gpg -c --batch --yes --passphrase=${{ secrets.MASTER_PASSWORD }} \
-            -o ${{ github.workspace }}/release/${f}.gpg \
+            -o ${{ github.workspace }}/release/$(basename ${f}).gpg \
             ${f}
         done
     - id: prepare_readme
