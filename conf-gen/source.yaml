@@ -532,6 +532,7 @@ generates:
   - tag: tun
     type: tun
     interface_name: tun0
+    stack: system
     sniff: true
     sniff_override_destination: true
     inet4_address: 172.19.0.1/30
@@ -590,14 +591,7 @@ generates:
     - tag: DIRECT
       address: local
       detour: DIRECT
-    - address: rcode://refused
-      tag: REJECT
     rules:
-    - server: REJECT
-      query_type:
-      - SVCB
-      - HTTPS
-      disable_cache: true
     - server: DIRECT
       type: logical
       mode: or
