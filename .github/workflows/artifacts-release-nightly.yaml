@@ -55,7 +55,6 @@ jobs:
     - uses: actions/download-artifact@v4
       with: 
         name: artifacts-conf
-        pattern: sing-box-daemon/*.json
         path: ${{ github.workspace }}/conf
     - uses: actions/checkout@v4
     - id: run_build_script
@@ -90,14 +89,13 @@ jobs:
         name: artifacts-conf
         path: ${{ github.workspace }}/conf
     - run: |
-        tree ${{ github.workspace }}/conf
         mkdir -p ${{ github.workspace }}/release
-        if [[ -d ${{ github.workspace }}/${{ matrix.conf }} ]]; then
+        if [[ -d ${{ github.workspace }}/conf/${{ matrix.conf }} ]]; then
           gpg -c --batch --yes --passphrase=${{ secrets.MASTER_PASSWORD }} \
             -o ${{ github.workspace }}/release/config.json.gpg \
-            ${{ github.workspace }}/${{ matrix.conf }}/config.json
+            ${{ github.workspace }}/conf/${{ matrix.conf }}/config.json
           # Copy rule set binaries, no need to encrypt.
-          cp ${{ github.workspace }}/${{ matrix.conf }}/*.srs ${{ github.workspace }}/release/
+          cp ${{ github.workspace }}/conf/${{ matrix.conf }}/*.srs ${{ github.workspace }}/release/
         else
           conf_file=$(find ${{ github.workspace }}/conf -iname "${{ matrix.conf }}\.*")
           conf_name=$(basename ${conf_file})
@@ -171,7 +169,7 @@ jobs:
         echo "RELEASE_README=${RELEASE_README}" >> "$GITHUB_OUTPUT"
     - uses: svenstaro/upload-release-action@v2
       with:
-        file: ${{ github.workspace }}/release/*.gpg
+        file: ${{ github.workspace }}/release/*
         file_glob: true
         overwrite: true
         repo_token: ${{ secrets.GITHUB_TOKEN }}
