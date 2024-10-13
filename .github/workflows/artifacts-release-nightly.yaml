@@ -68,6 +68,7 @@ jobs:
         SING_BOX_CONFIG: ${{ github.workspace }}/conf/sing-box-daemon/config.json
         REPOSITORY: https://downloads.openwrt.org
         WORK_DIR: ${{ github.workspace }}/openwrt
+        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
         bash openwrt-builder/build.sh
         echo "OUTPUT_DIR=${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/" >> "$GITHUB_OUTPUT"
@@ -103,6 +104,7 @@ jobs:
             -o ${{ github.workspace }}/release/${conf_name}.gpg \
             ${conf_file}
         fi
+        ls ${{ github.workspace }}/release
     - uses: actions/checkout@v4
     - id: prepare_readme
       run: |
@@ -168,7 +170,7 @@ jobs:
         echo "RELEASE_README=${RELEASE_README}" >> "$GITHUB_OUTPUT"
     - uses: svenstaro/upload-release-action@v2
       with:
-        file: ${{ github.workspace }}/release
+        file: ${{ github.workspace }}/release/*.gpg
         file_glob: true
         overwrite: true
         repo_token: ${{ secrets.GITHUB_TOKEN }}
