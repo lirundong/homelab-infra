@@ -69,8 +69,14 @@ jobs:
         WORK_DIR: ${{ github.workspace }}/openwrt
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
+        BUILD_DIR=${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/"
+        OUTPUT_DIR=${{ github.workspace }}/outputs
         bash openwrt-builder/build.sh
-        echo "OUTPUT_DIR=${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/" >> "$GITHUB_OUTPUT"
+        mkdir -p ${OUTPUT_DIR}
+        for f in $(find ${BUILD_DIR} -iname '*.gz'); do
+          cp ${f} ${OUTPUT_DIR}/
+        done
+        echo "OUTPUT_DIR=${OUTPUT_DIR}" >> "$GITHUB_OUTPUT"
     - uses: actions/upload-artifact@v4
       with:
         name: openwrt-${{ matrix.openwrt.version }}-${{ matrix.openwrt.gcc }}
