@@ -2,9 +2,9 @@
 
 [![Artifacts Release Nightly](https://github.com/lirundong/homelab-infra/actions/workflows/artifacts-release-nightly.yaml/badge.svg)](https://github.com/lirundong/homelab-infra/releases/tag/nightly)
 
-This is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing all software infrastructures of Rundong's home-lab. Projects include:
+This is a monorepo containing all software infrastructures of Rundong's home-lab. Projects include:
 
-* [conf-gen](./conf-gen): Generating [Clash](https://github.com/Dreamacro/clash) and [Quantumult-X](https://apps.apple.com/us/app/quantumult-x/id1443988620) configuration files for various deployment scenarios (PC clients, home routers, mobile apps, etc.) from one single unified source configuration file
+* [conf-gen](./conf-gen): Generating [Clash](https://github.com/Dreamacro/clash), [Quantumult-X](https://apps.apple.com/us/app/quantumult-x/id1443988620), and [sing-box](https://github.com/SagerNet/sing-box) configuration files for various deployment scenarios (PC clients, home routers, mobile apps, etc.) from one single unified source configuration file
 * [conf-cookbook](./conf-cookbook): Boilerplate configurations for secured internet services (e.g., shadowsocks-rust, V2Ray + Nginx WebSocket)
 * [openwrt-builder](./openwrt-builder): Build OpenWRT image with custom configurations and packages, include scripts to archive transparent proxy
 * [util-cookbook](./util-cookbook): Handy utilities for daily home-lab maintaining, e.g., DDNS, router LED scheduling etc.

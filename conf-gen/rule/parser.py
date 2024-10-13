@@ -299,7 +299,12 @@ def parse_filter(
     if not ret:
         raise ValueError(f"Got empty parsing result from: {filter}")
     if match_with_dns is not None:
-        dns_matcher = DNS_REQUEST_MATCHERS if match_with_dns == "request" else DNS_RESPONSE_MATCHERS
+        if match_with_dns == "request":
+            dns_matcher = DNS_REQUEST_MATCHERS 
+        elif match_with_dns == "response":
+            dns_matcher = DNS_RESPONSE_MATCHERS
+        else:
+            raise ValueError(f"Unsupported {dns_matcher=}, expect request or response")
         ret = [r for r in ret if isinstance(r, dns_matcher)]
 
     return ret

@@ -1,10 +1,17 @@
 from copy import copy
+import io
+import itertools
 import json
 import os
+import re
+import subprocess
+import tempfile
 from typing import Dict, List, Optional, Self, Union
+from urllib.parse import urlparse, urljoin
 from warnings import warn
 
 from generator._base_generator import GeneratorBase
+from packaging.version import Version, parse
 from proxy import (
     DomainStrategyT,
     ProxyBase,
@@ -16,6 +23,31 @@ from proxy_group import group_sing_box_filters, ProxyGroupBase
 from proxy_group.fallback_proxy_group import FallbackProxyGroup
 from proxy_group.selective_proxy_group import SelectProxyGroup
 from rule.parser import parse_filter
+
+
+# TODO: Make this an attribute of rule IR.
+# https://sing-box.sagernet.org/configuration/rule-set/headless-rule/
+RULE_SET_COMPLIANT_IRS = frozenset([
+    "query_type",
+    "network",
+    "domain",
+    "domain_suffix",
+    "domain_keyword",
+    "domain_regex",
+    "source_ip_cidr",
+    "ip_cidr",
+    "source_port",
+    "source_port_range",
+    "port",
+    "port_range",
+    "process_name",
+    "process_path",
+    "process_path_regex",
+    "package_name",
+    "wifi_ssid",
+    "wifi_bssid",
+    "invert",
+])
 
 
 class SingBoxGenerator(GeneratorBase):
@@ -41,6 +73,7 @@ class SingBoxGenerator(GeneratorBase):
         experimental: Optional[Dict] = None,
         included_process_irs: Optional[List[str]] = None,
         proxy_domain_strategy: Optional[DomainStrategyT] = None,
+        ruleset_url: Optional[str] = None,
     ):
         # Construct the special group `PROXY` for sing-box.
         proxy_groups = copy(proxy_groups)
@@ -54,6 +87,13 @@ class SingBoxGenerator(GeneratorBase):
         self.included_process_irs = included_process_irs
         self.direct_domain_strategy = direct_domain_strategy
         self.proxy_domain_strategy = proxy_domain_strategy
+        if ruleset_url:
+            if not urlparse(ruleset_url).path.endswith("/"):
+                raise ValueError(f"ruleset_url must point to a directory, but got {ruleset_url=}")
+            self.ruleset_url = ruleset_url
+            self.ruleset_contents = dict()
+        else:
+            self.ruleset_url, self.ruleset_contents = None, None
 
         # Parse DNS rules using the same infra as in parsing route rules.
         if "rules" not in dns:
@@ -74,6 +114,7 @@ class SingBoxGenerator(GeneratorBase):
                     "inet4_address": "172.19.0.1/24",
                     "inet6_address": "fdfe:dcba:9876::1/126",
                     "sniff": True,
+                    "sniff_override_destination": True,
                 }
             ]
         if route is None:
@@ -91,6 +132,7 @@ class SingBoxGenerator(GeneratorBase):
 
         self._build_outbounds()
         self._build_route()
+        self._build_rule_set()
 
     def _expand_filters_in_rule(self, rule_obj, filters_key="filters"):
         if isinstance(rule_obj, dict) and filters_key in rule_obj:
@@ -148,6 +190,94 @@ class SingBoxGenerator(GeneratorBase):
         if "final" not in self.route:
             warn(f"The final outbound was not set in route, fallback to the default `PROXY`")
             self.route.setdefault("final", "PROXY")
+    
+    def _extract_ruleset_content(self, rule, tag_prefix) -> str | None:
+        # Return ruleset tag only if one valid ruleset is created.
+        if rule.get("type") == "logical":
+            mergeable_sub_ruleset = []
+            for i, subrule in enumerate(rule["rules"]):
+                sub_ruleset_tag_prefix = f"{tag_prefix}.{i}"
+                sub_ruleset_tag = self._extract_ruleset_content(subrule, sub_ruleset_tag_prefix)
+                if sub_ruleset_tag and len(subrule) == 1:
+                    assert "rule_set" in subrule
+                    mergeable_sub_ruleset.append(sub_ruleset_tag)
+            if len(mergeable_sub_ruleset) == len(rule["rules"]):
+                # All subrules are purely ruleset compliant, merge to a mega ruleset.
+                assert (mega_ruleset_tag := tag_prefix) not in self.ruleset_contents
+                mega_ruleset_content = {
+                    "type": "logical",
+                    "mode": rule["mode"],
+                    "invert": rule.get("invert", False),
+                    "rules": [self.ruleset_contents.pop(tag) for tag in mergeable_sub_ruleset]
+                }
+                self.ruleset_contents[mega_ruleset_tag] = mega_ruleset_content
+                for k in mega_ruleset_content.keys():
+                    rule.pop(k, None)
+                rule["rule_set"] = mega_ruleset_tag
+                return mega_ruleset_content
+            else:
+                return None
+        else:
+            assert (ruleset_tag := tag_prefix) not in self.ruleset_contents
+            extracted_contents = dict()
+            for k, v in rule.items():
+                if k in RULE_SET_COMPLIANT_IRS:
+                    extracted_contents[k] = v
+            if extracted_contents:
+                self.ruleset_contents[ruleset_tag] = extracted_contents
+                for k in extracted_contents.keys():
+                    del rule[k]
+                rule["rule_set"] = ruleset_tag
+                return ruleset_tag
+            else:
+                return None
+    
+    def _compile_ruleset(self):
+        # Since sing-box 1.10, use rule set version 2.
+        ret = subprocess.run(
+            ["sing-box", "version"],
+            check=True,
+            capture_output=True,
+            encoding="utf-8",
+        )
+        sing_box_version = parse(re.search(r'sing-box version (.*)', ret.stdout).group(1))
+        ruleset_version = 2 if Version("1.10") <= sing_box_version else 1
+
+        for tag, rule in self.ruleset_contents.items():
+            normalized_tag = tag.replace(" ", "_")
+            ruleset = {
+                "version": ruleset_version,
+                "rules": rule if isinstance(rule, list) else [rule, ],
+            }
+            with tempfile.TemporaryDirectory() as tmpdir:
+                json_file = os.path.join(tmpdir, f"{normalized_tag}.json")
+                srs_file = os.path.join(tmpdir, f"{normalized_tag}.srs")
+                json.dump(ruleset, open(json_file, "w", encoding="utf-8"), ensure_ascii=False)
+                subprocess.run(
+                    ["sing-box", "rule-set", "compile", json_file, "-o", srs_file],
+                    check=True,
+                )
+                self.ruleset_contents[tag] = io.BytesIO(open(srs_file, "rb").read())
+
+    def _build_rule_set(self):
+        if not self.ruleset_url:
+            return
+        self.ruleset_contents.clear()
+        self.route["rule_set"] = list()
+        for i, rule in enumerate(self.dns["rules"]):
+            self._extract_ruleset_content(rule, tag_prefix=f"dns.{i}.{rule['server']}")
+        for i, rule in enumerate(self.route["rules"]):
+            self._extract_ruleset_content(rule, tag_prefix=f"route.{i}.{rule['outbound']}")
+        self._compile_ruleset()
+        for tag in self.ruleset_contents.keys():
+            ruleset_url = urljoin(self.ruleset_url, f"{tag.replace(' ', '_')}.srs")
+            self.route["rule_set"].append({
+                "tag": tag,
+                "type": "remote",
+                "format": "binary",
+                "url": ruleset_url,
+                "download_detour": "PROXY",
+            })
 
     # TODO:
     # - Make this method more general and robust.
@@ -163,6 +293,7 @@ class SingBoxGenerator(GeneratorBase):
         experimental,
         included_process_irs,
         direct_domain_strategy,
+        ruleset_url,
     ):
         new_object = copy(base_object)
         # `dns` only overwrites or appends DNS servers.
@@ -189,16 +320,20 @@ class SingBoxGenerator(GeneratorBase):
         new_object.included_process_irs = included_process_irs
         if direct_domain_strategy is not None:
             new_object.direct_domain_strategy = direct_domain_strategy
+        # Update ruleset download URL if specified.
+        if ruleset_url is not None:
+            new_object.ruleset_url = ruleset_url
 
         # Rebuild outbounds and route rules.
         new_object._build_outbounds()
         new_object.route["rules"].clear()
         new_object.route["rules"] += new_object._initial_route_rules
         new_object._build_route()
+        new_object._build_rule_set()
 
         return new_object
 
-    def generate(self, file):
+    def generate(self, dst_dir):
         conf = {
             "log": self.log,
             "dns": self.dns,
@@ -208,7 +343,11 @@ class SingBoxGenerator(GeneratorBase):
             "route": self.route,
             "experimental": self.experimental,
         }
-        base, _ = os.path.split(file)
-        os.makedirs(base, exist_ok=True)
-        with open(file, "w", encoding="utf-8") as f:
+        os.makedirs(dst_dir, exist_ok=True)
+        config_file = os.path.join(dst_dir, "config.json")
+        with open(config_file, "w", encoding="utf-8") as f:
             json.dump(conf, f, ensure_ascii=False, indent=4, sort_keys=True)
+        for tag, binary in self.ruleset_contents.items():
+            srs_file = os.path.join(dst_dir, f"{tag.replace(' ', '_')}.srs")
+            with open(srs_file, "wb") as f:
+                f.write(binary.getbuffer())

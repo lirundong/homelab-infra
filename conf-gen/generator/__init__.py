@@ -22,8 +22,8 @@ def generate_conf(
                 proxy_groups=proxy_groups,
                 **general_options,
             )
-            dst_filename = os.path.join(dst, f"{gen_info['name']}.yaml")
-            gen.generate(dst_filename)
+            dst_dir = os.path.join(dst, f"{gen_info['name']}.yaml")
+            gen.generate(dst_dir)
         elif gen_info["type"] == "quantumult":
             if rewrites is None:
                 raise ValueError("`rewrites` arg is required for generating Quantumult configs.")
@@ -38,8 +38,8 @@ def generate_conf(
                 rewrites=rewrites,
                 **additional_sections,
             )
-            dst_filename = os.path.join(dst, f"{gen_info['name']}.conf")
-            gen.generate(dst_filename)
+            dst_dir = os.path.join(dst, f"{gen_info['name']}.conf")
+            gen.generate(dst_dir)
         elif gen_info["type"] == "sing-box":
             if gen_info.get("base"):
                 if gen_info.get("included_process_irs"):
@@ -57,6 +57,7 @@ def generate_conf(
                     experimental=gen_info.get("experimental"),
                     included_process_irs=included_process_irs,
                     direct_domain_strategy=gen_info.get("direct_domain_strategy"),
+                    ruleset_url=gen_info.get("ruleset_url"),
                 )
             else:
                 args = copy(gen_info)
@@ -74,9 +75,10 @@ def generate_conf(
                     experimental=args.get("experimental"),
                     included_process_irs=args.get("included_process_irs"),
                     proxy_domain_strategy=args.get("proxy_domain_strategy"),
+                    ruleset_url=args.get("ruleset_url"),
                 )
-            dst_filename = os.path.join(dst, f"{gen_info['name']}.json")
-            gen.generate(dst_filename)
+            dst_dir = os.path.join(dst, gen_info["name"])
+            gen.generate(dst_dir)
         else:
             raise ValueError(f"Unsupported generate type: {gen_info['type']}.")
         generators[gen_info["name"]] = gen

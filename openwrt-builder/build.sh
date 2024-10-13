@@ -46,20 +46,23 @@ CUSTOM_FILES_DIR=$(realpath -- ./files)
 
 # Sing-Box.
 SING_BOX_VERSION=${SING_BOX_VERSION:-$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/SagerNet/sing-box/releases/latest | grep -Po 'v\K\d+\.\d+\.\d+')}
-curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-amd64v3.tar.gz -o sing-box.tar.gz
+SING_BOX_ARCH=${SING_BOX_ARCH:-'amd64'}
+SING_BOX_CONFIG=${SING_BOX_CONFIG:-'artifacts-conf/sing-box-daemon/config.json'}
+if [[ ! -f ${SING_BOX_CONFIG} ]]; then
+  echo "sing-box configuration file ${SING_BOX_CONFIG} didn't exist"
+  exit -1
+fi
+curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}.tar.gz -o sing-box.tar.gz
 tar -xf sing-box.tar.gz
-chmod +x sing-box-${SING_BOX_VERSION}-linux-amd64v3/sing-box
-mv sing-box-${SING_BOX_VERSION}-linux-amd64v3/sing-box $CUSTOM_FILES_DIR/usr/bin/
+chmod +x sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}/sing-box
+mv sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}/sing-box $CUSTOM_FILES_DIR/usr/bin/
+cp ${SING_BOX_CONFIG} $CUSTOM_FILES_DIR/root/.config/sing-box/config.json
 
 # Sing-Box web dashbord.
 mkdir -p $CUSTOM_FILES_DIR/root/.config/sing-box
 curl -sSLO https://github.com/MetaCubeX/yacd/archive/gh-pages.zip
 unzip gh-pages.zip
 mv Yacd-meta-gh-pages $CUSTOM_FILES_DIR/root/.config/sing-box/ui
-
-# Sing-Box config.
-$ROOT_DIR/conf-gen/generate.py -s $ROOT_DIR/conf-gen/source.yaml -o generated-conf/
-cp generated-conf/sing-box-daemon.json $CUSTOM_FILES_DIR/root/.config/sing-box/config.json
 
 # VLMCSD.
 git clone https://github.com/Wind4/vlmcsd.git

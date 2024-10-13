@@ -282,7 +282,7 @@ rules:
 # ------------------------------------------------------------------------------
 # Bilibili & iQIYI.
 # ------------------------------------------------------------------------------
-- name: Bilibili & iQIYI
+- name: Bilibili iQIYI
   type: select
   filters:
   - USER-AGENT,bili*
@@ -527,6 +527,7 @@ generates:
   included_process_irs: null  # Router cannot see clients' process names.
   direct_domain_strategy: prefer_ipv6
   proxy_domain_strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
+  ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/
   inbounds:
   - tag: tun
     type: tun
@@ -580,16 +581,13 @@ generates:
     - tag: PROXY
       address: tls://8.8.8.8
       detour: PROXY
-      strategy: ipv4_only
     - tag: Netflix
-      address: 8.8.8.8 # In case proxy servers rely on DNS-spoofing to unlock Netflix.
+      address: tls://8.8.8.8
       detour: *NETFLIX
-      strategy: ipv4_only
     # Domestic hostnames are resolved to IPv6 if applicable.
     - tag: DIRECT
       address: local
       detour: DIRECT
-      strategy: prefer_ipv6
     - address: rcode://refused
       tag: REJECT
     rules:
@@ -603,6 +601,7 @@ generates:
       mode: or
       rules:
       - outbound: any
+      - clash_mode: direct
       - filters:
         - DOMAIN-SUFFIX,local
         - DOMAIN-SUFFIX,rundong.me
@@ -630,25 +629,24 @@ generates:
       secret: '@secret:CLASH_SECRET'
     cache_file:
       enabled: true
-      path: /root/.config/sing-box/cache.db
+      path: /tmp/sing-box/cache.db # This is fine since we start to use real IP.
 # ------------------------------------------------------------------------------
 # Sing-Box clients (for Android platforms).
 # ------------------------------------------------------------------------------
 - name: &SING_BOX_CLIENT_BASE sing-box-clients
   type: sing-box
+  ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-clients/
   base: *SING_BOX_BASE
   dns:
     servers:
     - tag: &BOOTSTRAP_DNS bootstrap
       address: https://1.12.12.12/dns-query
       detour: DIRECT
-      strategy: prefer_ipv6
     - tag: DIRECT
       address: tls://@secret:DOT_PUB
       address_strategy: prefer_ipv4
       address_resolver: *BOOTSTRAP_DNS
       detour: DIRECT
-      strategy: prefer_ipv6
   inbounds:
   - tag: tun
     type: tun
@@ -694,6 +692,7 @@ generates:
 # ------------------------------------------------------------------------------
 - name: sing-box-apple
   type: sing-box
+  ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-apple/
   base: *SING_BOX_CLIENT_BASE
   route:
     auto_detect_interface: true

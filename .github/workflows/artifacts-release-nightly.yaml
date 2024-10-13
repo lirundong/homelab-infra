@@ -4,68 +4,174 @@ on:
   schedule:
   - cron: '1 0 * * *'  # Nightly build.
 jobs:
-  build-artifacts:
-    name: build-openwrt-and-config
-    if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
+  build_configuration:
     runs-on: ubuntu-latest
+    env:
+      SING_BOX_ARCH: amd64
     steps:
-    - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    - name: setup-dependencies
+    - uses: actions/checkout@v4
+    - id: setup_dependencies
       run: |
-        pip3 install --user --upgrade cryptography emoji pycountry pytz pyyaml requests
-    - name: generate-proxy-conf
+        pip3 install --user --upgrade --requirement requirements.txt
+        SING_BOX_VERSION=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/SagerNet/sing-box/releases/latest | grep -Po 'v\K\d+\.\d+\.\d+')
+        curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}.tar.gz -o sing-box.tar.gz
+        tar -xf sing-box.tar.gz
+        chmod +x sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}/sing-box
+        echo "$(realpath ./sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH})" >> "$GITHUB_PATH"
+        echo "SING_BOX_VERSION=${SING_BOX_VERSION}" >> "$GITHUB_OUTPUT"
+    - id: generate_proxy_conf
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
-        conf-gen/generate.py -s conf-gen/source.yaml -o artifacts-conf/
-        for f in $( ls artifacts-conf/* ); do
-          gpg -c --batch --yes --passphrase=${PASSWORD} $f
-          rm $f
-        done
-    - name: prepare-release-readme
+        python3 conf-gen/generate.py -s conf-gen/source.yaml -o artifacts-conf/
+        python3 - <<- 'EOF' 
+          import yaml
+          conf = yaml.safe_load(open("conf-gen/source.yaml"))
+          print(f"CONFIG_NAMES={list(g['name'] for g in conf['generates'])}")
+        EOF >> "$GITHUB_OUTPUT"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: artifacts-conf
+        path: artifacts-conf/
+    outputs:
+      sing_box_arch: ${{ env.SING_BOX_ARCH }}
+      sing_box_version: ${{ steps.setup_dependencies.outputs.SING_BOX_VERSION }}
+      config_names: ${{ steps.generate_proxy_conf.outputs.CONFIG_NAMES }}
+
+  build_openwrt:
+    runs-on: ubuntu-latest
+    needs: build_configuration
+    strategy:
+      matrix:
+        openwrt:
+        - version: '23.05.5'
+          gcc: 12.3.0_musl
+        - version: snapshots
+          gcc: 13.3.0_musl
+    steps:
+    - uses: actions/download-artifact@v4
+      with: 
+        name: artifacts-conf
+        pattern: sing-box-daemon/*.json
+        path: ${{ github.workspace }}/conf
+    - uses: actions/checkout@v4
+    - id: run_build_script
+      env:
+        TARGET: x86/64
+        VERSION: ${{ matrix.openwrt.version }}
+        GCC_VERSION: ${{ matrix.openwrt.gcc }}
+        SING_BOX_ARCH: ${{ needs.build_configuration.outputs.sing_box_arch }}
+        SING_BOX_VERSION: ${{ needs.build_configuration.outputs.sing_box_version }}
+        SING_BOX_CONFIG: ${{ github.workspace }}/conf/sing-box-daemon/config.json
+        REPOSITORY: https://downloads.openwrt.org
+        WORK_DIR: ${{ github.workspace }}/openwrt
+      run: |
+        bash openwrt-builder/build.sh
+        echo "OUTPUT_DIR=${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/" >> "$GITHUB_OUTPUT"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: openwrt-${{ matrix.openwrt.version }}-${{ matrix.openwrt.gcc }}
+        path: ${{ steps.run_build_script.outputs.OUTPUT_DIR }}
+
+  release_proxy_configurations:
+    needs: build_configuration
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
+    strategy:
+      matrix:
+        conf: ${{ fromJSON(needs.build_configuration.outputs.config_names) }}
+    steps:
+    - uses: actions/download-artifact@v4
+      with: 
+        name: artifacts-conf
+        path: ${{ github.workspace }}/conf
+    - run: |
+        mkdir -p ${{ github.workspace }}/release
+        if [[ -d ${{ github.workspace }}/${{ matrix.conf }} ]]; then
+          gpg -c --batch --yes --passphrase=${{ secrets.MASTER_PASSWORD }} \
+            -o ${{ github.workspace }}/release/config.json.gpg \
+            ${{ github.workspace }}/${{ matrix.conf }}/config.json
+          # Copy rule set binaries, no need to encrypt.
+          cp ${{ github.workspace }}/${{ matrix.conf }}/*.srs ${{ github.workspace }}/release/
+        else
+          conf_file=$(find ${{ github.workspace }}/conf -iname "${{ matrix.conf }}\.*")
+          conf_name=$(basename ${conf_file})
+          gpg -c --batch --yes --passphrase=${{ secrets.MASTER_PASSWORD }} \
+            -o ${{ github.workspace }}/release/${conf_name}.gpg \
+            ${conf_file}
+        fi
+    - uses: actions/checkout@v4
+    - id: prepare_readme
       run: |
         mkdir artifacts-readme
         cp .github/artifacts-release-readme.md artifacts-readme/README.md
+        sed -i 's!{ARTIFACT_NAME}!'${{ matrix.conf }}' Configuration!g' artifacts-readme/README.md
         sed -i 's!{RELEASE_DATE}!'$(date +'%Y/%m/%d')'!g' artifacts-readme/README.md
-    - name: build-openwrt-stable
-      env:
-        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
-        TARGET: x86/64
-        VERSION: '23.05.4'
-        REPOSITORY: https://downloads.openwrt.org
-        GCC_VERSION: 12.3.0_musl
-        WORK_DIR: ${{ github.workspace }}/openwrt
-      run: |
-        bash openwrt-builder/build.sh
-        cp -r ${WORK_DIR}/openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
-        for f in $(find artifacts-$VERSION -iname '*.gz'); do
-          gpg -c --batch --yes --passphrase=${PASSWORD} $f
-          rm $f
-        done
-    - name: build-openwrt-snapshots
-      env:
-        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
-        TARGET: x86/64
-        VERSION: 'snapshots'
-        REPOSITORY: https://downloads.openwrt.org
-        GCC_VERSION: 13.3.0_musl
-        WORK_DIR: ${{ github.workspace }}/openwrt
-      run: |
-        bash openwrt-builder/build.sh
-        cp -r ${WORK_DIR}/openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/$TARGET artifacts-$VERSION
-        for f in $(find artifacts-$VERSION -iname '*.gz'); do
-          gpg -c --batch --yes --passphrase=${PASSWORD} $f
-          rm $f
-        done
-    - name: release-artifacts
-      uses: pyTooling/Actions/releaser@r0
-      if: ${{ always() }}
+        sed -i 's!{CONTENT_DESCRIPTION}!- Configuration file (possibly with companion binaries) for '${{ matrix.conf }}'!g' artifacts-readme/README.md
+        # Load README content to an env variable, see
+        # https://github.com/marketplace/actions/upload-files-to-a-github-release#usage
+        RELEASE_README=$(cat artifacts-readme/README.md)
+        RELEASE_README="${RELEASE_README//'%'/'%25'}"    # Multiline escape sequences for %
+        RELEASE_README="${RELEASE_README//$'\n'/'%0A'}"  # Multiline escape sequences for '\n'
+        RELEASE_README="${RELEASE_README//$'\r'/'%0D'}"  # Multiline escape sequences for '\r'
+        echo "RELEASE_README=${RELEASE_README}" >> "$GITHUB_OUTPUT"
+    - uses: svenstaro/upload-release-action@v2
       with:
-        tag: nightly
-        token: ${{ secrets.GITHUB_TOKEN }}
-        files: |
-          artifacts-*/*.gpg
-          artifacts-readme/README.md
+        file: ${{ github.workspace }}/release/*
+        file_glob: true
+        overwrite: true
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ matrix.conf }}
+        body: |
+          ${{ steps.prepare_readme.outputs.RELEASE_README }}
+
+  release_openwrt_builds:
+    needs: build_openwrt
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
+    strategy:
+      matrix:
+        openwrt:
+        - version: '23.05.5'
+          gcc: 12.3.0_musl
+        - version: snapshots
+          gcc: 13.3.0_musl
+    steps:
+    - uses: actions/download-artifact@v4
+      with: 
+        name: openwrt-${{ matrix.openwrt.version }}-${{ matrix.openwrt.gcc }}
+        path: ${{ github.workspace }}/openwrt
+    - run: |
+        mkdir -p ${{ github.workspace }}/release
+        for f in $(find ${{ github.workspace }}/openwrt -iname "*.gz"); do
+          gpg -c --batch --yes --passphrase=${{ secrets.MASTER_PASSWORD }} \
+            -o ${{ github.workspace }}/release/${f}.gpg \
+            ${f}
+        done
+    - uses: actions/checkout@v4
+    - id: prepare_readme
+      run: |
+        mkdir artifacts-readme
+        cp .github/artifacts-release-readme.md artifacts-readme/README.md
+        sed -i 's!{ARTIFACT_NAME}!OpenWRT '${{ matrix.openwrt.version }}'!g' artifacts-readme/README.md
+        sed -i 's!{RELEASE_DATE}!'$(date +'%Y/%m/%d')'!g' artifacts-readme/README.md
+        sed -i 's!{CONTENT_DESCRIPTION}!- OpenWRT '${{ matrix.openwrt.version }}' images built with GCC '${{ matrix.openwrt.gcc }}' for the x86-64 platform!g' artifacts-readme/README.md
+        # Load README content to an env variable, see
+        # https://github.com/marketplace/actions/upload-files-to-a-github-release#usage
+        RELEASE_README=$(cat artifacts-readme/README.md)
+        RELEASE_README="${RELEASE_README//'%'/'%25'}"    # Multiline escape sequences for %
+        RELEASE_README="${RELEASE_README//$'\n'/'%0A'}"  # Multiline escape sequences for '\n'
+        RELEASE_README="${RELEASE_README//$'\r'/'%0D'}"  # Multiline escape sequences for '\r'
+        echo "RELEASE_README=${RELEASE_README}" >> "$GITHUB_OUTPUT"
+    - uses: svenstaro/upload-release-action@v2
+      with:
+        file: ${{ github.workspace }}/release
+        file_glob: true
+        overwrite: true
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: openwrt_${{ matrix.openwrt.version }}
+        body: |
+          ${{ steps.prepare_readme.outputs.RELEASE_README }}
