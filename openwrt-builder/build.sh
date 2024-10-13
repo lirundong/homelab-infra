@@ -56,6 +56,7 @@ curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VER
 tar -xf sing-box.tar.gz
 chmod +x sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}/sing-box
 mv sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}/sing-box $CUSTOM_FILES_DIR/usr/bin/
+mkdir -p $CUSTOM_FILES_DIR/root/.config/sing-box
 cp ${SING_BOX_CONFIG} $CUSTOM_FILES_DIR/root/.config/sing-box/config.json
 
 # Sing-Box web dashbord.
