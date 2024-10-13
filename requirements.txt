@@ -2,6 +2,7 @@
 cryptography
 emoji
 ifaddr
+packaging
 pycountry
 pytz
 pyyaml
