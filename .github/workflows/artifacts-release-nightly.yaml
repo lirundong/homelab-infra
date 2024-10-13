@@ -28,9 +28,9 @@ jobs:
       run: |
         python3 conf-gen/generate.py -s conf-gen/source.yaml -o artifacts-conf/
         python3 - <<- 'EOF' 
-          import yaml
-          conf = yaml.safe_load(open("conf-gen/source.yaml"))
-          print(f"CONFIG_NAMES={list(g['name'] for g in conf['generates'])}")
+        import yaml
+        conf = yaml.safe_load(open("conf-gen/source.yaml"))
+        print(f"CONFIG_NAMES={list(g['name'] for g in conf['generates'])}")
         EOF >> "$GITHUB_OUTPUT"
     - uses: actions/upload-artifact@v4
       with:
