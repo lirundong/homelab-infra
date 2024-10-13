@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 import io
 import itertools
 import json
@@ -92,8 +92,9 @@ class SingBoxGenerator(GeneratorBase):
                 raise ValueError(f"ruleset_url must point to a directory, but got {ruleset_url=}")
             self.ruleset_url = ruleset_url
             self.ruleset_contents = dict()
+            self.origin_rules = dict()
         else:
-            self.ruleset_url, self.ruleset_contents = None, None
+            self.ruleset_url, self.ruleset_contents, self.origin_rules = None, None, None
 
         # Parse DNS rules using the same infra as in parsing route rules.
         if "rules" not in dns:
@@ -262,6 +263,16 @@ class SingBoxGenerator(GeneratorBase):
     def _build_rule_set(self):
         if not self.ruleset_url:
             return
+        if self.origin_rules:
+            # This is a inherited config object, whose DNS rules might already be replaced with
+            # ruleset references. Need to recover to the full literal DNS rules.
+            self.dns["rules"] = deepcopy(self.origin_rules["dns"])
+        else:
+            # Backup a copy of full rules for inherited config object use.
+            self.origin_rules = {
+                "dns": deepcopy(self.dns["rules"]),
+                "route": deepcopy(self.route["rules"]),  # Not used yet.
+            }
         self.ruleset_contents.clear()
         self.route["rule_set"] = list()
         for i, rule in enumerate(self.dns["rules"]):
