@@ -9,10 +9,10 @@ jobs:
     env:
       SING_BOX_ARCH: amd64
     steps:
+    - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    - uses: actions/checkout@v4
     - id: setup_dependencies
       run: |
         pip3 install --user --upgrade --requirement requirements.txt
@@ -52,11 +52,11 @@ jobs:
         - version: snapshots
           gcc: 13.3.0_musl
     steps:
+    - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
       with: 
         name: artifacts-conf
         path: ${{ github.workspace }}/conf
-    - uses: actions/checkout@v4
     - id: run_build_script
       env:
         TARGET: x86/64
@@ -69,8 +69,6 @@ jobs:
         WORK_DIR: ${{ github.workspace }}/openwrt
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
-        tree ${{ github.workspace }}/conf
-        ls ${{ github.workspace }}/conf/sing-box-daemon/config.json
         bash openwrt-builder/build.sh
         echo "OUTPUT_DIR=${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/" >> "$GITHUB_OUTPUT"
     - uses: actions/upload-artifact@v4
@@ -86,6 +84,7 @@ jobs:
       matrix:
         conf: ${{ fromJSON(needs.build_configuration.outputs.config_names) }}
     steps:
+    - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
       with: 
         name: artifacts-conf
@@ -106,7 +105,6 @@ jobs:
             ${conf_file}
         fi
         ls ${{ github.workspace }}/release
-    - uses: actions/checkout@v4
     - id: prepare_readme
       run: |
         mkdir artifacts-readme
@@ -123,7 +121,7 @@ jobs:
         echo "RELEASE_README=${RELEASE_README}" >> "$GITHUB_OUTPUT"
     - uses: svenstaro/upload-release-action@v2
       with:
-        file: release/*
+        file: ${{ github.workspace }}/release/*
         file_glob: true
         overwrite: true
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -143,6 +141,7 @@ jobs:
         - version: snapshots
           gcc: 13.3.0_musl
     steps:
+    - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
       with: 
         name: openwrt-${{ matrix.openwrt.version }}-${{ matrix.openwrt.gcc }}
@@ -154,7 +153,6 @@ jobs:
             -o ${{ github.workspace }}/release/${f}.gpg \
             ${f}
         done
-    - uses: actions/checkout@v4
     - id: prepare_readme
       run: |
         mkdir artifacts-readme
@@ -171,7 +169,7 @@ jobs:
         echo "RELEASE_README=${RELEASE_README}" >> "$GITHUB_OUTPUT"
     - uses: svenstaro/upload-release-action@v2
       with:
-        file: release/*
+        file: ${{ github.workspace }}/release/*
         file_glob: true
         overwrite: true
         repo_token: ${{ secrets.GITHUB_TOKEN }}
