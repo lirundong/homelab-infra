@@ -90,6 +90,7 @@ jobs:
         name: artifacts-conf
         path: ${{ github.workspace }}/conf
     - run: |
+        tree ${{ github.workspace }}/conf
         mkdir -p ${{ github.workspace }}/release
         if [[ -d ${{ github.workspace }}/${{ matrix.conf }} ]]; then
           gpg -c --batch --yes --passphrase=${{ secrets.MASTER_PASSWORD }} \
