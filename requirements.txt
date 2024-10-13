@@ -3,5 +3,6 @@ cryptography
 emoji
 ifaddr
 pycountry
+pytz
 pyyaml
 requests
