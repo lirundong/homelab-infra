@@ -69,14 +69,14 @@ jobs:
         WORK_DIR: ${{ github.workspace }}/openwrt
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
-        bash openwrt-builder/build.sh
-        if [[ ${{ matrix.openwrt.version}} == 'snapshots']]; then
+        if [[ ${{ matrix.openwrt.version}} == 'snapshots' ]]; then
           BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/"
         else
           BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/"
         fi
         OUTPUT_DIR=${{ github.workspace }}/outputs
         mkdir -p ${OUTPUT_DIR}
+        bash openwrt-builder/build.sh
         for f in $(find ${BUILD_DIR} -iname '*.gz'); do
           cp ${f} ${OUTPUT_DIR}/
         done
