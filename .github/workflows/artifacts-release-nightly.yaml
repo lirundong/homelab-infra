@@ -69,6 +69,8 @@ jobs:
         WORK_DIR: ${{ github.workspace }}/openwrt
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
+        tree ${{ github.workspace }}/conf
+        ls ${{ github.workspace }}/conf/sing-box-daemon/config.json
         bash openwrt-builder/build.sh
         echo "OUTPUT_DIR=${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/" >> "$GITHUB_OUTPUT"
     - uses: actions/upload-artifact@v4
@@ -121,7 +123,7 @@ jobs:
         echo "RELEASE_README=${RELEASE_README}" >> "$GITHUB_OUTPUT"
     - uses: svenstaro/upload-release-action@v2
       with:
-        file: ${{ github.workspace }}/release/*
+        file: release/*
         file_glob: true
         overwrite: true
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -169,7 +171,7 @@ jobs:
         echo "RELEASE_README=${RELEASE_README}" >> "$GITHUB_OUTPUT"
     - uses: svenstaro/upload-release-action@v2
       with:
-        file: ${{ github.workspace }}/release/*
+        file: release/*
         file_glob: true
         overwrite: true
         repo_token: ${{ secrets.GITHUB_TOKEN }}
