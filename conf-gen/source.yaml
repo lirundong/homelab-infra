@@ -509,7 +509,6 @@ generates:
     ssid_suspended_list:
     - Rundong's AP
     - Rundong's AP 5GHz
-    fallback_udp_policy: *UDP_FALLBACK
   task_local:
   - name: 流媒体-解锁查询
     type: event-interaction
@@ -592,7 +591,8 @@ generates:
       address: local
       detour: DIRECT
     rules:
-    - server: DIRECT
+    - &DNS_RULE_MATCH_DIRECT
+      server: DIRECT
       type: logical
       mode: or
       rules:
@@ -608,10 +608,12 @@ generates:
         - type: dnsmasq
           url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
         match_with_dns: request
-    - server: Netflix
+    - &DNS_RULE_MATCH_NETFLIX
+      server: Netflix
       filters: *NETFLIX_FILTERS
       match_with_dns: request
-    - server: PROXY
+    - &DNS_RULE_SUSPICIOUS
+      server: PROXY
       client_subnet: 139.226.3.159
       filters:
       - *DOMESTIC_IP
@@ -635,13 +637,13 @@ generates:
   base: *SING_BOX_BASE
   dns:
     servers:
-    - tag: &BOOTSTRAP_DNS bootstrap
-      address: https://1.12.12.12/dns-query
-      detour: DIRECT
     - tag: DIRECT
       address: tls://@secret:DOT_PUB
       address_strategy: prefer_ipv4
-      address_resolver: *BOOTSTRAP_DNS
+      address_resolver: bootstrap
+      detour: DIRECT
+    - tag: bootstrap
+      address: https://1.12.12.12/dns-query
       detour: DIRECT
   inbounds:
   - tag: tun
@@ -698,5 +700,21 @@ generates:
     - *ROUTE_RULE_MATCH_DIRECT
     - *ROUTE_RULE_MATCH_GLOBAL_PROXY
     - *ROUTE_RULE_MATCH_SECURED_DNS
+  dns:
+    servers:
+    - tag: System
+      address: local
+      detour: DIRECT
+    rules:
+    # Use system DNS on trusted WIFI environments.
+    - server: System
+      wifi_ssid:
+      - nvwrls2
+      - NV_VISITOR
+      - Rundong's AP
+      - Rundong's AP 5GHz
+    - *DNS_RULE_MATCH_DIRECT
+    - *DNS_RULE_MATCH_NETFLIX
+    - *DNS_RULE_SUSPICIOUS
   included_process_irs: '!clear'
   direct_domain_strategy: prefer_ipv6

@@ -114,7 +114,6 @@ jobs:
             -o ${{ github.workspace }}/release/${conf_name}.gpg \
             ${conf_file}
         fi
-        ls ${{ github.workspace }}/release
     - id: prepare_readme
       run: |
         mkdir artifacts-readme

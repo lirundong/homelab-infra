@@ -50,6 +50,129 @@ RULE_SET_COMPLIANT_IRS = frozenset([
 ])
 
 
+def expand_filters_inplace(rule, filters_key="filters", included_process_irs=None):
+    if isinstance(rule, dict) and filters_key in rule:
+        # We assume that match_with_dns might live in the same level as filters.
+        filters = []
+        for f in rule.pop(filters_key):
+            filters += parse_filter(f, match_with_dns=rule.get("match_with_dns"))
+        filters = group_sing_box_filters(
+            filters, included_process_irs=included_process_irs
+        )
+        rule.update(filters)
+        if "match_with_dns" in rule:
+            rule.pop("match_with_dns")
+        return
+    elif isinstance(rule, dict):
+        for v in rule.values():
+            expand_filters_inplace(v, filters_key, included_process_irs)
+    elif isinstance(rule, (list, tuple)):
+        for v in rule:
+            expand_filters_inplace(v, filters_key, included_process_irs)
+
+
+def extract_ruleset_inplace(rule, tag_prefix, ruleset_literals) -> str | None:
+    # Return ruleset tag only if one valid ruleset is created.
+    if rule.get("type") == "logical":
+        mergeable_subrulesets = []
+        for i, subrule in enumerate(rule["rules"]):
+            sub_prefix = f"{tag_prefix}.{i}"
+            sub_tag = extract_ruleset_inplace(subrule, sub_prefix, ruleset_literals)
+            if sub_tag and len(subrule) == 1:
+                assert "rule_set" in subrule
+                mergeable_subrulesets.append(sub_tag)
+        if len(mergeable_subrulesets) == len(rule["rules"]):
+            # All subrules are purely ruleset compliant, merge to a mega ruleset.
+            assert (mega_ruleset_tag := tag_prefix) not in ruleset_literals
+            mega_ruleset_content = {
+                "type": "logical",
+                "mode": rule["mode"],
+                "invert": rule.get("invert", False),
+                "rules": [ruleset_literals.pop(tag) for tag in mergeable_subrulesets]
+            }
+            ruleset_literals[mega_ruleset_tag] = mega_ruleset_content
+            for k in mega_ruleset_content.keys():
+                rule.pop(k, None)
+            rule["rule_set"] = mega_ruleset_tag
+            return mega_ruleset_content
+        else:
+            return None
+    else:
+        assert (ruleset_tag := tag_prefix) not in ruleset_literals
+        extracted_content = dict()
+        for k, v in rule.items():
+            if k in RULE_SET_COMPLIANT_IRS:
+                extracted_content[k] = v
+        if extracted_content:
+            ruleset_literals[ruleset_tag] = extracted_content
+            for k in extracted_content.keys():
+                del rule[k]
+            rule["rule_set"] = ruleset_tag
+            return ruleset_tag
+        else:
+            return None
+
+
+def compile_ruleset(ruleset_literals):
+    # Since sing-box 1.10, use rule set version 2.
+    ret = subprocess.run(
+        ["sing-box", "version"],
+        check=True,
+        capture_output=True,
+        encoding="utf-8",
+    )
+    sing_box_version = parse(re.search(r'sing-box version (.*)', ret.stdout).group(1))
+    ruleset_version = 2 if Version("1.10") <= sing_box_version else 1
+    ruleset_binaries = dict()
+    for tag, rule in ruleset_literals.items():
+        normalized_tag = tag.replace(" ", "_")
+        ruleset = {
+            "version": ruleset_version,
+            "rules": rule if isinstance(rule, list) else [rule, ],
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            json_file = os.path.join(tmpdir, f"{normalized_tag}.json")
+            srs_file = os.path.join(tmpdir, f"{normalized_tag}.srs")
+            json.dump(ruleset, open(json_file, "w", encoding="utf-8"), ensure_ascii=False)
+            subprocess.run(
+                ["sing-box", "rule-set", "compile", json_file, "-o", srs_file],
+                check=True,
+            )
+            ruleset_binaries[tag] = io.BytesIO(open(srs_file, "rb").read())
+    return ruleset_binaries
+
+
+def build_rule_set(rules, ruleset_prefix, ruleset_url):
+    ruleset_literals = dict()
+    for i, rule in enumerate(rules):
+        if "server" in rule:
+            tag_prefix = rule["server"]
+        elif "outbound" in rule:
+            tag_prefix = rule["outbound"]
+        else:
+            raise ValueError(
+                f"Expect rule to have `server` or `outbound` filed but got {rule.keys()}"
+            )
+        # Normalize ruleset tag to be compliant with URLs.
+        tag_prefix = re.sub(r"(\s+\&\s+)|(\s+)", "_", tag_prefix)
+        extract_ruleset_inplace(
+            rule,
+            tag_prefix=f"{ruleset_prefix}.{i}.{tag_prefix}",
+            ruleset_literals=ruleset_literals,
+        )
+    ruleset_binaries = compile_ruleset(ruleset_literals)
+    ruleset = list()
+    for tag in ruleset_literals.keys():
+        ruleset.append({
+            "tag": tag,
+            "type": "remote",
+            "format": "binary",
+            "url": urljoin(ruleset_url, f"{tag}.srs"),
+            "download_detour": "PROXY",
+        })
+    return ruleset, ruleset_binaries
+
+
 class SingBoxGenerator(GeneratorBase):
     _SUPPORTED_PROXY_TYPE = (
         ShadowSocksProxy,
@@ -91,16 +214,16 @@ class SingBoxGenerator(GeneratorBase):
             if not urlparse(ruleset_url).path.endswith("/"):
                 raise ValueError(f"ruleset_url must point to a directory, but got {ruleset_url=}")
             self.ruleset_url = ruleset_url
-            self.ruleset_contents = dict()
-            self.origin_rules = dict()
         else:
-            self.ruleset_url, self.ruleset_contents, self.origin_rules = None, None, None
+            self.ruleset_url = None
 
         # Parse DNS rules using the same infra as in parsing route rules.
         if "rules" not in dns:
             raise ValueError("The dns argument didn't include a `rules` field")
         for rule in dns["rules"]:
-            self._expand_filters_in_rule(rule, filters_key="filters")
+            expand_filters_inplace(
+                rule, filters_key="filters", included_process_irs=self.included_process_irs
+            )
 
         # Sane default options for sing-box.
         if log is None:
@@ -133,27 +256,67 @@ class SingBoxGenerator(GeneratorBase):
 
         self._build_outbounds()
         self._build_route()
-        self._build_rule_set()
 
-    def _expand_filters_in_rule(self, rule_obj, filters_key="filters"):
-        if isinstance(rule_obj, dict) and filters_key in rule_obj:
-            # We assume that match_with_dns might live in the same level as filters.
-            filters = []
-            for f in rule_obj.pop(filters_key):
-                filters += parse_filter(f, match_with_dns=rule_obj.get("match_with_dns"))
-            filters = group_sing_box_filters(
-                filters, included_process_irs=self.included_process_irs
-            )
-            rule_obj.update(filters)
-            if "match_with_dns" in rule_obj:
-                rule_obj.pop("match_with_dns")
-            return
-        elif isinstance(rule_obj, dict):
-            for v in rule_obj.values():
-                self._expand_filters_in_rule(v, filters_key)
-        elif isinstance(rule_obj, (list, tuple)):
-            for v in rule_obj:
-                self._expand_filters_in_rule(v, filters_key)
+    # TODO:
+    # - Make this method more general and robust.
+    # - Define a former behavior of replacements and overwrites.
+    # - Make '!clear' behavior more general.
+    @classmethod
+    def from_base(
+        cls,
+        base_object: Self,
+        dns,
+        inbounds,
+        route,
+        experimental,
+        included_process_irs,
+        direct_domain_strategy,
+        ruleset_url,
+    ):
+        new_object = copy(base_object)
+        # `dns` only overwrites or appends DNS servers.
+        if dns is not None:
+            if dns.get("servers"):
+                old_servers = {s["tag"]: s for s in base_object.dns["servers"]}
+                for new_server in dns["servers"]:
+                    tag = new_server["tag"]
+                    old_servers.setdefault(tag, {}).clear()
+                    old_servers[tag].update(new_server)
+                new_object.dns["servers"] = list(old_servers.values())
+            if dns.get("rules"):
+                new_dns_rules = copy(dns["rules"])
+                for rule in new_dns_rules:
+                    expand_filters_inplace(
+                        rule, filters_key="filters", included_process_irs=included_process_irs,
+                    )
+                new_object.dns["rules"] = new_dns_rules
+        if inbounds is not None:
+            new_object.inbounds = inbounds
+        if route is not None:
+            if "rules" in route:
+                new_object._initial_route_rules = copy(route["rules"])
+            for k, v in route.items():
+                if v == "!clear":
+                    del new_object.route[k]
+                else:
+                    new_object.route[k] = v
+        if experimental is not None:
+            new_object.experimental.update(experimental)
+        # Always overwrite included_process_irs. Default fallback was handed by upper-level logic.
+        new_object.included_process_irs = included_process_irs
+        if direct_domain_strategy is not None:
+            new_object.direct_domain_strategy = direct_domain_strategy
+        # Update ruleset download URL if specified.
+        if ruleset_url is not None:
+            new_object.ruleset_url = ruleset_url
+
+        # Rebuild outbounds and route rules.
+        new_object._build_outbounds()
+        new_object.route["rules"].clear()
+        new_object.route["rules"] += new_object._initial_route_rules
+        new_object._build_route()
+
+        return new_object
 
     def _build_outbounds(self):
         # 1. Build the mandatory DIRECT, REJECT, and DNS outbounds.
@@ -191,174 +354,33 @@ class SingBoxGenerator(GeneratorBase):
         if "final" not in self.route:
             warn(f"The final outbound was not set in route, fallback to the default `PROXY`")
             self.route.setdefault("final", "PROXY")
-    
-    def _extract_ruleset_content(self, rule, tag_prefix) -> str | None:
-        # Return ruleset tag only if one valid ruleset is created.
-        if rule.get("type") == "logical":
-            mergeable_sub_ruleset = []
-            for i, subrule in enumerate(rule["rules"]):
-                sub_ruleset_tag_prefix = f"{tag_prefix}.{i}"
-                sub_ruleset_tag = self._extract_ruleset_content(subrule, sub_ruleset_tag_prefix)
-                if sub_ruleset_tag and len(subrule) == 1:
-                    assert "rule_set" in subrule
-                    mergeable_sub_ruleset.append(sub_ruleset_tag)
-            if len(mergeable_sub_ruleset) == len(rule["rules"]):
-                # All subrules are purely ruleset compliant, merge to a mega ruleset.
-                assert (mega_ruleset_tag := tag_prefix) not in self.ruleset_contents
-                mega_ruleset_content = {
-                    "type": "logical",
-                    "mode": rule["mode"],
-                    "invert": rule.get("invert", False),
-                    "rules": [self.ruleset_contents.pop(tag) for tag in mergeable_sub_ruleset]
-                }
-                self.ruleset_contents[mega_ruleset_tag] = mega_ruleset_content
-                for k in mega_ruleset_content.keys():
-                    rule.pop(k, None)
-                rule["rule_set"] = mega_ruleset_tag
-                return mega_ruleset_content
-            else:
-                return None
-        else:
-            assert (ruleset_tag := tag_prefix) not in self.ruleset_contents
-            extracted_contents = dict()
-            for k, v in rule.items():
-                if k in RULE_SET_COMPLIANT_IRS:
-                    extracted_contents[k] = v
-            if extracted_contents:
-                self.ruleset_contents[ruleset_tag] = extracted_contents
-                for k in extracted_contents.keys():
-                    del rule[k]
-                rule["rule_set"] = ruleset_tag
-                return ruleset_tag
-            else:
-                return None
-    
-    def _compile_ruleset(self):
-        # Since sing-box 1.10, use rule set version 2.
-        ret = subprocess.run(
-            ["sing-box", "version"],
-            check=True,
-            capture_output=True,
-            encoding="utf-8",
-        )
-        sing_box_version = parse(re.search(r'sing-box version (.*)', ret.stdout).group(1))
-        ruleset_version = 2 if Version("1.10") <= sing_box_version else 1
-
-        for tag, rule in self.ruleset_contents.items():
-            normalized_tag = tag.replace(" ", "_")
-            ruleset = {
-                "version": ruleset_version,
-                "rules": rule if isinstance(rule, list) else [rule, ],
-            }
-            with tempfile.TemporaryDirectory() as tmpdir:
-                json_file = os.path.join(tmpdir, f"{normalized_tag}.json")
-                srs_file = os.path.join(tmpdir, f"{normalized_tag}.srs")
-                json.dump(ruleset, open(json_file, "w", encoding="utf-8"), ensure_ascii=False)
-                subprocess.run(
-                    ["sing-box", "rule-set", "compile", json_file, "-o", srs_file],
-                    check=True,
-                )
-                self.ruleset_contents[tag] = io.BytesIO(open(srs_file, "rb").read())
-
-    def _build_rule_set(self):
-        if not self.ruleset_url:
-            return
-        if self.origin_rules:
-            # This is a inherited config object, whose DNS rules might already be replaced with
-            # ruleset references. Need to recover to the full literal DNS rules.
-            self.dns["rules"] = deepcopy(self.origin_rules["dns"])
-        else:
-            # Backup a copy of full rules for inherited config object use.
-            self.origin_rules = {
-                "dns": deepcopy(self.dns["rules"]),
-                "route": deepcopy(self.route["rules"]),  # Not used yet.
-            }
-        self.ruleset_contents.clear()
-        self.route["rule_set"] = list()
-        for i, rule in enumerate(self.dns["rules"]):
-            self._extract_ruleset_content(rule, tag_prefix=f"dns.{i}.{rule['server']}")
-        for i, rule in enumerate(self.route["rules"]):
-            self._extract_ruleset_content(rule, tag_prefix=f"route.{i}.{rule['outbound']}")
-        self._compile_ruleset()
-        for tag in self.ruleset_contents.keys():
-            ruleset_url = urljoin(self.ruleset_url, f"{tag.replace(' ', '_')}.srs")
-            self.route["rule_set"].append({
-                "tag": tag,
-                "type": "remote",
-                "format": "binary",
-                "url": ruleset_url,
-                "download_detour": "PROXY",
-            })
-
-    # TODO:
-    # - Make this method more general and robust.
-    # - Define a former behavior of replacements and overwrites.
-    # - Make '!clear' behavior more general.
-    @classmethod
-    def from_base(
-        cls,
-        base_object: Self,
-        dns,
-        inbounds,
-        route,
-        experimental,
-        included_process_irs,
-        direct_domain_strategy,
-        ruleset_url,
-    ):
-        new_object = copy(base_object)
-        # `dns` only overwrites or appends DNS servers.
-        if dns is not None and dns.get("servers"):
-            old_servers = {s["tag"]: s for s in base_object.dns["servers"]}
-            for new_server in dns["servers"]:
-                tag = new_server["tag"]
-                old_servers.setdefault(tag, {}).clear()
-                old_servers[tag].update(new_server)
-            new_object.dns["servers"] = list(old_servers.values())
-        if inbounds is not None:
-            new_object.inbounds = inbounds
-        if route is not None:
-            if "rules" in route:
-                new_object._initial_route_rules = copy(route["rules"])
-            for k, v in route.items():
-                if v == "!clear":
-                    del new_object.route[k]
-                else:
-                    new_object.route[k] = v
-        if experimental is not None:
-            new_object.experimental.update(experimental)
-        # Always overwrite included_process_irs. Default fallback was handed by upper-level logic.
-        new_object.included_process_irs = included_process_irs
-        if direct_domain_strategy is not None:
-            new_object.direct_domain_strategy = direct_domain_strategy
-        # Update ruleset download URL if specified.
-        if ruleset_url is not None:
-            new_object.ruleset_url = ruleset_url
-
-        # Rebuild outbounds and route rules.
-        new_object._build_outbounds()
-        new_object.route["rules"].clear()
-        new_object.route["rules"] += new_object._initial_route_rules
-        new_object._build_route()
-        new_object._build_rule_set()
-
-        return new_object
 
     def generate(self, dst_dir):
-        conf = {
-            "log": self.log,
-            "dns": self.dns,
-            "ntp": self.ntp,
-            "inbounds": self.inbounds,
-            "outbounds": self.outbounds,
-            "route": self.route,
-            "experimental": self.experimental,
-        }
         os.makedirs(dst_dir, exist_ok=True)
+        # This method should not modify any of the internal data structures, so we deepcopy.
+        conf = {
+            "log": deepcopy(self.log),
+            "dns": deepcopy(self.dns),
+            "ntp": deepcopy(self.ntp),
+            "inbounds": deepcopy(self.inbounds),
+            "outbounds": deepcopy(self.outbounds),
+            "route": deepcopy(self.route),
+            "experimental": deepcopy(self.experimental),
+        }
+        if self.ruleset_url:
+            dns_ruleset, dns_ruleset_binaries = build_rule_set(
+                rules=conf["dns"]["rules"], ruleset_prefix="dns", ruleset_url=self.ruleset_url,
+            )
+            route_ruleset, route_ruleset_binaries = build_rule_set(
+                rules=conf["route"]["rules"], ruleset_prefix="route", ruleset_url=self.ruleset_url,
+            )
+            for tag, binary in itertools.chain(
+                dns_ruleset_binaries.items(), route_ruleset_binaries.items()
+            ):
+                srs_file = os.path.join(dst_dir, f"{tag}.srs")
+                with open(srs_file, "wb") as f:
+                    f.write(binary.getbuffer())
+            conf["route"]["rule_set"] = dns_ruleset + route_ruleset
         config_file = os.path.join(dst_dir, "config.json")
         with open(config_file, "w", encoding="utf-8") as f:
             json.dump(conf, f, ensure_ascii=False, indent=4, sort_keys=True)
-        for tag, binary in self.ruleset_contents.items():
-            srs_file = os.path.join(dst_dir, f"{tag.replace(' ', '_')}.srs")
-            with open(srs_file, "wb") as f:
-                f.write(binary.getbuffer())
