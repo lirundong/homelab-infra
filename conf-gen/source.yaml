@@ -697,7 +697,16 @@ generates:
     override_android_vpn: '!clear'
     rules:
     - *ROUTE_RULE_MATCH_DNS
-    - *ROUTE_RULE_MATCH_DIRECT
+    - mode: or
+      outbound: DIRECT
+      rules:
+      - clash_mode: direct
+      - ip_is_private: true
+      # Basically suspend proxy on already proxied WIFI environments.
+      - wifi_ssid:
+        - Rundong's AP
+        - Rundong's AP 5GHz
+      type: logical
     - *ROUTE_RULE_MATCH_GLOBAL_PROXY
     - *ROUTE_RULE_MATCH_SECURED_DNS
   dns:
