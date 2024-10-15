@@ -142,7 +142,7 @@ def compile_ruleset(ruleset_literals):
     return ruleset_binaries
 
 
-def build_rule_set(rules, ruleset_prefix, ruleset_url):
+def build_rule_set(rules, ruleset_prefix, ruleset_url, download_detour):
     ruleset_literals = dict()
     for i, rule in enumerate(rules):
         if "server" in rule:
@@ -168,7 +168,7 @@ def build_rule_set(rules, ruleset_prefix, ruleset_url):
             "type": "remote",
             "format": "binary",
             "url": urljoin(ruleset_url, f"{tag}.srs"),
-            "download_detour": "PROXY",
+            "download_detour": download_detour,
         })
     return ruleset, ruleset_binaries
 
@@ -368,11 +368,19 @@ class SingBoxGenerator(GeneratorBase):
             "experimental": deepcopy(self.experimental),
         }
         if self.ruleset_url:
+            # Use the first instance in GitHub group to download ruleset binaries.
+            download_detour = "GitHub"
             dns_ruleset, dns_ruleset_binaries = build_rule_set(
-                rules=conf["dns"]["rules"], ruleset_prefix="dns", ruleset_url=self.ruleset_url,
+                rules=conf["dns"]["rules"],
+                ruleset_prefix="dns",
+                ruleset_url=self.ruleset_url,
+                download_detour=download_detour,
             )
             route_ruleset, route_ruleset_binaries = build_rule_set(
-                rules=conf["route"]["rules"], ruleset_prefix="route", ruleset_url=self.ruleset_url,
+                rules=conf["route"]["rules"],
+                ruleset_prefix="route",
+                ruleset_url=self.ruleset_url,
+                download_detour=download_detour,
             )
             for tag, binary in itertools.chain(
                 dns_ruleset_binaries.items(), route_ruleset_binaries.items()
