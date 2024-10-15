@@ -54,4 +54,6 @@ class FallbackProxyGroup(ProxyGroupBase):
             "outbounds": self._proxies,
             "url": self._proxy_check_url,
             "interval": f"{self._proxy_check_interval}s",
+            "idle_timeout": f"{self._proxy_check_interval * 2}s",
+            "interrupt_exist_connections": False,
         }
