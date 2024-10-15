@@ -6,21 +6,10 @@ subscriptions:
 - name: WestData Cloud
   type: clash
   url: '@secret:SUBSCRIPTION_URL'
+- name: FlyingBird
+  type: clash
+  url: '@secret:FLYING_BIRD_URL'
 proxies:
-- name: &UDP_FALLBACK 🇯🇵「SS-AES」bwh-jp-01
-  type: ss
-  server: '@secret:JP_NODE_HOSTNAME'
-  port: '@secret:NODE_SS_AES_PORT!int'
-  cipher: aes-128-gcm
-  password: '@secret:NODE_SS_AES_PASSWORD'
-  udp: true
-- name: 🇯🇵「SS-ChaCha」bwh-jp-01
-  type: ss
-  server: '@secret:JP_NODE_HOSTNAME'
-  port: '@secret:NODE_SS_CHACHA_PORT!int'
-  cipher: chacha20-ietf-poly1305
-  password: '@secret:NODE_SS_CHACHA_PASSWORD'
-  udp: true
 - name: 🇯🇵「SS2022-AES」bwh-jp-01
   type: ss
   server: '@secret:JP_NODE_HOSTNAME'
@@ -532,6 +521,7 @@ generates:
     type: tun
     interface_name: tun0
     sniff: true
+    sniff_override_destination: true
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
   - tag: mixed
@@ -539,6 +529,7 @@ generates:
     listen: '::'
     listen_port: 10081
     sniff: true
+    sniff_override_destination: true
     users:
     - password: '@secret:CLASH_PROXY_PASSWORD'
       username: '@secret:CLASH_PROXY_USERNAME'
@@ -645,6 +636,7 @@ generates:
     type: tun
     auto_route: true
     sniff: true
+    sniff_override_destination: true
     inet4_address: 172.19.0.1/30
     inet6_address: fdfe:dcba:9876::1/126
   route:
