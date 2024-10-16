@@ -210,9 +210,9 @@ rules:
   - DOMAIN-SUFFIX,npmjs.org
   img-url: https://github.com/Semporia/Quantumult-X/raw/master/Bubble/IconSet/GitHub.png
   proxies:
-  - "🌏 Custom" # Automatically grouped by the generator program.
   - PROXY
   - Mainland
+  - "🌏 Custom" # Automatically grouped by the generator program.
 # ------------------------------------------------------------------------------
 # Microsoft CDN.
 # ------------------------------------------------------------------------------
@@ -686,34 +686,8 @@ generates:
     override_android_vpn: '!clear'
     rules:
     - *ROUTE_RULE_MATCH_DNS
-    - mode: or
-      outbound: DIRECT
-      rules:
-      - clash_mode: direct
-      - ip_is_private: true
-      - protocol: bittorrent
-      # Basically suspend proxy on already proxied WIFI environments.
-      - wifi_ssid:
-        - Rundong's AP
-        - Rundong's AP 5GHz
-      type: logical
+    - *ROUTE_RULE_MATCH_DIRECT
     - *ROUTE_RULE_MATCH_GLOBAL_PROXY
     - *ROUTE_RULE_MATCH_SECURED_DNS
-  dns:
-    servers:
-    - tag: System
-      address: local
-      detour: DIRECT
-    rules:
-    # Use system DNS on trusted WIFI environments.
-    - server: System
-      wifi_ssid:
-      - nvwrls2
-      - NV_VISITOR
-      - Rundong's AP
-      - Rundong's AP 5GHz
-    - *DNS_RULE_MATCH_DIRECT
-    - *DNS_RULE_MATCH_NETFLIX
-    - *DNS_RULE_SUSPICIOUS
   included_process_irs: '!clear'
   direct_domain_strategy: prefer_ipv6
