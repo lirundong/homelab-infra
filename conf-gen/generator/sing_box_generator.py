@@ -235,8 +235,7 @@ class SingBoxGenerator(GeneratorBase):
                 {
                     "tag": "tun",
                     "type": "tun",
-                    "inet4_address": "172.19.0.1/24",
-                    "inet6_address": "fdfe:dcba:9876::1/126",
+                    "address": ["172.19.0.1/24", "fdfe:dcba:9876::1/126"],
                     "sniff": True,
                     "sniff_override_destination": True,
                 }
