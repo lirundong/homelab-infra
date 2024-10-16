@@ -566,16 +566,16 @@ generates:
       type: logical
     final: *FINAL
   dns:
+    # DNS responses are purely used for decide whether hostnames could be in
+    # mainland China. The destinations will be replaced with hostnames later.
     servers:
-    # Possibly proxy-able hostnames are resolved to IPv4 in the assumption that
-    # proxy servers don't have IPv6 support.
     - tag: PROXY
       address: tls://8.8.8.8
       detour: PROXY
+      client_subnet: 139.226.3.159
     - tag: Netflix
       address: tls://8.8.8.8
       detour: *NETFLIX
-    # Domestic hostnames are resolved to IPv6 if applicable.
     - tag: DIRECT
       address: local
       detour: DIRECT
@@ -601,13 +601,6 @@ generates:
       server: Netflix
       filters: *NETFLIX_FILTERS
       match_with_dns: request
-    - &DNS_RULE_SUSPICIOUS
-      server: PROXY
-      client_subnet: 139.226.3.159
-      filters:
-      - *DOMESTIC_IP
-      - *CHINA_IP
-      match_with_dns: response
     final: PROXY
   experimental:
     clash_api:
