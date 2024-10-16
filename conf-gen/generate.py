@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--dst", required=True, help="Directory of generated files.")
     args = parser.parse_args()
 
-    src_conf = yaml.load(open(args.src, "r", encoding="utf-8"), Loader=yaml.SafeLoader)
+    src_conf = yaml.safe_load(open(args.src, "r", encoding="utf-8"))
     src_conf = secrets.expand_secret_object(src_conf)
     src_file = os.path.split(args.src)[-1]
 
@@ -38,6 +38,7 @@ if __name__ == "__main__":
         proxies=grouped_proxy + subscription_proxies,
         proxy_check_url=src_conf["global"]["proxy_check_url"],
         proxy_check_interval=src_conf["global"]["proxy_check_interval"],
+        region_proxy_type=src_conf["global"]["region_proxy_type"],
     )
     proxy_groups = parse_proxy_groups(src_conf["rules"], available_proxies=per_region_proxies)
     rewrites = parse_rewrites(src_conf["rewrites"])

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from random import shuffle
 import re
-from typing import List, Union
+from typing import List, Literal, Union
 
 import emoji
 import pycountry
@@ -17,6 +17,7 @@ def merge_proxy_by_region(
     proxy_check_url: str,
     proxy_check_interval: int = 300,
     stat_proxy_name_pattern: str = r"traffic|expire",
+    region_proxy_type: Literal["url_fallback", "select"] = "url_fallback",
 ) -> List[Union[FallbackProxyGroup, ProxyBase]]:
     proxies_by_region = defaultdict(list)
     ret = []
@@ -48,8 +49,8 @@ def merge_proxy_by_region(
 
     for region_name, region_proxies in proxies_by_region.items():
         if len(region_proxies) == 1:
-            ret.append(region_proxies[0])
-        else:
+            region_proxy = region_proxies[0]
+        elif region_proxy_type == "url_fallback":
             region_proxy = FallbackProxyGroup(
                 name=region_name,
                 filters=None,
@@ -59,7 +60,17 @@ def merge_proxy_by_region(
             )
             # Shuffle proxies within each region to achieve certain degree of "load balancing".
             shuffle(region_proxy._proxies)
-            ret.append(region_proxy)
+        elif region_proxy_type == "select":
+            region_proxy = SelectProxyGroup(
+                name=region_name,
+                filters=None,
+                proxies=region_proxies,
+            )
+            # Different from the url_fallback, we sort the proxies here to ease selection.
+            region_proxy._proxies = sorted(region_proxy._proxies)
+        else:
+            raise ValueError(f"invalid {region_proxy_type=}, expect url_fallback or select")
+        ret.append(region_proxy)
 
     return ret
 

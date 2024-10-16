@@ -2,6 +2,7 @@
 global:
   proxy_check_url: &PROXY_CHECK_URL http://www.apple.com/library/test/success.html
   proxy_check_interval: 3600
+  region_proxy_type: select # or url_fallback
 subscriptions:
 - name: WestData Cloud
   type: clash
