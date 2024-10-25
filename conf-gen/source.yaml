@@ -579,7 +579,15 @@ generates:
     - tag: DIRECT
       address: local
       detour: DIRECT
+    - tag: REJECT
+      address: rcode://success
     rules:
+    - &DNS_DROP_HTTPS_QUERY
+      server: REJECT
+      query_type:
+      - HTTPS
+      - SVCB
+      disable_cache: true
     - &DNS_RULE_MATCH_DIRECT
       server: DIRECT
       type: logical
