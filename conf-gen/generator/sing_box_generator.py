@@ -28,7 +28,7 @@ from rule.parser import parse_filter
 # TODO: Make this an attribute of rule IR.
 # https://sing-box.sagernet.org/configuration/rule-set/headless-rule/
 RULE_SET_COMPLIANT_IRS = frozenset([
-    "query_type",
+    # "query_type",  # Enabling this would drop all DNS queries on sing-box 1.10.
     "network",
     "domain",
     "domain_suffix",
