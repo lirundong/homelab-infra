@@ -28,7 +28,7 @@ from rule.parser import parse_filter
 # TODO: Make this an attribute of rule IR.
 # https://sing-box.sagernet.org/configuration/rule-set/headless-rule/
 RULE_SET_COMPLIANT_IRS = frozenset([
-    # "query_type",  # Enabling this would drop all DNS queries on sing-box 1.10.
+    "query_type",
     "network",
     "domain",
     "domain_suffix",
@@ -71,7 +71,12 @@ def expand_filters_inplace(rule, filters_key="filters", included_process_irs=Non
             expand_filters_inplace(v, filters_key, included_process_irs)
 
 
-def extract_ruleset_inplace(rule, tag_prefix, ruleset_literals) -> str | None:
+def extract_ruleset_inplace(
+    rule,
+    tag_prefix,
+    ruleset_literals,
+    rules_per_set_minimum: int = 10,
+) -> str | None:
     # Return ruleset tag only if one valid ruleset is created.
     if rule.get("type") == "logical":
         mergeable_subrulesets = []
@@ -100,10 +105,12 @@ def extract_ruleset_inplace(rule, tag_prefix, ruleset_literals) -> str | None:
     else:
         assert (ruleset_tag := tag_prefix) not in ruleset_literals
         extracted_content = dict()
+        num_rules = 0
         for k, v in rule.items():
             if k in RULE_SET_COMPLIANT_IRS:
                 extracted_content[k] = v
-        if extracted_content:
+                num_rules += len(v) if isinstance(v, (list, tuple)) else 1
+        if extracted_content and rules_per_set_minimum <= num_rules:
             ruleset_literals[ruleset_tag] = extracted_content
             for k in extracted_content.keys():
                 del rule[k]

@@ -573,14 +573,22 @@ generates:
       address: tls://8.8.8.8
       detour: PROXY
       client_subnet: 139.226.3.159
-    - tag: Netflix
-      address: tls://8.8.8.8
-      detour: *NETFLIX
     - tag: DIRECT
-      address: local
+      address: tls://@secret:DOT_PUB
+      address_strategy: prefer_ipv4
+      address_resolver: Bootstrap
       detour: DIRECT
     - tag: REJECT
       address: rcode://success
+    - tag: System
+      address: local
+      detour: DIRECT
+    - tag: Netflix
+      address: tls://8.8.8.8
+      detour: *NETFLIX
+    - tag: Bootstrap
+      address: https://1.12.12.12/dns-query
+      detour: DIRECT
     rules:
     - &DNS_DROP_HTTPS_QUERY
       server: REJECT
@@ -588,6 +596,11 @@ generates:
       - HTTPS
       - SVCB
       disable_cache: true
+    - &DNS_RULE_MATCH_SYSTEM
+      server: System
+      filters:
+      - DOMAIN-SUFFIX,local
+      match_with_dns: request
     - &DNS_RULE_MATCH_DIRECT
       server: DIRECT
       type: logical
@@ -596,7 +609,6 @@ generates:
       - outbound: any
       - clash_mode: direct
       - filters:
-        - DOMAIN-SUFFIX,local
         - DOMAIN-SUFFIX,rundong.me
         - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
         - DOMAIN-SUFFIX,dns.msftncsi.com
@@ -626,16 +638,6 @@ generates:
   type: sing-box
   ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-clients/
   base: *SING_BOX_BASE
-  dns:
-    servers:
-    - tag: DIRECT
-      address: tls://@secret:DOT_PUB
-      address_strategy: prefer_ipv4
-      address_resolver: bootstrap
-      detour: DIRECT
-    - tag: bootstrap
-      address: https://1.12.12.12/dns-query
-      detour: DIRECT
   inbounds:
   - tag: tun
     type: tun
