@@ -253,9 +253,9 @@ rules:
     url: https://ruleset.skk.moe/Clash/domainset/cdn.txt
   img-url: https://github.com/Semporia/Quantumult-X/raw/master/Bubble/IconSet/Cloudflare.png
   proxies:
-  - "🌏 Custom"
   - PROXY
   - Mainland
+  - "🌏 Custom"
 # ------------------------------------------------------------------------------
 # Speed test.
 # ------------------------------------------------------------------------------
@@ -617,6 +617,7 @@ generates:
       secret: '@secret:CLASH_SECRET'
     cache_file:
       enabled: true
+      store_rdrc: true
       path: /root/.config/sing-box/cache.db
 # ------------------------------------------------------------------------------
 # Sing-Box clients (for Android platforms).
@@ -672,6 +673,7 @@ generates:
     clash_api: null
     cache_file:
       enabled: true
+      store_rdrc: true
       path: cache.db
   included_process_irs:
   - PACKAGE-NAME
