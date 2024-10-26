@@ -3,6 +3,7 @@ import io
 import itertools
 import json
 import os
+import random
 import re
 import subprocess
 import tempfile
@@ -374,8 +375,10 @@ class SingBoxGenerator(GeneratorBase):
             "experimental": deepcopy(self.experimental),
         }
         if self.ruleset_url:
-            # Use the first instance in GitHub group to download ruleset binaries.
-            download_detour = "GitHub"
+            # Randomly pick a HK proxy to download rulesets.
+            # TODO: Enable specify the download detour from config file.
+            assert (hk_group := next(g for g in self._proxy_groups if "🇭🇰" in g.name))
+            download_detour = random.choice(hk_group._proxies)
             dns_ruleset, dns_ruleset_binaries = build_rule_set(
                 rules=conf["dns"]["rules"],
                 ruleset_prefix="dns",

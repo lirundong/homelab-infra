@@ -357,6 +357,8 @@ rules:
   - 'DOMAIN,Mijia Cloud'
   - DOMAIN-SUFFIX,xiaomiev.com
   - DOMAIN-SUFFIX,nio.com
+  # Other hostnames that need no proxy.
+  - DOMAIN-SUFFIX,chiphell.com
   - type: clash-classical
     format: text
     resolve: false
