@@ -576,7 +576,7 @@ generates:
       detour: PROXY
       client_subnet: 139.226.3.159
     - tag: DIRECT
-      address: tls://@secret:DOT_PUB
+      address: https://@secret:DOT_PUB/dns-query
       address_strategy: prefer_ipv4
       address_resolver: Bootstrap
       detour: DIRECT
