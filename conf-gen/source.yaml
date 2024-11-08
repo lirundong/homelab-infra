@@ -580,8 +580,6 @@ generates:
       address_strategy: prefer_ipv4
       address_resolver: Bootstrap
       detour: DIRECT
-    - tag: REJECT
-      address: rcode://success
     - tag: System
       address: local
       detour: DIRECT
@@ -592,12 +590,6 @@ generates:
       address: https://1.12.12.12/dns-query
       detour: DIRECT
     rules:
-    - &DNS_DROP_HTTPS_QUERY
-      server: REJECT
-      query_type:
-      - HTTPS
-      - SVCB
-      disable_cache: true
     - &DNS_RULE_MATCH_SYSTEM
       server: System
       filters:
