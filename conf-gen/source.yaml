@@ -574,23 +574,18 @@ generates:
     # mainland China. The destinations will be replaced with hostnames later.
     servers:
     - tag: PROXY
-      address: tls://8.8.8.8
+      address: 8.8.8.8
       detour: PROXY
-      client_subnet: 139.226.3.159
+      client_subnet: 139.226.3.0/24  # China Unicom Shanghai subnet.
     - tag: DIRECT
-      address: https://@secret:DOT_PUB/dns-query
-      address_strategy: prefer_ipv4
-      address_resolver: Bootstrap
+      address: 210.22.70.225  # China Unicom Shanghai main DNS.
       detour: DIRECT
     - tag: System
       address: local
       detour: DIRECT
     - tag: Netflix
-      address: tls://8.8.8.8
+      address: 8.8.8.8
       detour: *NETFLIX
-    - tag: Bootstrap
-      address: https://1.12.12.12/dns-query
-      detour: DIRECT
     rules:
     - &DNS_RULE_MATCH_SYSTEM
       server: System
@@ -625,7 +620,6 @@ generates:
       secret: '@secret:CLASH_SECRET'
     cache_file:
       enabled: true
-      store_rdrc: true
       path: /root/.config/sing-box/cache.db
 # ------------------------------------------------------------------------------
 # Sing-Box clients (for Android platforms).
@@ -667,11 +661,20 @@ generates:
         - protocol: stun
         type: logical
       type: logical
+  dns:
+    servers:
+    - tag: DIRECT
+      address: https://@secret:DOT_PUB/dns-query
+      address_strategy: prefer_ipv4
+      address_resolver: Bootstrap
+      detour: DIRECT
+    - tag: Bootstrap
+      address: https://1.12.12.12/dns-query
+      detour: DIRECT
   experimental:
     clash_api: null
     cache_file:
       enabled: true
-      store_rdrc: true
       path: cache.db
   included_process_irs:
   - PACKAGE-NAME
