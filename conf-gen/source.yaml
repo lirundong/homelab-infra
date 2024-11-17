@@ -7,9 +7,6 @@ subscriptions:
 - name: WestData Cloud
   type: clash
   url: '@secret:SUBSCRIPTION_URL'
-- name: FlyingBird
-  type: clash
-  url: '@secret:FLYING_BIRD_URL'
 proxies:
 - name: 🇯🇵「SS2022-AES」bwh-jp-01
   type: ss
@@ -172,7 +169,7 @@ rules:
   # TODO: Add geosite rules.
   - type: quantumult
     resolve: false
-    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/ChatGPT.list
+    url: https://github.com/GeQ1an/Rules/raw/refs/heads/master/QuantumultX/Filter/AI%20Suite.list
   img-url: https://github.com/GeQ1an/Rules/raw/master/Images/Icons/Policies/OpenAI.png
   proxies:
   - type: regex
