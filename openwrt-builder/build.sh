@@ -56,7 +56,7 @@ if [[ ! -f ${SING_BOX_CONFIG} ]]; then
 fi
 git clone --depth=1 --branch=v${SING_BOX_VERSION} https://github.com/SagerNet/sing-box.git
 pushd sing-box
-PATH=${SDK_BIN_DIR}:${PATH} CC=${SDK_CC} LD=${SDK_LD} GOOS=linux GOARCH=${SING_BOX_ARCH} GOAMD64=v3 CGO_ENABLED=1 make VERSION=${SING_BOX_VERSION} build
+STAGING_DIR=$STAGING_DIR PATH=${SDK_BIN_DIR}:${PATH} CC=${SDK_CC} LD=${SDK_LD} GOOS=linux GOARCH=${SING_BOX_ARCH} GOAMD64=v3 CGO_ENABLED=1 make VERSION=${SING_BOX_VERSION} build
 SING_BOX_OPENWRT_EXE=$(realpath ./sing-box)
 popd
 mkdir -p $CUSTOM_FILES_DIR/root/.config/sing-box
