@@ -44,7 +44,7 @@ $ROOT_DIR/common/secret_decoder.py -r $SRC_DIR/files ./files -e '.*skip$' '__pyc
 mkdir -p files/usr/bin files/root
 CUSTOM_FILES_DIR=$(realpath -- ./files)
 
-# Sing-Box.
+# Build sing-box from source.
 SING_BOX_VERSION=${SING_BOX_VERSION:-$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/SagerNet/sing-box/releases/latest | grep -Po 'v\K\d+\.\d+\.\d+')}
 SING_BOX_ARCH=${SING_BOX_ARCH:-'amd64'}
 SING_BOX_CONFIG=${SING_BOX_CONFIG:-'artifacts-conf/sing-box-daemon/config.json'}
@@ -52,11 +52,13 @@ if [[ ! -f ${SING_BOX_CONFIG} ]]; then
   echo "sing-box configuration file ${SING_BOX_CONFIG} didn't exist"
   exit -1
 fi
-curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}.tar.gz -o sing-box.tar.gz
-tar -xf sing-box.tar.gz
-chmod +x sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}/sing-box
-mv sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}/sing-box $CUSTOM_FILES_DIR/usr/bin/
+git clone --depth=1 --branch=v${SING_BOX_VERSION} https://github.com/SagerNet/sing-box.git
+pushd sing-box
+PATH=${SDK_BIN_DIR}:${PATH} CC=${SDK_CC} LD=${SDK_LD} GOOS=linux GOARCH=${SING_BOX_ARCH} GOAMD64=v3 CGO_ENABLED=1 make VERSION=${SING_BOX_VERSION} build
+SING_BOX_OPENWRT_EXE=$(realpath ./sing-box)
+popd
 mkdir -p $CUSTOM_FILES_DIR/root/.config/sing-box
+cp ${SING_BOX_OPENWRT_EXE} $CUSTOM_FILES_DIR/usr/bin/
 cp ${SING_BOX_CONFIG} $CUSTOM_FILES_DIR/root/.config/sing-box/config.json
 
 # Sing-Box web dashbord.

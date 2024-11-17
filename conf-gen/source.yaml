@@ -525,6 +525,7 @@ generates:
   - tag: tun
     type: tun
     interface_name: tun0
+    stack: gvisor
     sniff: true
     sniff_override_destination: true
     address:
@@ -632,6 +633,7 @@ generates:
   - tag: tun
     type: tun
     auto_route: true
+    stack: gvisor
     sniff: true
     sniff_override_destination: true
     address:
