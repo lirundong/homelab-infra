@@ -15,12 +15,14 @@ if [[ $VERSION == "snapshots" ]]; then
   SDK_URL=$REPOSITORY/$VERSION/targets/$TARGET/$SDK.$TAR_EXT
   IMG_BUILDER=openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}
   IMG_BUILDER_URL=$REPOSITORY/$VERSION/targets/$TARGET/$IMG_BUILDER.$TAR_EXT
+  REPO_FILE=repositories
 else
   TAR_EXT='tar.xz'
   SDK=openwrt-sdk-$VERSION-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
   SDK_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$SDK.$TAR_EXT
   IMG_BUILDER=openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}
   IMG_BUILDER_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$IMG_BUILDER.$TAR_EXT
+  REPO_FILE=repositories.conf
 fi
 
 # Prepare working directory.
@@ -83,7 +85,7 @@ rsync -aP --exclude='__pycache__' $ROOT_DIR/util-cookbook/tencent-cloud $CUSTOM_
 curl -sSLO $IMG_BUILDER_URL
 tar -xf $IMG_BUILDER.$TAR_EXT
 pushd $IMG_BUILDER
-sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" repositories.conf
+sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" ${REPO_FILE}
 make image ROOTFS_PARTSIZE=256 FILES=$CUSTOM_FILES_DIR PACKAGES="$PACKAGES"
 
 popd  # Image builder.
