@@ -250,6 +250,13 @@ rules:
   - type: domain-list
     format: text
     url: https://ruleset.skk.moe/Clash/domainset/cdn.txt
+  - type: domain-list
+    format: text
+    url: https://ruleset.skk.moe/Clash/domainset/download.txt
+  - type: clash-ipcidr
+    format: text
+    resolve: false
+    url: https://ruleset.skk.moe/Clash/ip/download.txt
   img-url: https://github.com/Semporia/Quantumult-X/raw/master/Bubble/IconSet/Cloudflare.png
   proxies:
   - PROXY
