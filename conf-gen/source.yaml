@@ -253,7 +253,7 @@ rules:
   - type: domain-list
     format: text
     url: https://ruleset.skk.moe/Clash/domainset/download.txt
-  - type: clash-ipcidr
+  - type: clash-classical
     format: text
     resolve: false
     url: https://ruleset.skk.moe/Clash/ip/download.txt
