@@ -352,6 +352,7 @@ rules:
   filters:
   # Handle smart home devices, including the weird "Mijia Cloud" hostname.
   - DOMAIN-SUFFIX,aqara.cn
+  - DOMAIN-SUFFIX,aqara.com
   - DOMAIN-SUFFIX,smartmidea.net
   - DOMAIN-SUFFIX,midea.com.cn
   - DOMAIN-SUFFIX,gree.com
@@ -373,7 +374,7 @@ rules:
   # resolving to ensure taking effect.
   - type: quantumult
     resolve: true
-    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/CMedia.list
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/China%20Media.list
   - type: quantumult
     resolve: true
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Mainland.list
@@ -529,7 +530,6 @@ generates:
   - tag: tun
     type: tun
     interface_name: tun0
-    stack: gvisor
     sniff: true
     sniff_override_destination: true
     address:
@@ -583,22 +583,34 @@ generates:
       detour: PROXY
       client_subnet: 139.226.3.0/24  # China Unicom Shanghai subnet.
     - tag: DIRECT
-      address: 210.22.70.225  # China Unicom Shanghai main DNS.
+      address: https://@secret:DOT_PUB/dns-query
+      address_resolver: Bootstrap
+      address_strategy: prefer_ipv4
+      detour: DIRECT
+    - tag: REJECT
+      address: rcode://refused
+    - tag: Bootstrap
+      address: https://1.12.12.12/dns-query
       detour: DIRECT
     - tag: System
       address: local
+      strategy: ipv4_only
       detour: DIRECT
     - tag: Netflix
       address: 8.8.8.8
       detour: *NETFLIX
     rules:
-    - &DNS_RULE_MATCH_SYSTEM
-      server: System
+    - server: REJECT
+      query_type:
+      - HTTPS
+      - SVCB
+      disable_cache: true
+    - server: System
       filters:
-      - DOMAIN-SUFFIX,local
+      - DOMAIN-SUFFIX,.rundong.local
       match_with_dns: request
-    - &DNS_RULE_MATCH_DIRECT
-      server: DIRECT
+      disable_cache: true
+    - server: DIRECT
       type: logical
       mode: or
       rules:
@@ -613,8 +625,7 @@ generates:
         - type: dnsmasq
           url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
         match_with_dns: request
-    - &DNS_RULE_MATCH_NETFLIX
-      server: Netflix
+    - server: Netflix
       filters: *NETFLIX_FILTERS
       match_with_dns: request
     final: PROXY
@@ -637,7 +648,6 @@ generates:
   - tag: tun
     type: tun
     auto_route: true
-    stack: gvisor
     sniff: true
     sniff_override_destination: true
     address:
@@ -667,16 +677,6 @@ generates:
         - protocol: stun
         type: logical
       type: logical
-  dns:
-    servers:
-    - tag: DIRECT
-      address: https://@secret:DOT_PUB/dns-query
-      address_strategy: prefer_ipv4
-      address_resolver: Bootstrap
-      detour: DIRECT
-    - tag: Bootstrap
-      address: https://1.12.12.12/dns-query
-      detour: DIRECT
   experimental:
     clash_api: null
     cache_file:
