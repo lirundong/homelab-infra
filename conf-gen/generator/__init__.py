@@ -56,7 +56,6 @@ def generate_conf(
                     route=gen_info.get("route"),
                     experimental=gen_info.get("experimental"),
                     included_process_irs=included_process_irs,
-                    direct_domain_strategy=gen_info.get("direct_domain_strategy"),
                     ruleset_url=gen_info.get("ruleset_url"),
                 )
             else:
@@ -68,14 +67,13 @@ def generate_conf(
                     proxy_groups=proxy_groups,
                     dns=args["dns"],
                     route=args["route"],
-                    direct_domain_strategy=args["direct_domain_strategy"],
                     inbounds=args.get("inbounds"),
                     log=args.get("log"),
                     ntp=args.get("ntp"),
                     experimental=args.get("experimental"),
                     included_process_irs=args.get("included_process_irs"),
-                    proxy_domain_strategy=args.get("proxy_domain_strategy"),
                     ruleset_url=args.get("ruleset_url"),
+                    dial_fields=args.get("dial_fields"),
                 )
             dst_dir = os.path.join(dst, gen_info["name"])
             gen.generate(dst_dir)

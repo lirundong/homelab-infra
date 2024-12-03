@@ -92,7 +92,6 @@ class ShadowSocksProxy(ProxyBase):
             method = self.cipher,
             password = self.password,
             tag = base_cfg["tag"],
-            domain_strategy = base_cfg["domain_strategy"],
             server = base_cfg["server"],
             server_port = base_cfg["server_port"],
         )

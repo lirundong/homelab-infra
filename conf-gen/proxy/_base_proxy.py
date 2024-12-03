@@ -1,4 +1,4 @@
-from typing import Literal, get_args, NotRequired, Optional, Sequence, TypedDict
+from typing import NotRequired, Sequence, TypedDict
 
 
 class ClashProxyT(TypedDict):
@@ -7,14 +7,10 @@ class ClashProxyT(TypedDict):
     port: int
 
 
-DomainStrategyT = Literal["prefer_ipv4", "prefer_ipv6", "ipv4_only", "ipv6_only"]
-
-
 class SingBoxProxyT(TypedDict):
     tag: str
     server: str
     server_port: int
-    domain_strategy: DomainStrategyT
 
 
 class SingBoxTlsT(TypedDict):
@@ -29,20 +25,6 @@ class ProxyBase:
         self.name = name
         self.server = server
         self.port = port
-        self._domain_strategy: Optional[DomainStrategyT] = None
-
-    @property
-    def domain_strategy(self) -> DomainStrategyT:
-        if self._domain_strategy is None:
-            return "prefer_ipv6"
-        else:
-            return self._domain_strategy
-
-    @domain_strategy.setter
-    def domain_strategy(self, strategy: str) -> None:
-        if strategy not in get_args(DomainStrategyT):
-            raise ValueError(f"Unsupported domain_strategy {strategy}")
-        self._domain_strategy = strategy
 
     @property
     def clash_proxy(self) -> ClashProxyT:
@@ -62,5 +44,4 @@ class ProxyBase:
             "tag": self.name,
             "server": self.server,
             "server_port": self.port,
-            "domain_strategy": self.domain_strategy,
         }

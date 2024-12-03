@@ -7,14 +7,13 @@ import random
 import re
 import subprocess
 import tempfile
-from typing import Dict, List, Optional, Self, Union
+from typing import Dict, List, Literal, Optional, Self, Union
 from urllib.parse import urlparse, urljoin
 from warnings import warn
 
 from generator._base_generator import GeneratorBase
 from packaging.version import Version, parse
 from proxy import (
-    DomainStrategyT,
     ProxyBase,
     ShadowSocksProxy,
     ShadowSocks2022Proxy,
@@ -197,14 +196,13 @@ class SingBoxGenerator(GeneratorBase):
         proxy_groups: List[ProxyGroupBase],
         dns: Dict,
         route: Dict,
-        direct_domain_strategy: DomainStrategyT,
         inbounds: Optional[List] = None,
         log: Optional[Dict] = None,
         ntp: Optional[Dict] = None,
         experimental: Optional[Dict] = None,
         included_process_irs: Optional[List[str]] = None,
-        proxy_domain_strategy: Optional[DomainStrategyT] = None,
         ruleset_url: Optional[str] = None,
+        dial_fields: Optional[Dict[Literal["direct", "proxy"], Dict[str, str]]] = None,
     ):
         # Construct the special group `PROXY` for sing-box.
         proxy_groups = copy(proxy_groups)
@@ -216,8 +214,6 @@ class SingBoxGenerator(GeneratorBase):
 
         super().__init__(src_file, proxies, proxy_groups)
         self.included_process_irs = included_process_irs
-        self.direct_domain_strategy = direct_domain_strategy
-        self.proxy_domain_strategy = proxy_domain_strategy
         if ruleset_url:
             if not urlparse(ruleset_url).path.endswith("/"):
                 raise ValueError(f"ruleset_url must point to a directory, but got {ruleset_url=}")
@@ -243,15 +239,19 @@ class SingBoxGenerator(GeneratorBase):
                 {
                     "tag": "tun",
                     "type": "tun",
-                    "address": ["172.19.0.1/24", "fdfe:dcba:9876::1/126"],
+                    "address": ["172.19.0.1/30", "fdfe:dcba:9876::1/126"],
                     "sniff": True,
                     "sniff_override_destination": True,
+                    "mtu": 1492,
                 }
             ]
         if route is None:
             route = {"rules": []}
         if experimental is None:
             experimental = {}
+        if dial_fields is None:
+            dial_fields = {"direct": dict(), "proxy": dict()}
+
         self.log = log
         self.dns = dns
         self.ntp = ntp
@@ -260,6 +260,8 @@ class SingBoxGenerator(GeneratorBase):
         self.route = route
         self.experimental = experimental
         self._initial_route_rules = copy(self.route["rules"])
+        self._direct_dial_fields = dial_fields["direct"]
+        self._proxy_dial_fields = dial_fields["proxy"]
 
         self._build_outbounds()
         self._build_route()
@@ -277,7 +279,6 @@ class SingBoxGenerator(GeneratorBase):
         route,
         experimental,
         included_process_irs,
-        direct_domain_strategy,
         ruleset_url,
     ):
         new_object = copy(base_object)
@@ -311,8 +312,6 @@ class SingBoxGenerator(GeneratorBase):
             new_object.experimental.update(experimental)
         # Always overwrite included_process_irs. Default fallback was handed by upper-level logic.
         new_object.included_process_irs = included_process_irs
-        if direct_domain_strategy is not None:
-            new_object.direct_domain_strategy = direct_domain_strategy
         # Update ruleset download URL if specified.
         if ruleset_url is not None:
             new_object.ruleset_url = ruleset_url
@@ -328,16 +327,16 @@ class SingBoxGenerator(GeneratorBase):
     def _build_outbounds(self):
         # 1. Build the mandatory DIRECT, REJECT, and DNS outbounds.
         mandatory_outbounds = [
-            {"tag": "DIRECT", "type": "direct", "domain_strategy": self.direct_domain_strategy},
+            {"tag": "DIRECT", "type": "direct", **self._direct_dial_fields},
             {"tag": "REJECT", "type": "block"},
             {"tag": "DNS", "type": "dns"},
         ]
         # 2. Build outbounds for each of the proxy servers.
         proxy_server_outbounds = []
         for p in self._proxies:
-            if self.proxy_domain_strategy is not None:
-                p.domain_strategy = self.proxy_domain_strategy
-            proxy_server_outbounds.append(p.sing_box_proxy)
+            proxy_outbound = p.sing_box_proxy
+            proxy_outbound.update(self._proxy_dial_fields)
+            proxy_server_outbounds.append(proxy_outbound)
         # 3. Build outbounds for each of the proxy groups.
         proxy_group_outbounds = []
         for g in self._proxy_groups:

@@ -97,7 +97,6 @@ class TrojanProxy(ProxyBase):
             tag=base_cfg["tag"],
             server=base_cfg["server"],
             server_port=base_cfg["server_port"],
-            domain_strategy=base_cfg["domain_strategy"],
             password=self.password,
             tls=tls_cfg,
         )
