@@ -533,6 +533,7 @@ generates:
       # Prefer to solve proxy hostnames to IPv4.
       domain_strategy: prefer_ipv4
       connect_timeout: 10m
+      tcp_fast_open: true
   ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/
   inbounds:
   - tag: tun
@@ -592,15 +593,10 @@ generates:
       detour: PROXY
       client_subnet: 139.226.3.0/24  # China Unicom Shanghai subnet.
     - tag: DIRECT
-      address: https://@secret:DOT_PUB/dns-query
-      address_resolver: Bootstrap
-      address_strategy: prefer_ipv4
+      address: 210.22.70.3
       detour: DIRECT
     - tag: REJECT
-      address: rcode://refused
-    - tag: Bootstrap
-      address: https://1.12.12.12/dns-query
-      detour: DIRECT
+      address: rcode://success
     - tag: System
       address: local
       strategy: ipv4_only
@@ -687,6 +683,16 @@ generates:
         - protocol: stun
         type: logical
       type: logical
+  dns:
+    servers:
+    - tag: DIRECT
+      address: https://@secret:DOT_PUB/dns-query
+      address_resolver: Bootstrap
+      address_strategy: prefer_ipv4
+      detour: DIRECT
+    - tag: Bootstrap
+      address: https://1.12.12.12/dns-query
+      detour: DIRECT
   experimental:
     clash_api: null
     cache_file:
