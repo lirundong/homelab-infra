@@ -7,7 +7,7 @@ kmod-fs-vfat
 kmod-tun
 losetup
 luci
-luci-app-nft-qos
+luci-app-sqm
 python3-cryptography
 python3-requests
 python3-yaml

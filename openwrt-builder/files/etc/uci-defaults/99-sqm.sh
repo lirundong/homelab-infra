@@ -15,8 +15,8 @@ uci -q batch << EOI
     set sqm.eth1.linklayer='ethernet'
     set sqm.eth1.overhead='44'
     set sqm.eth1.enabled='1'
-    set sqm.eth1.download='575000'
-    set sqm.eth1.upload='39000'
+    set sqm.eth1.download='943000'
+    set sqm.eth1.upload='184000'
 
     commit sqm
 EOI
