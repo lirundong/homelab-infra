@@ -357,6 +357,7 @@ rules:
   - DOMAIN-SUFFIX,midea.com.cn
   - DOMAIN-SUFFIX,gree.com
   - DOMAIN-SUFFIX,tplinkcloud.com.cn
+  - DOMAIN-SUFFIX,haier.net
   # Handle 云视听极光 TV.
   - DOMAIN-SUFFIX,cdn.meta.ndmdhs.com
   - DOMAIN-SUFFIX,aiseet.atianqi.com
