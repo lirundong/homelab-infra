@@ -528,14 +528,9 @@ generates:
   dial_fields:
     direct:
       domain_strategy: prefer_ipv6
-      connect_timeout: 10m
-      tcp_fast_open: true
-      tcp_multi_path: true
     proxy:
       # Prefer to solve proxy hostnames to IPv4.
       domain_strategy: prefer_ipv4
-      connect_timeout: 10m
-      tcp_fast_open: true
   ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/
   inbounds:
   - tag: tun
