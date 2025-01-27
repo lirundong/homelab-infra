@@ -536,6 +536,7 @@ generates:
   - tag: tun
     type: tun
     interface_name: tun0
+    auto_route: false
     sniff: true
     sniff_override_destination: true
     mtu: 1492
@@ -582,7 +583,7 @@ generates:
       type: logical
     final: *FINAL
   dns:
-    # DNS responses are purely used for decide whether hostnames could be in
+    # DNS responses are purely used for deciding whether hostnames could be in
     # mainland China. The destinations will be replaced with hostnames later.
     servers:
     - tag: PROXY
@@ -663,7 +664,7 @@ generates:
     - *ROUTE_RULE_MATCH_DNS
     - *ROUTE_RULE_MATCH_DIRECT
     - *ROUTE_RULE_MATCH_GLOBAL_PROXY
-    - # Only reject secured DNS requests from non-Netflix apps; Netflix trafffic
+    - # Only reject secured DNS requests from non-Netflix apps; Netflix traffic
       # will be fully sent to the proxy.
       mode: and
       outbound: REJECT
@@ -697,7 +698,6 @@ generates:
       path: cache.db
   included_process_irs:
   - PACKAGE-NAME
-  direct_domain_strategy: prefer_ipv6
 # ------------------------------------------------------------------------------
 # Sing-Box clients (for Apple platforms).
 # ------------------------------------------------------------------------------
@@ -714,4 +714,3 @@ generates:
     - *ROUTE_RULE_MATCH_GLOBAL_PROXY
     - *ROUTE_RULE_MATCH_SECURED_DNS
   included_process_irs: '!clear'
-  direct_domain_strategy: prefer_ipv6
