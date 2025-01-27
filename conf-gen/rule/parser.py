@@ -1,5 +1,6 @@
 import re
 from typing import Literal, NotRequired, Optional, Sequence, TypedDict, Union
+import warnings
 
 import requests
 import yaml
@@ -106,7 +107,14 @@ def parse_clash_classical_filter(
                     rule_requires_resolve = None
             else:
                 rule_requires_resolve = resolve
-        ir = _IR_REGISTRY[type](val, rule_requires_resolve)
+        try:
+            ir = _IR_REGISTRY[type](val, rule_requires_resolve)
+        except RuntimeError as e:
+            if re.match(r"^[^\s]+ was not registered as an IR\.", str(e)):
+                warnings.warn(f"{e} (when parsing from {url})")
+                continue
+            else:
+                raise e
         ret.append(ir)
     return ret
 
