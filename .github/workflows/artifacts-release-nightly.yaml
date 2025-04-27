@@ -50,8 +50,8 @@ jobs:
     strategy:
       matrix:
         openwrt:
-        - version: '23.05.5'
-          gcc: 12.3.0_musl
+        - version: '24.10.1'
+          gcc: 13.3.0_musl
         - version: snapshots
           gcc: 13.3.0_musl
     steps:
@@ -148,8 +148,8 @@ jobs:
     strategy:
       matrix:
         openwrt:
-        - version: '23.05.5'
-          gcc: 12.3.0_musl
+        - version: '24.10.1'
+          gcc: 13.3.0_musl
         - version: snapshots
           gcc: 13.3.0_musl
     steps:
