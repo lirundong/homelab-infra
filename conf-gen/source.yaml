@@ -615,6 +615,7 @@ generates:
       detour: DIRECT
     - tag: Netflix
       address: 8.8.8.8
+      strategy: ipv4_only
       detour: *NETFLIX
     rules:
     - action: reject
