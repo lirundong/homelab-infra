@@ -9,7 +9,7 @@ WORK_DIR=${WORK_DIR:-'/tmp/openwrt'}
 SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( cd -- "$( dirname -- "${SRC_DIR}" )" &> /dev/null && pwd )
 PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages/${VERSION}.txt)
-if [[ $VERSION == "snapshots" ]]; then
+if [[ $VERSION == 'snapshots' ]]; then
   TAR_EXT='tar.zst'
   SDK=openwrt-sdk-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
   SDK_URL=$REPOSITORY/$VERSION/targets/$TARGET/$SDK.$TAR_EXT
@@ -17,7 +17,7 @@ if [[ $VERSION == "snapshots" ]]; then
   IMG_BUILDER_URL=$REPOSITORY/$VERSION/targets/$TARGET/$IMG_BUILDER.$TAR_EXT
   REPO_FILE=repositories
 else
-  TAR_EXT='tar.xz'
+  TAR_EXT='tar.zst'
   SDK=openwrt-sdk-$VERSION-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
   SDK_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$SDK.$TAR_EXT
   IMG_BUILDER=openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}
