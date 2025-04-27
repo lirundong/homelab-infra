@@ -159,6 +159,6 @@ class ProxyGroupBase:
             included_process_irs=self.included_process_irs,
         )
         if filters:
-            return {"outbound": self.name, **filters}
+            return {"action": "route", "outbound": self.name, **filters}
         else:
             return {}

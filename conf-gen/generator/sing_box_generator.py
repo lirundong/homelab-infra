@@ -152,14 +152,13 @@ def compile_ruleset(ruleset_literals):
 def build_rule_set(rules, ruleset_prefix, ruleset_url, download_detour):
     ruleset_literals = dict()
     for i, rule in enumerate(rules):
-        if "server" in rule:
+        if rule["action"] == "route" and "server" in rule:
             tag_prefix = rule["server"]
-        elif "outbound" in rule:
+        elif rule["action"] == "route" and "outbound" in rule:
             tag_prefix = rule["outbound"]
         else:
-            raise ValueError(
-                f"Expect rule to have `server` or `outbound` filed but got {rule.keys()}"
-            )
+            print(f"Skip extracting ruleset from #{ruleset_prefix}.{i}: {rule}")
+            continue
         # Normalize ruleset tag to be compliant with URLs.
         tag_prefix = re.sub(r"(\s+\&\s+)|(\s+)", "_", tag_prefix)
         extract_ruleset_inplace(
@@ -186,7 +185,7 @@ class SingBoxGenerator(GeneratorBase):
         ShadowSocks2022Proxy,
         TrojanProxy,
     )
-    _DEFAULT_PROXY_NAMES = {"PROXY", "DIRECT", "REJECT", "DNS"}
+    _DEFAULT_PROXY_NAMES = {"PROXY", "DIRECT"}
 
     def __init__(
         self,
@@ -325,11 +324,9 @@ class SingBoxGenerator(GeneratorBase):
         return new_object
 
     def _build_outbounds(self):
-        # 1. Build the mandatory DIRECT, REJECT, and DNS outbounds.
+        # 1. Build the mandatory DIRECT outbound.
         mandatory_outbounds = [
             {"tag": "DIRECT", "type": "direct", **self._direct_dial_fields},
-            {"tag": "REJECT", "type": "block"},
-            {"tag": "DNS", "type": "dns"},
         ]
         # 2. Build outbounds for each of the proxy servers.
         proxy_server_outbounds = []
@@ -347,7 +344,7 @@ class SingBoxGenerator(GeneratorBase):
 
     def _build_route(self):
         for i, r in enumerate(self.route["rules"]):
-            if r["outbound"] not in self._valid_outbound_tags:
+            if r["action"] == "route" and r["outbound"] not in self._valid_outbound_tags:
                 raise ValueError(f"#{i} rule's outbound {r['outbound']} is invalid")
         for g in self._proxy_groups:
             g.included_process_irs = self.included_process_irs

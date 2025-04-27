@@ -29,13 +29,13 @@ rules:
 - name: Guard
   type: select
   filters:
+  - DOMAIN-SUFFIX,@secret:DOMAIN
+  - IP-CIDR,@secret:JP_NODE_IPV4/32,no-resolve
+  - IP-CIDR6,@secret:JP_NODE_IPV6/64,no-resolve
   - DOMAIN-SUFFIX,ipify.org
   - DOMAIN-SUFFIX,plex.redirect
   - DOMAIN-SUFFIX,v4.plex.tv
   - DOMAIN-SUFFIX,v6.plex.tv
-  - DOMAIN-SUFFIX,@secret:DOMAIN
-  - IP-CIDR,@secret:JP_NODE_IPV4/32,no-resolve
-  - IP-CIDR6,@secret:JP_NODE_IPV6/64,no-resolve
   - DOMAIN-SUFFIX,vpn.nvidia.com
   - DOMAIN-SUFFIX,horizon.nvidia.com
   - DOMAIN-SUFFIX,nvidia.glean.com
@@ -98,6 +98,25 @@ rules:
   - DOMAIN-KEYWORD,dualstack.apiproxy-
   - DOMAIN-KEYWORD,dualstack.ichnaea-web-
   - DOMAIN-KEYWORD,apiproxy-device-prod-nlb-
+  # https://github.com/SukkaW/Surge/blob/f40f0669/Source/stream.ts#L492-L506
+  - IP-CIDR,23.246.18.0/23,no-resolve
+  - IP-CIDR,37.77.184.0/21,no-resolve
+  - IP-CIDR,45.57.0.0/17,no-resolve
+  - IP-CIDR,64.120.128.0/17,no-resolve
+  - IP-CIDR,66.197.128.0/17,no-resolve
+  - IP-CIDR,69.53.224.0/19,no-resolve
+  - IP-CIDR,108.175.32.0/20,no-resolve
+  - IP-CIDR,185.2.220.0/22,no-resolve
+  - IP-CIDR,185.9.188.0/22,no-resolve
+  - IP-CIDR,192.173.64.0/18,no-resolve
+  - IP-CIDR,198.38.96.0/19,no-resolve
+  - IP-CIDR,198.45.48.0/20,no-resolve
+  - IP-CIDR,208.75.76.0/22,no-resolve
+  # https://github.com/SukkaW/Surge/blob/f40f0669/Source/stream.ts#L507-L512
+  - IP-CIDR6,2607:fb10::/32,no-resolve
+  - IP-CIDR6,2620:10c:7000::/44,no-resolve
+  - IP-CIDR6,2a00:86c0::/32,no-resolve
+  - IP-CIDR6,2a03:5640::/32,no-resolve
   - type: quantumult
     resolve: false
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Optional/Netflix.list
@@ -166,7 +185,6 @@ rules:
 - name: OpenAI
   type: select
   filters:
-  # TODO: Add geosite rules.
   - type: quantumult
     resolve: false
     url: https://github.com/GeQ1an/Rules/raw/refs/heads/master/QuantumultX/Filter/AI%20Suite.list
@@ -380,13 +398,11 @@ rules:
   - type: quantumult
     resolve: true
     url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Filter/Mainland.list
-  - &DOMESTIC_IP
-    type: clash-classical
+  - type: clash-classical
     format: text
     resolve: true
     url: https://ruleset.skk.moe/Clash/ip/domestic.txt
-  - &CHINA_IP
-    type: clash-ipcidr
+  - type: clash-ipcidr
     format: text
     resolve: true
     url: https://ruleset.skk.moe/Clash/ip/china_ip.txt
@@ -537,8 +553,6 @@ generates:
     type: tun
     interface_name: tun0
     auto_route: false
-    sniff: true
-    sniff_override_destination: true
     mtu: 1492
     address:
     - 172.19.0.1/30
@@ -547,22 +561,23 @@ generates:
     type: mixed
     listen: '::'
     listen_port: 10081
-    sniff: true
-    sniff_override_destination: true
     users:
     - password: '@secret:CLASH_PROXY_PASSWORD'
       username: '@secret:CLASH_PROXY_USERNAME'
   route:
     rules:
+    - &ROUTE_RULE_SNIFF
+      action: sniff
     - &ROUTE_RULE_MATCH_DNS
       mode: or
-      outbound: DNS
+      action: hijack-dns
       rules:
       - protocol: dns
       - port: 53
       type: logical
     - &ROUTE_RULE_MATCH_DIRECT
       mode: or
+      action: route
       outbound: DIRECT
       rules:
       - clash_mode: direct
@@ -571,10 +586,11 @@ generates:
       type: logical
     - &ROUTE_RULE_MATCH_GLOBAL_PROXY
       clash_mode: global
+      action: route
       outbound: PROXY
     - &ROUTE_RULE_MATCH_SECURED_DNS
       mode: or
-      outbound: REJECT
+      action: reject
       rules:
       - port: 853
       - network: udp
@@ -593,8 +609,6 @@ generates:
     - tag: DIRECT
       address: 210.22.70.3
       detour: DIRECT
-    - tag: REJECT
-      address: rcode://success
     - tag: System
       address: local
       strategy: ipv4_only
@@ -603,17 +617,20 @@ generates:
       address: 8.8.8.8
       detour: *NETFLIX
     rules:
-    - server: REJECT
+    - action: reject
+      method: drop
+      disable_cache: true
       query_type:
       - HTTPS
       - SVCB
+    - action: route
+      server: System
       disable_cache: true
-    - server: System
       filters:
       - DOMAIN-SUFFIX,.rundong.local
       match_with_dns: request
-      disable_cache: true
-    - server: DIRECT
+    - action: route
+      server: DIRECT
       type: logical
       mode: or
       rules:
@@ -628,7 +645,8 @@ generates:
         - type: dnsmasq
           url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
         match_with_dns: request
-    - server: Netflix
+    - action: route
+      server: Netflix
       filters: *NETFLIX_FILTERS
       match_with_dns: request
     final: PROXY
@@ -651,8 +669,6 @@ generates:
   - tag: tun
     type: tun
     auto_route: true
-    sniff: true
-    sniff_override_destination: true
     mtu: 1492
     address:
     - 172.19.0.1/30
@@ -661,13 +677,14 @@ generates:
     auto_detect_interface: true
     override_android_vpn: true
     rules:
+    - *ROUTE_RULE_SNIFF
     - *ROUTE_RULE_MATCH_DNS
     - *ROUTE_RULE_MATCH_DIRECT
     - *ROUTE_RULE_MATCH_GLOBAL_PROXY
     - # Only reject secured DNS requests from non-Netflix apps; Netflix traffic
       # will be fully sent to the proxy.
       mode: and
-      outbound: REJECT
+      action: reject
       rules:
       - package_name:
         - com.netflix.mediaclient
@@ -709,6 +726,7 @@ generates:
     auto_detect_interface: true
     override_android_vpn: '!clear'
     rules:
+    - *ROUTE_RULE_SNIFF
     - *ROUTE_RULE_MATCH_DNS
     - *ROUTE_RULE_MATCH_DIRECT
     - *ROUTE_RULE_MATCH_GLOBAL_PROXY
