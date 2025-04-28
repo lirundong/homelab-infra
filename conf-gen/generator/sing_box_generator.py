@@ -239,8 +239,6 @@ class SingBoxGenerator(GeneratorBase):
                     "tag": "tun",
                     "type": "tun",
                     "address": ["172.19.0.1/30", "fdfe:dcba:9876::1/126"],
-                    "sniff": True,
-                    "sniff_override_destination": True,
                     "mtu": 1492,
                 }
             ]
@@ -346,10 +344,18 @@ class SingBoxGenerator(GeneratorBase):
         for i, r in enumerate(self.route["rules"]):
             if r["action"] == "route" and r["outbound"] not in self._valid_outbound_tags:
                 raise ValueError(f"#{i} rule's outbound {r['outbound']} is invalid")
+        resolve_action_added = False
         for g in self._proxy_groups:
             g.included_process_irs = self.included_process_irs
             filters = g.sing_box_filers
             if filters:
+                # If this is the first group that requires hostname resolution, add the resolve action.
+                if g.require_resolve and not resolve_action_added:
+                    self.route["rules"].append({
+                        "action": "resolve",
+                        "strategy": "prefer_ipv4",  # Easier to match rules.
+                    })
+                    resolve_action_added = True
                 # Not every proxy group contains matching filters, e.g., the PROXY group.
                 self.route["rules"].append(filters)
         if self.route.get("final") and self.route["final"] not in self._valid_outbound_tags:

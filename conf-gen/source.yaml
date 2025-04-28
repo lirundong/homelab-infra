@@ -585,9 +585,9 @@ generates:
       - protocol: bittorrent
       type: logical
     - &ROUTE_RULE_MATCH_GLOBAL_PROXY
-      clash_mode: global
       action: route
       outbound: PROXY
+      clash_mode: global
     - &ROUTE_RULE_MATCH_SECURED_DNS
       mode: or
       action: reject
@@ -611,12 +611,12 @@ generates:
       detour: DIRECT
     - tag: System
       address: local
-      strategy: ipv4_only
       detour: DIRECT
     - tag: Netflix
       address: 8.8.8.8
-      strategy: ipv4_only
       detour: *NETFLIX
+    - tag: FakeIP
+      address: fake
     rules:
     - action: reject
       method: drop
@@ -628,8 +628,16 @@ generates:
       server: System
       disable_cache: true
       filters:
-      - DOMAIN-SUFFIX,.rundong.local
-      match_with_dns: request
+      - DOMAIN-SUFFIX,rundong.local
+      - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
+      - DOMAIN-SUFFIX,dns.msftncsi.com
+      - DOMAIN-SUFFIX,www.msftncsi.com
+      - DOMAIN-SUFFIX,www.msftconnecttest.com
+    - action: route
+      server: FakeIP
+      query_type:
+      - A
+      - AAAA
     - action: route
       server: DIRECT
       type: logical
@@ -639,10 +647,6 @@ generates:
       - clash_mode: direct
       - filters:
         - DOMAIN-SUFFIX,rundong.me
-        - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
-        - DOMAIN-SUFFIX,dns.msftncsi.com
-        - DOMAIN-SUFFIX,www.msftncsi.com
-        - DOMAIN-SUFFIX,www.msftconnecttest.com
         - type: dnsmasq
           url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
         match_with_dns: request
@@ -651,6 +655,11 @@ generates:
       filters: *NETFLIX_FILTERS
       match_with_dns: request
     final: PROXY
+    fakeip:
+      enabled: true
+      inet4_range: 198.18.0.0/15
+      inet6_range: fc00::/18
+    independent_cache: true
   experimental:
     clash_api:
       external_controller: :9090
@@ -658,6 +667,7 @@ generates:
       secret: '@secret:CLASH_SECRET'
     cache_file:
       enabled: true
+      store_fakeip: true
       path: /root/.config/sing-box/cache.db
 # ------------------------------------------------------------------------------
 # Sing-Box clients (for Android platforms).
@@ -713,6 +723,7 @@ generates:
     clash_api: null
     cache_file:
       enabled: true
+      store_fakeip: true
       path: cache.db
   included_process_irs:
   - PACKAGE-NAME

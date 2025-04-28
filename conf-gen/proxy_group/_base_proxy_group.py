@@ -1,4 +1,5 @@
 from collections import defaultdict
+from functools import lru_cache
 import re
 from typing import Dict, Optional, List, Literal, Tuple, Union
 
@@ -93,6 +94,14 @@ class ProxyGroupBase:
                         self._proxies.append(available_proxy.name)
                     elif isinstance(available_proxy, str) and re.search(pattern, available_proxy):
                         self._proxies.append(available_proxy)
+
+    @property
+    @lru_cache(maxsize=1)
+    def require_resolve(self) -> bool:
+        for filter in self._filters:
+            if filter._might_resolvable and filter._resolve:
+                return True
+        return False
 
     @property
     def quantumult_policy(self) -> str:
