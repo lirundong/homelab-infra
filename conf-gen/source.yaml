@@ -607,37 +607,11 @@ generates:
       detour: PROXY
       client_subnet: 139.226.3.0/24  # China Unicom Shanghai subnet.
     - tag: DIRECT
-      address: 210.22.70.3
-      detour: DIRECT
-    - tag: System
       address: local
       detour: DIRECT
-    - tag: Netflix
-      address: 8.8.8.8
-      detour: *NETFLIX
     - tag: FakeIP
       address: fake
     rules:
-    - action: reject
-      method: drop
-      disable_cache: true
-      query_type:
-      - HTTPS
-      - SVCB
-    - action: route
-      server: System
-      disable_cache: true
-      filters:
-      - DOMAIN-SUFFIX,rundong.local
-      - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
-      - DOMAIN-SUFFIX,dns.msftncsi.com
-      - DOMAIN-SUFFIX,www.msftncsi.com
-      - DOMAIN-SUFFIX,www.msftconnecttest.com
-    - action: route
-      server: FakeIP
-      query_type:
-      - A
-      - AAAA
     - action: route
       server: DIRECT
       type: logical
@@ -646,14 +620,16 @@ generates:
       - outbound: any
       - clash_mode: direct
       - filters:
-        - DOMAIN-SUFFIX,rundong.me
-        - type: dnsmasq
-          url: https://github.com/felixonmars/dnsmasq-china-list/raw/master/accelerated-domains.china.conf
-        match_with_dns: request
+        - DOMAIN-SUFFIX,rundong.local
+        - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
+        - DOMAIN-SUFFIX,dns.msftncsi.com
+        - DOMAIN-SUFFIX,www.msftncsi.com
+        - DOMAIN-SUFFIX,www.msftconnecttest.com
     - action: route
-      server: Netflix
-      filters: *NETFLIX_FILTERS
-      match_with_dns: request
+      server: FakeIP
+      query_type:
+      - A
+      - AAAA
     final: PROXY
     fakeip:
       enabled: true
