@@ -202,6 +202,7 @@ class SingBoxGenerator(GeneratorBase):
         included_process_irs: Optional[List[str]] = None,
         ruleset_url: Optional[str] = None,
         dial_fields: Optional[Dict[Literal["direct", "proxy"], Dict[str, str]]] = None,
+        add_resolve_action: bool = True,
     ):
         # Construct the special group `PROXY` for sing-box.
         proxy_groups = copy(proxy_groups)
@@ -256,6 +257,7 @@ class SingBoxGenerator(GeneratorBase):
         self.outbounds = []
         self.route = route
         self.experimental = experimental
+        self.add_resolve_action = add_resolve_action
         self._initial_route_rules = copy(self.route["rules"])
         self._direct_dial_fields = dial_fields["direct"]
         self._proxy_dial_fields = dial_fields["proxy"]
@@ -350,7 +352,7 @@ class SingBoxGenerator(GeneratorBase):
             filters = g.sing_box_filers
             if filters:
                 # If this is the first group that requires hostname resolution, add the resolve action.
-                if g.require_resolve and not resolve_action_added:
+                if self.add_resolve_action and g.require_resolve and not resolve_action_added:
                     self.route["rules"].append({
                         "action": "resolve",
                         "server": "PROXY",

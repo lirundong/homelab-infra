@@ -548,6 +548,7 @@ generates:
       # Prefer to solve proxy hostnames to IPv4.
       domain_strategy: prefer_ipv4
   ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/
+  add_resolve_action: false # Sometimes resolve action causes DNS query recursion thus disabled temporarily.
   inbounds:
   - tag: tun
     type: tun
