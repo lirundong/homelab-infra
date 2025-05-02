@@ -353,7 +353,8 @@ class SingBoxGenerator(GeneratorBase):
                 if g.require_resolve and not resolve_action_added:
                     self.route["rules"].append({
                         "action": "resolve",
-                        "strategy": "prefer_ipv4",  # Easier to match rules.
+                        "server": "PROXY",
+                        "strategy": "prefer_ipv4",  # Easier to match with rules.
                     })
                     resolve_action_added = True
                 # Not every proxy group contains matching filters, e.g., the PROXY group.

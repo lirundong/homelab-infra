@@ -591,6 +591,7 @@ generates:
     - &ROUTE_RULE_MATCH_SECURED_DNS
       mode: or
       action: reject
+      method: drop
       rules:
       - port: 853
       - network: udp
@@ -610,8 +611,13 @@ generates:
       address: local
       detour: DIRECT
     - tag: FakeIP
-      address: fake
+      address: fakeip
     rules:
+    - action: reject
+      method: drop
+      query_type:
+      - HTTPS
+      - SVCB
     - action: route
       server: DIRECT
       type: logical
