@@ -129,7 +129,12 @@ def compile_ruleset(ruleset_literals):
         encoding="utf-8",
     )
     sing_box_version = parse(re.search(r'sing-box version (.*)', ret.stdout).group(1))
-    ruleset_version = 2 if Version("1.10") <= sing_box_version else 1
+    if Version("1.11") <= sing_box_version:
+        ruleset_version = 3
+    elif Version("1.10") <= sing_box_version:
+        ruleset_version = 2
+    else:
+        ruleset_version = 1
     ruleset_binaries = dict()
     for tag, rule in ruleset_literals.items():
         normalized_tag = tag.replace(" ", "_")
