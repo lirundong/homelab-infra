@@ -2,6 +2,7 @@
 set -ex
 
 TARGET_ARCH=${TARGET_ARCH:-'x86/64'}
+TOOLCHAIN_ARCH=${TOOLCHAIN_ARCH:-'x86/64'}
 HOST_ARCH=${HOST_ARCH:-'x86/64'}
 VERSION=${VERSION:-'22.03.3'}
 REPOSITORY=${REPOSITORY:-'https://mirrors.tuna.tsinghua.edu.cn/openwrt'}
@@ -37,9 +38,13 @@ pushd $WORK_DIR
 curl -sSLO $SDK_URL
 tar -xf $SDK.$TAR_EXT
 STAGING_DIR=$(realpath -- $SDK/staging_dir)
-SDK_BIN_DIR=$(realpath -- $SDK/staging_dir/toolchain-${TARGET_ARCH/\//_}_gcc-$GCC_VERSION/bin)
-SDK_CC=${SDK_BIN_DIR}/${TARGET_ARCH/\//_}-openwrt-linux-gcc
-SDK_LD=${SDK_BIN_DIR}/${TARGET_ARCH/\//_}-openwrt-linux-ld
+if [[ ${TOOLCHAIN_ARCH} == 'aarch64' ]]; then
+  SDK_BIN_DIR=$(realpath -- $SDK/staging_dir/toolchain-${TOOLCHAIN_ARCH}_generic_gcc-$GCC_VERSION/bin)
+else
+  SDK_BIN_DIR=$(realpath -- $SDK/staging_dir/toolchain-${TOOLCHAIN_ARCH/\//_}_gcc-$GCC_VERSION/bin)
+fi
+SDK_CC=${SDK_BIN_DIR}/${TOOLCHAIN_ARCH/\//_}-openwrt-linux-gcc
+SDK_LD=${SDK_BIN_DIR}/${TOOLCHAIN_ARCH/\//_}-openwrt-linux-ld
 
 # Prepare custom files.
 $ROOT_DIR/common/secret_decoder.py -r $SRC_DIR/files ./files -e '.*skip$' '__pycache__'
