@@ -71,6 +71,7 @@ jobs:
       env:
         TARGET_ARCH: ${{ matrix.arch.openwrt }}
         TOOLCHAIN_ARCH: ${{ matrix.arch.toolchain }}
+        HOST_ARCH: x86/64
         VERSION: ${{ matrix.version.openwrt }}
         GCC_VERSION: ${{ matrix.version.gcc }}
         SING_BOX_ARCH: ${{ matrix.arch.sing_box }}
@@ -81,9 +82,9 @@ jobs:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
         if [[ ${{ matrix.version.openwrt }} == 'snapshots' ]]; then
-          BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/"
+          BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}/bin/targets/${TARGET_ARCH}"
         else
-          BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/"
+          BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}/bin/targets/${TARGET_ARCH}"
         fi
         OUTPUT_DIR=${{ github.workspace }}/outputs
         mkdir -p ${OUTPUT_DIR}
