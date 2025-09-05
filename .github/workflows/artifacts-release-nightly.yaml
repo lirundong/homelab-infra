@@ -6,8 +6,6 @@ on:
 jobs:
   build_configuration:
     runs-on: ubuntu-latest
-    env:
-      SING_BOX_ARCH: amd64
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -19,6 +17,7 @@ jobs:
     - id: setup_dependencies
       run: |
         pip3 install --user --upgrade --requirement requirements.txt
+        SING_BOX_ARCH=amd64
         SING_BOX_VERSION=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/SagerNet/sing-box/releases/latest | grep -Po 'v\K\d+\.\d+\.\d+')
         curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}.tar.gz -o sing-box.tar.gz
         tar -xf sing-box.tar.gz
@@ -40,7 +39,6 @@ jobs:
         name: artifacts-conf
         path: artifacts-conf/
     outputs:
-      sing_box_arch: ${{ env.SING_BOX_ARCH }}
       sing_box_version: ${{ steps.setup_dependencies.outputs.SING_BOX_VERSION }}
       config_names: ${{ steps.generate_proxy_conf.outputs.CONFIG_NAMES }}
 
@@ -49,10 +47,15 @@ jobs:
     needs: build_configuration
     strategy:
       matrix:
-        openwrt:
-        - version: '24.10.1'
+        arch:
+        - openwrt: x86/64
+          sing_box: amd64
+        - openwrt: rockchip/armv8
+          sing_box: arm64
+        version:
+        - openwrt: '24.10.2'
           gcc: 13.3.0_musl
-        - version: snapshots
+        - openwrt: snapshots
           gcc: 14.3.0_musl
     steps:
     - uses: actions/checkout@v4
@@ -62,17 +65,17 @@ jobs:
         path: ${{ github.workspace }}/conf
     - id: run_build_script
       env:
-        TARGET: x86/64
-        VERSION: ${{ matrix.openwrt.version }}
-        GCC_VERSION: ${{ matrix.openwrt.gcc }}
-        SING_BOX_ARCH: ${{ needs.build_configuration.outputs.sing_box_arch }}
+        TARGET: ${{ matrix.arch.openwrt }}
+        VERSION: ${{ matrix.version.openwrt }}
+        GCC_VERSION: ${{ matrix.version.gcc }}
+        SING_BOX_ARCH: ${{ matrix.arch.sing_box }}
         SING_BOX_VERSION: ${{ needs.build_configuration.outputs.sing_box_version }}
         SING_BOX_CONFIG: ${{ github.workspace }}/conf/sing-box-daemon/config.json
         REPOSITORY: https://downloads.openwrt.org
         WORK_DIR: ${{ github.workspace }}/openwrt
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
-        if [[ ${{ matrix.openwrt.version}} == 'snapshots' ]]; then
+        if [[ ${{ matrix.version.openwrt }} == 'snapshots' ]]; then
           BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/"
         else
           BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET/\//-}.Linux-${TARGET/\//_}/bin/targets/${TARGET}/"
@@ -86,7 +89,7 @@ jobs:
         echo "OUTPUT_DIR=${OUTPUT_DIR}" >> "$GITHUB_OUTPUT"
     - uses: actions/upload-artifact@v4
       with:
-        name: openwrt-${{ matrix.openwrt.version }}-${{ matrix.openwrt.gcc }}
+        name: openwrt-${{ matrix.version.openwrt }}-${{ matrix.arch.openwrt }}-gcc-${{ matrix.version.gcc }}
         path: ${{ steps.run_build_script.outputs.OUTPUT_DIR }}
 
   release_proxy_configurations:
@@ -147,16 +150,19 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
     strategy:
       matrix:
-        openwrt:
-        - version: '24.10.1'
+        arch:
+        - openwrt: x86/64
+        - openwrt: rockchip/armv8
+        version:
+        - openwrt: '24.10.2'
           gcc: 13.3.0_musl
-        - version: snapshots
+        - openwrt: snapshots
           gcc: 14.3.0_musl
     steps:
     - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
       with: 
-        name: openwrt-${{ matrix.openwrt.version }}-${{ matrix.openwrt.gcc }}
+        name: openwrt-${{ matrix.version.openwrt }}-${{ matrix.arch.openwrt }}-gcc-${{ matrix.version.gcc }}
         path: ${{ github.workspace }}/openwrt
     - run: |
         mkdir -p ${{ github.workspace }}/release
@@ -169,9 +175,9 @@ jobs:
       run: |
         mkdir artifacts-readme
         cp .github/artifacts-release-readme.md artifacts-readme/README.md
-        sed -i 's!{ARTIFACT_NAME}!OpenWRT '${{ matrix.openwrt.version }}'!g' artifacts-readme/README.md
+        sed -i 's!{ARTIFACT_NAME}!OpenWRT '${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}'!g' artifacts-readme/README.md
         sed -i 's!{RELEASE_DATE}!'$(date +'%Y/%m/%d')'!g' artifacts-readme/README.md
-        sed -i 's!{CONTENT_DESCRIPTION}!- OpenWRT '${{ matrix.openwrt.version }}' images built with GCC '${{ matrix.openwrt.gcc }}' for the x86-64 platform!g' artifacts-readme/README.md
+        sed -i 's!{CONTENT_DESCRIPTION}!- OpenWRT '${{ matrix.version.openwrt }}' images built with GCC '${{ matrix.version.gcc }}' for the '${{ matrix.arch.openwrt }}' platform!g' artifacts-readme/README.md
         # Load README content to an env variable, see
         # https://github.com/marketplace/actions/upload-files-to-a-github-release#usage
         RELEASE_README=$(cat artifacts-readme/README.md)
@@ -185,6 +191,6 @@ jobs:
         file_glob: true
         overwrite: true
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        tag: openwrt_${{ matrix.openwrt.version }}
+        tag: openwrt_${{ matrix.version.openwrt }}_${{ matrix.arch.openwrt }}
         body: |
           ${{ steps.prepare_readme.outputs.RELEASE_README }}
