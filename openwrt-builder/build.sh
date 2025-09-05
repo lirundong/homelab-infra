@@ -1,27 +1,27 @@
 #!/bin/bash
 set -ex
 
-TARGET=${TARGET:-'x86/64'}
+TARGET_ARCH=${TARGET_ARCH:-'x86/64'}
+HOST_ARCH=${HOST_ARCH:-'x86/64'}
 VERSION=${VERSION:-'22.03.3'}
 REPOSITORY=${REPOSITORY:-'https://mirrors.tuna.tsinghua.edu.cn/openwrt'}
 GCC_VERSION=${GCC_VERSION:-'11.2.0_musl'}
 WORK_DIR=${WORK_DIR:-'/tmp/openwrt'}
+TAR_EXT=${TAR_EXT:-'tar.zst'}
 SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( cd -- "$( dirname -- "${SRC_DIR}" )" &> /dev/null && pwd )
 PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages/${VERSION}.txt)
 if [[ $VERSION == 'snapshots' ]]; then
-  TAR_EXT='tar.zst'
-  SDK=openwrt-sdk-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
-  SDK_URL=$REPOSITORY/$VERSION/targets/$TARGET/$SDK.$TAR_EXT
-  IMG_BUILDER=openwrt-imagebuilder-${TARGET/\//-}.Linux-${TARGET/\//_}
-  IMG_BUILDER_URL=$REPOSITORY/$VERSION/targets/$TARGET/$IMG_BUILDER.$TAR_EXT
+  SDK=openwrt-sdk-${TARGET_ARCH/\//-}_gcc-$GCC_VERSION.Linux-${HOST_ARCH/\//_}
+  SDK_URL=$REPOSITORY/$VERSION/targets/$TARGET_ARCH/$SDK.$TAR_EXT
+  IMG_BUILDER=openwrt-imagebuilder-${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}
+  IMG_BUILDER_URL=$REPOSITORY/$VERSION/targets/$TARGET_ARCH/$IMG_BUILDER.$TAR_EXT
   REPO_FILE=repositories
 else
-  TAR_EXT='tar.zst'
-  SDK=openwrt-sdk-$VERSION-${TARGET/\//-}_gcc-$GCC_VERSION.Linux-${TARGET/\//_}
-  SDK_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$SDK.$TAR_EXT
-  IMG_BUILDER=openwrt-imagebuilder-$VERSION-${TARGET/\//-}.Linux-${TARGET/\//_}
-  IMG_BUILDER_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET/$IMG_BUILDER.$TAR_EXT
+  SDK=openwrt-sdk-$VERSION-${TARGET_ARCH/\//-}_gcc-$GCC_VERSION.Linux-${HOST_ARCH/\//_}
+  SDK_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET_ARCH/$SDK.$TAR_EXT
+  IMG_BUILDER=openwrt-imagebuilder-$VERSION-${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}
+  IMG_BUILDER_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET_ARCH/$IMG_BUILDER.$TAR_EXT
   REPO_FILE=repositories.conf
 fi
 
@@ -37,9 +37,9 @@ pushd $WORK_DIR
 curl -sSLO $SDK_URL
 tar -xf $SDK.$TAR_EXT
 STAGING_DIR=$(realpath -- $SDK/staging_dir)
-SDK_BIN_DIR=$(realpath -- $SDK/staging_dir/toolchain-${TARGET/\//_}_gcc-$GCC_VERSION/bin)
-SDK_CC=${SDK_BIN_DIR}/${TARGET/\//_}-openwrt-linux-gcc
-SDK_LD=${SDK_BIN_DIR}/${TARGET/\//_}-openwrt-linux-ld
+SDK_BIN_DIR=$(realpath -- $SDK/staging_dir/toolchain-${TARGET_ARCH/\//_}_gcc-$GCC_VERSION/bin)
+SDK_CC=${SDK_BIN_DIR}/${TARGET_ARCH/\//_}-openwrt-linux-gcc
+SDK_LD=${SDK_BIN_DIR}/${TARGET_ARCH/\//_}-openwrt-linux-ld
 
 # Prepare custom files.
 $ROOT_DIR/common/secret_decoder.py -r $SRC_DIR/files ./files -e '.*skip$' '__pycache__'

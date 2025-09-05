@@ -65,7 +65,7 @@ jobs:
         path: ${{ github.workspace }}/conf
     - id: run_build_script
       env:
-        TARGET: ${{ matrix.arch.openwrt }}
+        TARGET_ARCH: ${{ matrix.arch.openwrt }}
         VERSION: ${{ matrix.version.openwrt }}
         GCC_VERSION: ${{ matrix.version.gcc }}
         SING_BOX_ARCH: ${{ matrix.arch.sing_box }}
