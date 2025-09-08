@@ -9,6 +9,7 @@ REPOSITORY=${REPOSITORY:-'https://mirrors.tuna.tsinghua.edu.cn/openwrt'}
 GCC_VERSION=${GCC_VERSION:-'11.2.0_musl'}
 WORK_DIR=${WORK_DIR:-'/tmp/openwrt'}
 TAR_EXT=${TAR_EXT:-'tar.zst'}
+PROFILE=${PROFILE:-''}
 SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( cd -- "$( dirname -- "${SRC_DIR}" )" &> /dev/null && pwd )
 PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages/${VERSION}.txt)
@@ -87,11 +88,15 @@ rsync -aP --exclude='__pycache__' $ROOT_DIR/common $CUSTOM_FILES_DIR/root/
 rsync -aP --exclude='__pycache__' $ROOT_DIR/util-cookbook/tencent-cloud $CUSTOM_FILES_DIR/root/util-cookbook/
 
 # Image builder.
+image_builder_args=(ROOTFS_PARTSIZE=256 FILES=$CUSTOM_FILES_DIR PACKAGES="$PACKAGES")
+if [[ -n ${PROFILE} ]]; then
+  image_builder_args+=(PROFILE=$PROFILE)
+fi
 curl -sSLO $IMG_BUILDER_URL
 tar -xf $IMG_BUILDER.$TAR_EXT
 pushd $IMG_BUILDER
 sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" ${REPO_FILE}
-make image ROOTFS_PARTSIZE=256 FILES=$CUSTOM_FILES_DIR PACKAGES="$PACKAGES"
+make image "${image_builder_args[@]}"
 
 popd  # Image builder.
 popd  # Working directory.

@@ -52,10 +52,12 @@ jobs:
           toolchain: x86/64
           sing_box: amd64
           artifact: x86_64
+          profile: ''
         - openwrt: rockchip/armv8
           toolchain: aarch64
           sing_box: arm64
           artifact: rockchip_armv8
+          profile: friendlyarm_nanopi-r6s
         version:
         - openwrt: '24.10.2'
           gcc: 13.3.0_musl
@@ -80,6 +82,7 @@ jobs:
         REPOSITORY: https://downloads.openwrt.org
         WORK_DIR: ${{ github.workspace }}/openwrt
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+        PROFILE: ${{ matrix.arch.profile }}
       run: |
         if [[ ${{ matrix.version.openwrt }} == 'snapshots' ]]; then
           BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}/bin/targets/${TARGET_ARCH}"
