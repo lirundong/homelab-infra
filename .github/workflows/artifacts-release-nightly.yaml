@@ -183,7 +183,7 @@ jobs:
       run: |
         mkdir artifacts-readme
         cp .github/artifacts-release-readme.md artifacts-readme/README.md
-        sed -i 's!{ARTIFACT_NAME}!OpenWRT '${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}'!g' artifacts-readme/README.md
+        sed -i 's!{ARTIFACT_NAME}!OpenWRT '${{ matrix.version.openwrt }}' '${{ matrix.arch.openwrt }}'!g' artifacts-readme/README.md
         sed -i 's!{RELEASE_DATE}!'$(date +'%Y/%m/%d')'!g' artifacts-readme/README.md
         sed -i 's!{CONTENT_DESCRIPTION}!- OpenWRT '${{ matrix.version.openwrt }}' images built with GCC '${{ matrix.version.gcc }}' for the '${{ matrix.arch.openwrt }}' platform!g' artifacts-readme/README.md
         # Load README content to an env variable, see
