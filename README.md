@@ -19,7 +19,7 @@
 
 |                                | GPG-encrypted Artifacts |
 |:-------------------------------|------------------------:|
-| Clash | [clash](https://github.com/lirundong/homelab-infra/releases/tag/clash) |
+| Clash                          | [clash](https://github.com/lirundong/homelab-infra/releases/tag/clash) |
 | Clash for Android/AndroidTV    | [clash-android](https://github.com/lirundong/homelab-infra/releases/tag/clash-android) |
 | Clash for network gateway      | [clash-daemon](https://github.com/lirundong/homelab-infra/releases/tag/clash-daemon) |
 | Quantumult-X                   | [quantumult-x](https://github.com/lirundong/homelab-infra/releases/tag/quantumult-x) |
