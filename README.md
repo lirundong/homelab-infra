@@ -1,6 +1,35 @@
 # HomeLab Infra Monorepo
 
-[![Artifacts Release Nightly](https://github.com/lirundong/homelab-infra/actions/workflows/artifacts-release-nightly.yaml/badge.svg)](https://github.com/lirundong/homelab-infra/releases/tag/nightly)
+[![Artifacts Release Nightly](https://github.com/lirundong/homelab-infra/actions/workflows/artifacts-release-nightly.yaml/badge.svg)](https://github.com/lirundong/homelab-infra/actions/workflows/artifacts-release-nightly.yaml)
+
+<details>
+
+<summary>Artifact Releases</summary>
+
+## OpenWRT Images
+
+|                | Current Stable[^1] | Snapshot |
+|:---------------|-------------------:|---------:|
+| x86/64         | [openwrt_24.10.2_x86/64](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_24.10.2_x86%2F64) | [openwrt_snapshots_x86/64](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_snapshots_x86%2F64) |
+| Rockchip ARMv8 | [openwrt_24.10.2_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_24.10.2_rockchip%2Farmv8) | [openwrt_snapshots_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_snapshots_rockchip%2Farmv8) |
+
+[^1]: The [current stable release](https://github.com/openwrt/openwrt/releases/latest) is version 24.10.2.
+
+## Proxy Software Configurations and Artifacts
+
+|                                | GPG-encrypted Artifacts |
+|:-------------------------------|------------------------:|
+| Clash | [clash](https://github.com/lirundong/homelab-infra/releases/tag/clash) |
+| Clash for Android/AndroidTV    | [clash-android](https://github.com/lirundong/homelab-infra/releases/tag/clash-android) |
+| Clash for network gateway      | [clash-daemon](https://github.com/lirundong/homelab-infra/releases/tag/clash-daemon) |
+| Quantumult-X                   | [quantumult-x](https://github.com/lirundong/homelab-infra/releases/tag/quantumult-x) |
+| Sing-box for Android/AndroidTV | [sing-box-clients](https://github.com/lirundong/homelab-infra/releases/tag/sing-box-clients) |
+| Sing-box for iOS/macOS         | [sing-box-apple](https://github.com/lirundong/homelab-infra/releases/tag/sing-box-apple) |
+| Sing-box for network gateway   | [sing-box-daemon](https://github.com/lirundong/homelab-infra/releases/tag/sing-box-daemon) |
+
+</details>
+
+## Introduction
 
 This is a monorepo containing all software infrastructures of Rundong's home-lab. Projects include:
 
