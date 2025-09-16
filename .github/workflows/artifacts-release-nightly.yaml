@@ -50,11 +50,13 @@ jobs:
         arch:
         - openwrt: x86/64
           toolchain: x86/64
+          package: x86_64
           sing_box: amd64
           artifact: x86_64
           profile: ''
         - openwrt: rockchip/armv8
           toolchain: aarch64
+          package: aarch64_cortex-a53
           sing_box: arm64
           artifact: rockchip_armv8
           profile: friendlyarm_nanopi-r6s
@@ -73,6 +75,7 @@ jobs:
       env:
         TARGET_ARCH: ${{ matrix.arch.openwrt }}
         TOOLCHAIN_ARCH: ${{ matrix.arch.toolchain }}
+        PACKAGE_ARCH: ${{ matrix.arch.package }}
         HOST_ARCH: x86/64
         VERSION: ${{ matrix.version.openwrt }}
         GCC_VERSION: ${{ matrix.version.gcc }}
