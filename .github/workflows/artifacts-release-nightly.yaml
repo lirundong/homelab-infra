@@ -5,6 +5,7 @@ on:
   - cron: '1 0 * * *'  # Nightly build.
 jobs:
   build_configuration:
+    name: Build Configurations
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -43,6 +44,7 @@ jobs:
       config_names: ${{ steps.generate_proxy_conf.outputs.CONFIG_NAMES }}
 
   build_openwrt:
+    name: Build OpenWRT ${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}
     runs-on: ubuntu-latest
     needs: build_configuration
     strategy:
@@ -105,6 +107,7 @@ jobs:
         path: ${{ steps.run_build_script.outputs.OUTPUT_DIR }}
 
   release_proxy_configurations:
+    name: Release ${{ matrix.conf }} Configuration
     needs: build_configuration
     runs-on: ubuntu-latest
     if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
@@ -157,6 +160,7 @@ jobs:
           ${{ steps.prepare_readme.outputs.RELEASE_README }}
 
   release_openwrt_builds:
+    name: Release OpenWRT ${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}
     needs: build_openwrt
     runs-on: ubuntu-latest
     if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
