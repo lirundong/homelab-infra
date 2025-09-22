@@ -16,7 +16,7 @@ import yaml
 class _SecretsManager:
 
     _secrets_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets.yaml")
-    _secret_prompt = r"@secret:(\w+)(:?\!(\w+))?"  # @secret:<SECRET_NAME>[!<SECRET_TYPE>]
+    _secret_prompt = r"@secret:(?P<key>\w+)(:?\!(?P<type>\w+))?"  # @secret:<SECRET_KEY>[!<SECRET_TYPE>]
 
     def __init__(self) -> None:
         if "PASSWORD" not in os.environ:
@@ -82,20 +82,16 @@ class _SecretsManager:
         print(f"Changes have been written into {self._secrets_file}")
 
     def _expand_secret(self, match_obj: re.Match) -> str:
-        secret_key = match_obj.group(1)
-        if secret_key == "MASTER_PASSWORD":
-            return self._password
+        if (secret_key := match_obj.group("key")) == "MASTER_PASSWORD":
+            secret_val = self._password
         else:
-            return getattr(self, secret_key)
+            secret_val = getattr(self, secret_key)
+            if secret_type := match_obj.group("type"):
+                secret_val = locate(secret_type)(secret_val)
+        return str(secret_val)
 
     def expand_secret(self, original_str: str) -> Any:
-        full_match = re.fullmatch(self._secret_prompt, original_str)
-        if full_match and full_match.group(3) is not None:  # Secrets with type.
-            t = locate(full_match.group(3))
-            v = getattr(self, full_match.group(1))
-            return t(v)
-        else:
-            return re.sub(self._secret_prompt, self._expand_secret, original_str)
+        return re.sub(self._secret_prompt, self._expand_secret, original_str)
 
     def expand_secret_object(self, original_obj: Any) -> Any:
         original_type = type(original_obj)
