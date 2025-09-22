@@ -58,7 +58,7 @@ jobs:
           profile: ''
         - openwrt: rockchip/armv8
           toolchain: aarch64
-          package: aarch64_cortex-a53
+          package: aarch64_generic
           sing_box: arm64
           artifact: rockchip_armv8
           profile: friendlyarm_nanopi-r6s
