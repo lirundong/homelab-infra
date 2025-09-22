@@ -65,8 +65,11 @@ jobs:
         version:
         - openwrt: '24.10.2'
           gcc: 13.3.0_musl
+          allow_failure: false
         - openwrt: snapshots
           gcc: 14.3.0_musl
+          allow_failure: true
+    continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
@@ -174,8 +177,11 @@ jobs:
         version:
         - openwrt: '24.10.2'
           gcc: 13.3.0_musl
+          allow_failure: false
         - openwrt: snapshots
           gcc: 14.3.0_musl
+          allow_failure: true
+    continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
