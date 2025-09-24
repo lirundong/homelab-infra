@@ -63,7 +63,7 @@ jobs:
           artifact: rockchip_armv8
           profile: friendlyarm_nanopi-r6s
         version:
-        - openwrt: '24.10.2'
+        - openwrt: '24.10.3'
           gcc: 13.3.0_musl
           allow_failure: false
         - openwrt: snapshots
@@ -175,7 +175,7 @@ jobs:
         - openwrt: rockchip/armv8
           artifact: rockchip_armv8
         version:
-        - openwrt: '24.10.2'
+        - openwrt: '24.10.3'
           gcc: 13.3.0_musl
           allow_failure: false
         - openwrt: snapshots

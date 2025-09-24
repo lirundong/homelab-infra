@@ -10,10 +10,10 @@
 
 |                | Current Stable[^1] | Snapshot |
 |:---------------|-------------------:|---------:|
-| x86/64         | [openwrt_24.10.2_x86/64](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_24.10.2_x86%2F64) | [openwrt_snapshots_x86/64](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_snapshots_x86%2F64) |
-| Rockchip ARMv8 | [openwrt_24.10.2_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_24.10.2_rockchip%2Farmv8) | [openwrt_snapshots_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_snapshots_rockchip%2Farmv8) |
+| x86/64         | [openwrt_24.10.3_x86/64](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_24.10.3_x86%2F64) | [openwrt_snapshots_x86/64](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_snapshots_x86%2F64) |
+| Rockchip ARMv8 | [openwrt_24.10.3_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_24.10.3_rockchip%2Farmv8) | [openwrt_snapshots_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_snapshots_rockchip%2Farmv8) |
 
-[^1]: The [current stable release](https://github.com/openwrt/openwrt/releases/latest) is version 24.10.2.
+[^1]: The [current stable release](https://github.com/openwrt/openwrt/releases/latest) is version 24.10.3.
 
 ## Proxy Software Configurations and Artifacts
 
