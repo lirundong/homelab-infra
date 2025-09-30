@@ -13,6 +13,9 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import yaml
 
 
+JsonPrimitiveT = str | int | float | bool
+
+
 class _SecretsManager:
 
     _secrets_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets.yaml")
@@ -81,17 +84,25 @@ class _SecretsManager:
             yaml.dump(self._encrypted_secrets, f, Dumper=yaml.SafeDumper)
         print(f"Changes have been written into {self._secrets_file}")
 
-    def _expand_secret(self, match_obj: re.Match) -> str:
+    def _expand_secret(self, match_obj: re.Match) -> JsonPrimitiveT:
         if (secret_key := match_obj.group("key")) == "MASTER_PASSWORD":
             secret_val = self._password
         else:
             secret_val = getattr(self, secret_key)
             if secret_type := match_obj.group("type"):
+                assert issubclass(locate(secret_type), JsonPrimitiveT)
                 secret_val = locate(secret_type)(secret_val)
-        return str(secret_val)
+        return secret_val
 
     def expand_secret(self, original_str: str) -> Any:
-        return re.sub(self._secret_prompt, self._expand_secret, original_str)
+        if full_match := re.fullmatch(self._secret_prompt, original_str):
+            return self._expand_secret(full_match)
+        else:
+            return re.sub(
+                self._secret_prompt,
+                lambda match: str(self._expand_secret(match)),
+                original_str,
+            )
 
     def expand_secret_object(self, original_obj: Any) -> Any:
         original_type = type(original_obj)
