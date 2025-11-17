@@ -120,6 +120,8 @@ def parse_clash_proxies(
 def parse_clash_subscription(url):
     r = requests.get(url, headers={"user-agent": "clash"})
     if r.status_code != 200:
+        r = requests.get(url)  # Retry without headers.
+    if r.status_code != 200:
         raise requests.HTTPError(r.reason)
     return parse_clash_proxies(yaml.load(r.text, Loader=yaml.SafeLoader)["proxies"])
 
