@@ -104,6 +104,7 @@ jobs:
         fi
         OUTPUT_DIR=${{ github.workspace }}/outputs
         mkdir -p ${OUTPUT_DIR}
+        pip3 install --user --upgrade --requirement requirements.txt
         bash openwrt-builder/build.sh
         for f in $(find ${BUILD_DIR} -iname '*.gz'); do
           cp ${f} ${OUTPUT_DIR}/
