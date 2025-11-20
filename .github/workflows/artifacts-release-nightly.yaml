@@ -14,9 +14,6 @@ jobs:
     - uses: actions/setup-python@v6
       with:
         python-version: '3.13'
-    - uses: actions/setup-go@v5
-      with:
-        go-version: stable
     - id: setup_dependencies
       run: |
         pip3 install --user --upgrade --requirement requirements.txt
@@ -65,7 +62,7 @@ jobs:
           artifact: rockchip_armv8
           profile: friendlyarm_nanopi-r6s
         version:
-        - openwrt: '24.10.3'
+        - openwrt: '24.10.4'
           gcc: 13.3.0_musl
           allow_failure: false
         - openwrt: snapshots
@@ -74,6 +71,12 @@ jobs:
     continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+    - uses: actions/setup-go@v6
+      with:
+        go-version: stable
     - uses: actions/download-artifact@v4
       with: 
         name: artifacts-conf
@@ -177,7 +180,7 @@ jobs:
         - openwrt: rockchip/armv8
           artifact: rockchip_armv8
         version:
-        - openwrt: '24.10.3'
+        - openwrt: '24.10.4'
           gcc: 13.3.0_musl
           allow_failure: false
         - openwrt: snapshots
