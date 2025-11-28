@@ -1,5 +1,6 @@
 import base64
 import os
+from pathlib import Path
 from pprint import pprint
 from pydoc import locate
 import re
@@ -19,7 +20,12 @@ JsonPrimitiveT = str | int | float | bool
 class _SecretsManager:
 
     _secrets_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets.yaml")
-    _secret_prompt = r"@secret:(?P<key>\w+)(:?\!(?P<type>\w+))?"  # @secret:<SECRET_KEY>[!<SECRET_TYPE>]
+    # Insert secrets by literal: @secret:<SECRET_KEY>[!<SECRET_TYPE>]
+    _secret_prompt = r"@secret:(?P<key>\w+)(:?\!(?P<type>\w+))?"
+    # Insert file content by literal: @include:<FILE_PATH>[!<JOIN_BY>][><INDENT_BY>]
+    _include_prompt = r"@include:(?P<file>[\w\-\/\.\\]+)(:?\!(?P<join_by>[\\\w\s]+))?(:?\>(?P<indent_by>\d+))?"
+    _comment_begins = ("#", "//", "<!--", "/*")
+    _project_root = Path(__file__).parents[1]
 
     def __init__(self) -> None:
         if "PASSWORD" not in os.environ:
@@ -84,7 +90,7 @@ class _SecretsManager:
             yaml.dump(self._encrypted_secrets, f, Dumper=yaml.SafeDumper)
         print(f"Changes have been written into {self._secrets_file}")
 
-    def _expand_secret(self, match_obj: re.Match) -> JsonPrimitiveT:
+    def _expand_secret(self, match_obj: re.Match[str]) -> JsonPrimitiveT:
         if (secret_key := match_obj.group("key")) == "MASTER_PASSWORD":
             secret_val = self._password
         else:
@@ -94,15 +100,44 @@ class _SecretsManager:
                 secret_val = locate(secret_type)(secret_val)
         return secret_val
 
+    def _expand_include(self, match_obj: re.Match[str]) -> str:
+        if not (file_path := Path(match_obj.group("file"))).is_absolute():
+            file_path = self._project_root / file_path
+        if not file_path.exists():
+            raise FileNotFoundError(f"File {match_obj.group('file')} not found.")
+        if (indent_by := match_obj.group("indent_by")) is not None and int(indent_by) < 0:
+            raise ValueError(f"Indent by should be positive, but got {indent_by} instead.")
+        lines = []
+        join_by = match_obj.group("join_by") or "\n"
+        indent_by = int(indent_by) if indent_by else 0
+        for i, line in enumerate(file_path.read_text().splitlines()):
+            if not line.strip() or line.lstrip().startswith(self._comment_begins):
+                continue
+            elif i and indent_by:
+                # Only indent second and afterwards lines.
+                lines.append(" " * indent_by + line.strip())
+            else:
+                lines.append(line.strip())
+        return join_by.join(lines)
+
     def expand_secret(self, original_str: str) -> Any:
-        if full_match := re.fullmatch(self._secret_prompt, original_str):
-            return self._expand_secret(full_match)
-        else:
-            return re.sub(
-                self._secret_prompt,
-                lambda match: str(self._expand_secret(match)),
-                original_str,
-            )
+        # Handle full matches first.
+        if include_full_match := re.fullmatch(self._include_prompt, original_str):
+            return self._expand_include(include_full_match)
+        if secret_full_match := re.fullmatch(self._secret_prompt, original_str):
+            return self._expand_secret(secret_full_match)
+        # For other scenario, expand both include and secrets in cascaded passes
+        includes_expanded = re.sub(
+            self._include_prompt,
+            lambda match: str(self._expand_include(match)),
+            original_str,
+        )
+        secrets_expanded = re.sub(
+            self._secret_prompt,
+            lambda match: str(self._expand_secret(match)),
+            includes_expanded,
+        )
+        return secrets_expanded
 
     def expand_secret_object(self, original_obj: Any) -> Any:
         original_type = type(original_obj)

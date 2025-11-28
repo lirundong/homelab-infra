@@ -17,8 +17,8 @@ def copy_single_file(src, dst, force=False):
     with open(src, "r", encoding="utf-8") as f_in, open(dst, "w", encoding="utf-8") as f_out:
         decoded_lines = []
         for line in f_in.readlines():
-            decoded_lines.append(secrets.expand_secret(line.rstrip()))
-        f_out.write("\n".join(decoded_lines))
+            decoded_lines.append(secrets.expand_secret(line.rstrip("\n")))
+        f_out.write("\n".join(decoded_lines) + "\n")
 
     os.chmod(dst, mode=os.stat(src).st_mode)
 
