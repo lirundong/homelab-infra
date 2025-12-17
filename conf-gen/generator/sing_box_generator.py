@@ -121,7 +121,6 @@ def extract_ruleset_inplace(
 
 
 def compile_ruleset(ruleset_literals):
-    # Since sing-box 1.10, use rule set version 2.
     ret = subprocess.run(
         ["sing-box", "version"],
         check=True,
@@ -129,7 +128,9 @@ def compile_ruleset(ruleset_literals):
         encoding="utf-8",
     )
     sing_box_version = parse(re.search(r'sing-box version (.*)', ret.stdout).group(1))
-    if Version("1.11") <= sing_box_version:
+    if Version("1.13") <= sing_box_version:
+        ruleset_version = 4
+    elif Version("1.11") <= sing_box_version:
         ruleset_version = 3
     elif Version("1.10") <= sing_box_version:
         ruleset_version = 2
@@ -161,6 +162,8 @@ def build_rule_set(rules, ruleset_prefix, ruleset_url, download_detour):
             tag_prefix = rule["server"]
         elif rule["action"] == "route" and "outbound" in rule:
             tag_prefix = rule["outbound"]
+        elif rule["action"] == "reject":
+            tag_prefix = "AdBlock"
         else:
             print(f"Skip extracting ruleset from #{ruleset_prefix}.{i}: {rule}")
             continue
@@ -190,7 +193,6 @@ class SingBoxGenerator(GeneratorBase):
         ShadowSocks2022Proxy,
         TrojanProxy,
     )
-    _DEFAULT_PROXY_NAMES = {"PROXY", "DIRECT"}
 
     def __init__(
         self,
@@ -207,7 +209,7 @@ class SingBoxGenerator(GeneratorBase):
         included_process_irs: Optional[List[str]] = None,
         ruleset_url: Optional[str] = None,
         dial_fields: Optional[Dict[Literal["direct", "proxy"], Dict[str, str]]] = None,
-        add_resolve_action: bool = True,
+        add_resolve_action: Optional[Dict] = None,
     ):
         # Construct the special group `PROXY` for sing-box.
         proxy_groups = copy(proxy_groups)
@@ -342,7 +344,8 @@ class SingBoxGenerator(GeneratorBase):
         # 3. Build outbounds for each of the proxy groups.
         proxy_group_outbounds = []
         for g in self._proxy_groups:
-            proxy_group_outbounds.append(g.sing_box_outbound)
+            if outbound := g.sing_box_outbound:
+                proxy_group_outbounds.append(outbound)
         # ...and finally we merge them together!
         self.outbounds = proxy_group_outbounds + proxy_server_outbounds + mandatory_outbounds
         self._valid_outbound_tags = set(o["tag"] for o in self.outbounds)
@@ -354,15 +357,10 @@ class SingBoxGenerator(GeneratorBase):
         resolve_action_added = False
         for g in self._proxy_groups:
             g.included_process_irs = self.included_process_irs
-            filters = g.sing_box_filers
-            if filters:
+            if filters := g.sing_box_filers:
                 # If this is the first group that requires hostname resolution, add the resolve action.
                 if self.add_resolve_action and g.require_resolve and not resolve_action_added:
-                    self.route["rules"].append({
-                        "action": "resolve",
-                        "server": "PROXY",
-                        "strategy": "prefer_ipv4",  # Easier to match with rules.
-                    })
+                    self.route["rules"].append({"action": "resolve", **self.add_resolve_action})
                     resolve_action_added = True
                 # Not every proxy group contains matching filters, e.g., the PROXY group.
                 self.route["rules"].append(filters)

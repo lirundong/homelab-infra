@@ -117,13 +117,13 @@ def parse_clash_proxies(
     return ret
 
 
-def parse_clash_subscription(url):
-    r = requests.get(url, headers={"user-agent": "clash"})
+def parse_clash_subscription(url, params=None, headers=None):
+    r = requests.get(url, params=params, headers=headers)
     if r.status_code != 200:
-        r = requests.get(url)  # Retry without headers.
-    if r.status_code != 200:
-        raise requests.HTTPError(r.reason)
-    return parse_clash_proxies(yaml.load(r.text, Loader=yaml.SafeLoader)["proxies"])
+        raise requests.HTTPError(f"{r.status_code} {r.reason}")
+    elif not (proxies := yaml.safe_load(r.text)["proxies"]):
+        raise ValueError("No proxies found in subscription")
+    return parse_clash_proxies(proxies)
 
 
 def parse_subscriptions(subscriptions_info):
@@ -131,8 +131,10 @@ def parse_subscriptions(subscriptions_info):
     for sub_info in subscriptions_info:
         type = sub_info["type"]
         url = sub_info["url"]
+        params = sub_info.get("params", {})
+        headers = sub_info.get("headers", {})
         if type == "clash":
-            proxies += parse_clash_subscription(url)
+            proxies += parse_clash_subscription(url, params, headers)
         else:
             raise ValueError(f"Not supported subscription type: {type}")
     return proxies

@@ -21,7 +21,7 @@ class _SecretsManager:
 
     _secrets_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets.yaml")
     # Insert secrets by literal: @secret:<SECRET_KEY>[!<SECRET_TYPE>]
-    _secret_prompt = r"@secret:(?P<key>\w+)(:?\!(?P<type>\w+))?"
+    _secret_prompt = r"@secret:(?P<key>\w+)(:?\!(?P<type>[\w\.]+))?"
     # Insert file content by literal: @include:<FILE_PATH>[!<JOIN_BY>][><INDENT_BY>]
     _include_prompt = r"@include:(?P<file>[\w\-\/\.\\]+)(:?\!(?P<join_by>[\\\w\s]+))?(:?\>(?P<indent_by>\d+))?"
     _comment_begins = ("#", "//", "<!--", "/*")
@@ -96,7 +96,6 @@ class _SecretsManager:
         else:
             secret_val = getattr(self, secret_key)
             if secret_type := match_obj.group("type"):
-                assert issubclass(locate(secret_type), JsonPrimitiveT)
                 secret_val = locate(secret_type)(secret_val)
         return secret_val
 

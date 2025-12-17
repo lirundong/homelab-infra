@@ -6,7 +6,15 @@ global:
 subscriptions:
 - name: WestData Cloud
   type: clash
-  url: '@secret:SUBSCRIPTION_URL'
+  url: https://api.wd-red.com/sub
+  params:
+    emoji: true
+    filename: WestData
+    new_name: true
+    scv: true
+    target: clash
+    udp: true
+    url: '@secret:SUBSCRIPTION_URL'
 proxies:
 - name: 🇯🇵「SS2022-AES」bwh-jp-01
   type: ss
@@ -77,9 +85,9 @@ rules:
 # ------------------------------------------------------------------------------
 # Netflix.
 # ------------------------------------------------------------------------------
-- name: &NETFLIX Netflix
+- name: Netflix
   type: select
-  filters: &NETFLIX_FILTERS
+  filters:
   # https://github.com/SukkaW/Surge/blob/50ae7c06/Source/stream.js#L517-L562
   - USER-AGENT,Argo*
   - PACKAGE-NAME,com.netflix.mediaclient
@@ -196,7 +204,7 @@ rules:
 # ------------------------------------------------------------------------------
 # GitHub.
 # ------------------------------------------------------------------------------
-- name: &GITHUB GitHub
+- name: GitHub
   type: select
   filters:
   # From: https://github.com/v2fly/domain-list-community/blob/master/data/github
@@ -541,14 +549,57 @@ generates:
 - name: &SING_BOX_BASE sing-box-daemon
   type: sing-box
   included_process_irs: null  # Router cannot see clients' process names.
+  dns:
+    # DNS responses are purely used for deciding whether hostnames could be in
+    # mainland China. The destinations will be replaced with hostnames later.
+    servers:
+    - tag: PROXY
+      type: udp
+      server: 8.8.8.8
+      detour: PROXY
+    - tag: DIRECT
+      type: local
+      detour: DIRECT
+    - tag: FakeIP
+      type: fakeip
+      inet4_range: 198.18.0.0/15
+      inet6_range: fc00::/18
+    rules:
+    - action: route
+      server: DIRECT
+      type: logical
+      mode: or
+      rules:
+      - clash_mode: Direct
+      - filters:
+        - DOMAIN-SUFFIX,rundong.local
+        - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
+        - DOMAIN-SUFFIX,dns.msftncsi.com
+        - DOMAIN-SUFFIX,www.msftncsi.com
+        - DOMAIN-SUFFIX,www.msftconnecttest.com
+    - action: route
+      server: FakeIP
+      query_type:
+      - A
+      - AAAA
+    - action: route-options
+      client_subnet: 139.226.3.0/24  # China Unicom Shanghai subnet.
+    final: PROXY
+    independent_cache: true
   dial_fields:
     direct:
-      domain_strategy: prefer_ipv6
+      domain_resolver:
+        server: DIRECT
+        strategy: prefer_ipv6
     proxy:
-      # Prefer to solve proxy hostnames to IPv4.
-      domain_strategy: prefer_ipv4
+      domain_resolver:
+        server: DIRECT
+        strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/
-  add_resolve_action: false # Sometimes resolve action causes DNS query recursion thus disabled temporarily.
+  add_resolve_action:
+    server: PROXY
+    strategy: prefer_ipv4
+    client_subnet: 139.226.3.0/24  # China Unicom Shanghai subnet.
   inbounds:
   - tag: tun
     type: tun
@@ -581,14 +632,14 @@ generates:
       action: route
       outbound: DIRECT
       rules:
-      - clash_mode: direct
+      - clash_mode: Direct
       - ip_is_private: true
       - protocol: bittorrent
       type: logical
     - &ROUTE_RULE_MATCH_GLOBAL_PROXY
       action: route
       outbound: PROXY
-      clash_mode: global
+      clash_mode: Global
     - &ROUTE_RULE_MATCH_SECURED_DNS
       mode: or
       action: reject
@@ -600,49 +651,6 @@ generates:
       - protocol: stun
       type: logical
     final: *FINAL
-  dns:
-    # DNS responses are purely used for deciding whether hostnames could be in
-    # mainland China. The destinations will be replaced with hostnames later.
-    servers:
-    - tag: PROXY
-      address: 8.8.8.8
-      detour: PROXY
-      client_subnet: 139.226.3.0/24  # China Unicom Shanghai subnet.
-    - tag: DIRECT
-      address: local
-      detour: DIRECT
-    - tag: FakeIP
-      address: fakeip
-    rules:
-    - action: reject
-      method: drop
-      query_type:
-      - HTTPS
-      - SVCB
-    - action: route
-      server: DIRECT
-      type: logical
-      mode: or
-      rules:
-      - outbound: any
-      - clash_mode: direct
-      - filters:
-        - DOMAIN-SUFFIX,rundong.local
-        - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
-        - DOMAIN-SUFFIX,dns.msftncsi.com
-        - DOMAIN-SUFFIX,www.msftncsi.com
-        - DOMAIN-SUFFIX,www.msftconnecttest.com
-    - action: route
-      server: FakeIP
-      query_type:
-      - A
-      - AAAA
-    final: PROXY
-    fakeip:
-      enabled: true
-      inet4_range: 198.18.0.0/15
-      inet6_range: fc00::/18
-    independent_cache: true
   experimental:
     clash_api:
       external_controller: :9090
@@ -695,12 +703,15 @@ generates:
   dns:
     servers:
     - tag: DIRECT
-      address: https://@secret:DOT_PUB/dns-query
-      address_resolver: Bootstrap
-      address_strategy: prefer_ipv4
+      type: https
+      server: https://@secret:DOT_PUB/dns-query
       detour: DIRECT
+      domain_resolver:
+        server: Bootstrap
+        strategy: prefer_ipv4
     - tag: Bootstrap
-      address: https://1.12.12.12/dns-query
+      type: https
+      server: https://1.12.12.12/dns-query
       detour: DIRECT
   experimental:
     clash_api: null

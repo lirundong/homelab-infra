@@ -71,7 +71,7 @@ class ProxyGroupBase:
         self.img_url = img_url
         self.included_process_irs = False  # TODO: Consider expose this in interface?
         self._filters = []
-        self._proxies = []
+        self._proxies: list[str] = []
 
         if filters:  # `filters` could be None, e.g., clash's special PROXY group.
             for filter in filters:
@@ -94,6 +94,10 @@ class ProxyGroupBase:
                         self._proxies.append(available_proxy.name)
                     elif isinstance(available_proxy, str) and re.search(pattern, available_proxy):
                         self._proxies.append(available_proxy)
+
+    @property
+    def prefer_reject(self) -> bool:
+        return 0 < len(self._proxies) and self._proxies[0] == "REJECT"
 
     @property
     @lru_cache(maxsize=1)
@@ -168,6 +172,10 @@ class ProxyGroupBase:
             included_process_irs=self.included_process_irs,
         )
         if filters:
-            return {"action": "route", "outbound": self.name, **filters}
+            if self.prefer_reject:
+                action = {"action": "reject"}
+            else:
+                action = {"action": "route", "outbound": self.name}
+            return {**action, **filters}
         else:
             return {}
