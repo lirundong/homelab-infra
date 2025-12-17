@@ -98,6 +98,12 @@ pushd $IMG_BUILDER
 # When building ARM image, replace general aarch64_generic with specific package arch.
 if grep -q 'aarch64_generic' ${REPO_FILE}; then
   sed -i "s!aarch64_generic!${PACKAGE_ARCH:-'aarch64_generic'}!" ${REPO_FILE}
+  cat <<- EOF >> ${REPO_FILE}
+# Allow opkg to install specific package arch.
+arch all 100
+arch ${PACKAGE_ARCH:-'aarch64_generic'} 101
+arch aarch64_generic 102
+EOF
 fi
 sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" ${REPO_FILE}
 make image "${image_builder_args[@]}"
