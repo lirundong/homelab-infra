@@ -15,6 +15,7 @@ subscriptions:
     target: clash
     udp: true
     url: '@secret:SUBSCRIPTION_URL'
+  backup_url: '@secret:SUBSCRIPTION_BACKUP_URL'
 proxies:
 - name: 🇯🇵「SS2022-AES」bwh-jp-01
   type: ss
