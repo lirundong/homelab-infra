@@ -96,13 +96,19 @@ curl -sSLO $IMG_BUILDER_URL
 tar -xf $IMG_BUILDER.$TAR_EXT
 pushd $IMG_BUILDER
 # When building ARM image, replace general aarch64_generic with specific package arch.
-if grep -q 'aarch64_generic' ${REPO_FILE}; then
-  sed -i "s!aarch64_generic!${PACKAGE_ARCH:-'aarch64_generic'}!" ${REPO_FILE}
+if [[ "${PACKAGE_ARCH:-'aarch64_generic'}" != "aarch64_generic" ]] && grep -q 'aarch64_generic' ${REPO_FILE}; then
   cat <<- EOF >> ${REPO_FILE}
 # Allow opkg to install specific package arch.
 arch all 100
 arch ${PACKAGE_ARCH:-'aarch64_generic'} 101
 arch aarch64_generic 102
+
+# Target arch package repositories.
+src/gz openwrt_base_${PACKAGE_ARCH} https://${REPOSITORY}/releases/${VERSION}/packages/${PACKAGE_ARCH}/base
+src/gz openwrt_luci_${PACKAGE_ARCH} https://${REPOSITORY}/releases/${VERSION}/packages/${PACKAGE_ARCH}/luci
+src/gz openwrt_packages_${PACKAGE_ARCH} https://${REPOSITORY}/releases/${VERSION}/packages/${PACKAGE_ARCH}/packages
+src/gz openwrt_routing_${PACKAGE_ARCH} https://${REPOSITORY}/releases/${VERSION}/packages/${PACKAGE_ARCH}/routing
+src/gz openwrt_telephony_${PACKAGE_ARCH} https://${REPOSITORY}/releases/${VERSION}/packages/${PACKAGE_ARCH}/telephony
 EOF
 fi
 sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" ${REPO_FILE}
