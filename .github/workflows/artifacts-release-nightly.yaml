@@ -6,9 +6,7 @@ on:
 jobs:
   build_configuration:
     name: Build Configurations
-    runs-on:
-    - self-hosted
-    - loc=JP
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v6
