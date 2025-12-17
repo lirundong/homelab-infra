@@ -8,6 +8,8 @@ kmod-tun
 losetup
 luci
 luci-app-sqm
-python3-pip
+python3-cryptography
+python3-requests
+python3-yaml
 qemu-ga
 resize2fs

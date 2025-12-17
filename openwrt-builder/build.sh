@@ -95,6 +95,10 @@ fi
 curl -sSLO $IMG_BUILDER_URL
 tar -xf $IMG_BUILDER.$TAR_EXT
 pushd $IMG_BUILDER
+# When building ARM image, replace general aarch64_generic with specific package arch.
+if grep -q 'aarch64_generic' ${REPO_FILE}; then
+  sed -i "s!aarch64_generic!${PACKAGE_ARCH:-'aarch64_generic'}!" ${REPO_FILE}
+fi
 sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" ${REPO_FILE}
 make image "${image_builder_args[@]}"
 
