@@ -8,12 +8,12 @@ subscriptions:
   type: clash
   url: https://api.wd-red.com/sub
   params:
-    emoji: true
+    emoji: 'true'
     filename: WestData
-    new_name: true
-    scv: true
+    new_name: 'true'
+    scv: 'true'
     target: clash
-    udp: true
+    udp: 'true'
     url: '@secret:SUBSCRIPTION_URL'
   backup_url: '@secret:SUBSCRIPTION_BACKUP_URL'
 proxies:
