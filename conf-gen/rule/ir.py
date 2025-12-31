@@ -52,18 +52,14 @@ class DomainKeyword(_IRBase):
 @_IR_REGISTRY.register()
 class DomainWildcard(_IRBase):
 
+    _clash_prefix = "DOMAIN-WILDCARD"
     _quantumult_prefix = "host-wildcard"
     _val_is_domain = True
 
     @property
-    def clash_rule(self) -> str:
-        keyword = self._val.split("*")[0]
-        return f"DOMAIN-KEYWORD,{keyword}"
-
-    @property
     def sing_box_rule(self) -> Tuple[str, str]:
         key = "domain_regex"
-        val = self._val.replace("*", r"(\w*)")
+        val = self._val.replace("*", r"([\w\-]*)")
         return key, val
 
 
@@ -121,7 +117,7 @@ class DomainListItem(_IRBase):
                     domain = domain[1:]
                 return "domain_suffix", domain
             else:
-                domain = domain.replace("+", r"([\w\.]*)")
+                domain = domain.replace("+", r"([\w\-\.]*)")
                 return "domain_regex", domain
         elif "*" in domain:
             if domain.startswith("*") and domain.count("*") == 1:
@@ -130,7 +126,7 @@ class DomainListItem(_IRBase):
                     domain = domain[1:]
                 return "domain_suffix", domain
             else:
-                domain = domain.replace("*", r"(\w*)")
+                domain = domain.replace("*", r"([\w\-]*)")
                 return "domain_regex", domain
         else:
             if domain.startswith("."):

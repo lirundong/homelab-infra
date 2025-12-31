@@ -68,10 +68,11 @@ class ShadowSocksProxy(ProxyBase):
     @property
     def quantumult_proxy(self) -> str:
         proxy = super().quantumult_proxy.format(type="shadowsocks")
+        cipher = "chacha20-poly1305" if self.cipher == "chacha20-ietf-poly1305" else self.cipher
         info = [
             (
                 "method",
-                f"{self.cipher}",
+                f"{cipher}",
             ),
             (
                 "password",

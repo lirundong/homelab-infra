@@ -19,10 +19,12 @@ from proxy import (
     ShadowSocks2022Proxy,
     TrojanProxy,
 )
-from proxy_group import group_sing_box_filters, ProxyGroupBase
+from proxy_group import ProxyGroupBase
 from proxy_group.fallback_proxy_group import FallbackProxyGroup
 from proxy_group.selective_proxy_group import SelectProxyGroup
 from rule.parser import parse_filter
+from rule.utils import group_sing_box_filters
+from rule.utils import split_sing_box_dst_ip_filters
 
 
 # TODO: Make this an attribute of rule IR.
@@ -163,7 +165,7 @@ def build_rule_set(rules, ruleset_prefix, ruleset_url, download_detour):
         elif rule["action"] == "route" and "outbound" in rule:
             tag_prefix = rule["outbound"]
         elif rule["action"] == "reject":
-            tag_prefix = "AdBlock"
+            tag_prefix = "Reject"
         else:
             print(f"Skip extracting ruleset from #{ruleset_prefix}.{i}: {rule}")
             continue
@@ -354,16 +356,20 @@ class SingBoxGenerator(GeneratorBase):
         for i, r in enumerate(self.route["rules"]):
             if r["action"] == "route" and r["outbound"] not in self._valid_outbound_tags:
                 raise ValueError(f"#{i} rule's outbound {r['outbound']} is invalid")
-        resolve_action_added = False
+        no_resolve_filters, dst_ip_filters = [], []
         for g in self._proxy_groups:
             g.included_process_irs = self.included_process_irs
             if filters := g.sing_box_filers:
-                # If this is the first group that requires hostname resolution, add the resolve action.
-                if self.add_resolve_action and g.require_resolve and not resolve_action_added:
-                    self.route["rules"].append({"action": "resolve", **self.add_resolve_action})
-                    resolve_action_added = True
                 # Not every proxy group contains matching filters, e.g., the PROXY group.
-                self.route["rules"].append(filters)
+                filters = split_sing_box_dst_ip_filters(filters, must_have_action=True)
+                no_resolve_filters.append(filters.no_resolve_filters)
+                if filters.dst_ip_filters:
+                    dst_ip_filters.append(filters.dst_ip_filters)
+        self.route["rules"] += no_resolve_filters
+        # If specified to add resolve action, also append dst_ip based rules.
+        if self.add_resolve_action and dst_ip_filters:
+            self.route["rules"].append({"action": "resolve", **self.add_resolve_action})
+            self.route["rules"] += dst_ip_filters
         if self.route.get("final") and self.route["final"] not in self._valid_outbound_tags:
             raise ValueError(f"Given final outbound {self.route['final']} is invalid")
         if "final" not in self.route:

@@ -42,7 +42,7 @@ proxies:
   type: ss
   server: '@secret:JP_NODE_HOSTNAME'
   port: '@secret:JP_NODE_CHACHA_PORT!int'
-  cipher: chacha20-poly1305
+  cipher: chacha20-ietf-poly1305
   password: '@secret:JP_NODE_CHACHA_PASSWORD'
   udp: true
 rules:
@@ -613,8 +613,8 @@ generates:
   ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/
   add_resolve_action:
     server: PROXY
-    strategy: prefer_ipv4
-    client_subnet: 139.226.3.0/24  # China Unicom Shanghai subnet.
+    strategy: prefer_ipv4  # Easier to match with IP rules.
+    client_subnet: 139.226.3.0/24
   inbounds:
   - tag: tun
     type: tun

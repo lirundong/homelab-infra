@@ -26,18 +26,18 @@ class IRBase:
         self._resolve = resolve
 
     def __hash__(self) -> int:
-        return hash(
-            f"{self._clash_prefix},"
-            f"{self._quantumult_prefix},"
-            f"{self._sing_box_prefix},"
-            f"{self._might_resolvable},"
-            f"{self._val_is_domain}",
-            f"{self._val},"
-            f"{self._resolve},"
-        )
+        return hash((
+            self._clash_prefix,
+            self._quantumult_prefix,
+            self._sing_box_prefix,
+            self._might_resolvable,
+            self._val_is_domain,
+            self._val,
+            self._resolve,
+        ))
 
     def __eq__(self, rhs: Any) -> bool:
-        return type(rhs) == type(self) and rhs._val == self._val
+        return type(rhs) == type(self) and hash(rhs) == hash(self)
 
     @property
     def clash_rule(self) -> str:
@@ -82,20 +82,20 @@ class IRBase:
 
 class IRRegistry:
     def __init__(self) -> None:
-        self._registry: Dict[Tuple[str], Type[IRBase]] = {}
+        self._registry: Dict[Tuple[str, ...], Type[IRBase]] = {}
 
     @staticmethod
     @functools.lru_cache(maxsize=128)
     def prefix2key(prefix: str):
         if not isinstance(prefix, str):
             raise ValueError(f"IRRegistry key must be a string, got {prefix} instead")
-        key = tuple(re.split(r"_|-", prefix.lower()))
+        key = tuple(k for k in re.split(r"_|-", prefix.lower()) if isinstance(k, str))
         return key
 
     def register(self) -> Callable[[Type[IRBase]], Type[IRBase]]:
         def _do_register(cls: Type[IRBase]) -> Type[IRBase]:
             assert issubclass(cls, IRBase), f"{cls} is not a subclass of IRBase"
-            keys = set()
+            keys = set[tuple[str, ...]]()
             if cls._clash_prefix is not None:
                 keys.add(self.prefix2key(cls._clash_prefix))
             if cls._quantumult_prefix is not None:
