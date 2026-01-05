@@ -719,14 +719,14 @@ generates:
     servers:
     - tag: DIRECT
       type: https
-      server: https://@secret:DOT_PUB/dns-query
+      server: '@secret:DOT_PUB'
       detour: DIRECT
       domain_resolver:
         server: Bootstrap
         strategy: prefer_ipv4
     - tag: Bootstrap
       type: https
-      server: https://1.12.12.12/dns-query
+      server: '1.12.12.12'
       detour: DIRECT
   experimental:
     clash_api: null
