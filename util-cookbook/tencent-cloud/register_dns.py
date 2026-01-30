@@ -9,16 +9,10 @@ import hashlib
 import hmac
 import ipaddress as ip
 import json
-import os
-from pathlib import Path
 from pprint import pprint
 import socket
-import sys
 import re
 from typing import Dict, List, Literal, Optional, Type
-
-# TODO: Remove this path hack.
-sys.path.insert(0, str(Path(os.path.realpath(__file__)).parents[2]))
 
 import requests
 import requests.packages.urllib3.util.connection as urllib3_cn

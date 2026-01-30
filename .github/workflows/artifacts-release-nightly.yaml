@@ -26,7 +26,7 @@ jobs:
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
-        python3 conf-gen/generate.py -s conf-gen/source.yaml -o artifacts-conf/
+        conf-gen -s conf-gen/source.yaml -o artifacts-conf/
         python3 - <<- 'EOF' >> "$GITHUB_OUTPUT"
         import yaml
         conf = yaml.safe_load(open("conf-gen/source.yaml"))
