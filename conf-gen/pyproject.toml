@@ -25,3 +25,10 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 conf_gen = ["py.typed"]
+
+[tool.black]
+line-length = 99
+
+[tool.isort]
+profile = "black"
+line_length = 99

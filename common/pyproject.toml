@@ -20,3 +20,10 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 common = ["../secrets.yaml"]
+
+[tool.black]
+line-length = 99
+
+[tool.isort]
+profile = "black"
+line_length = 99
