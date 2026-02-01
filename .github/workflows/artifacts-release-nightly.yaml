@@ -14,7 +14,7 @@ jobs:
         python-version: '3.13'
     - id: setup_dependencies
       run: |
-        pip3 install --user --upgrade --requirement requirements.txt
+        pip3 install --user --upgrade ./common ./conf-gen
         SING_BOX_ARCH=amd64
         SING_BOX_VERSION=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/SagerNet/sing-box/releases/latest | grep -Po 'v\K\d+\.\d+\.\d+')
         curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}.tar.gz -o sing-box.tar.gz
@@ -103,7 +103,7 @@ jobs:
         fi
         OUTPUT_DIR=${{ github.workspace }}/outputs
         mkdir -p ${OUTPUT_DIR}
-        pip3 install --user --upgrade --requirement requirements.txt
+        pip3 install --user --upgrade ./common ./conf-gen
         bash openwrt-builder/build.sh
         for f in $(find ${BUILD_DIR} -iname '*.gz'); do
           cp ${f} ${OUTPUT_DIR}/
