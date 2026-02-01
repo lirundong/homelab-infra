@@ -31,9 +31,10 @@ class _SecretsManager:
 
         Priority:
         1. Environment variable SECRETS_FILE (highest priority)
-        2. Package root: common/secrets.yaml (for editable install)
-        3. /root/common/secrets.yaml (OpenWRT compatibility)
-        4. Raise FileNotFoundError
+        2. Package directory: common/secrets.yaml (for regular install)
+        3. Package root: common/secrets.yaml (for editable install, backward compat)
+        4. /root/common/secrets.yaml (OpenWRT compatibility)
+        5. Raise FileNotFoundError
         """
         # 1. Environment variable
         if secrets_env := os.environ.get("SECRETS_FILE"):
@@ -41,21 +42,28 @@ class _SecretsManager:
             if secrets_path.exists():
                 return secrets_path
 
-        # 2. Package root (for editable install)
-        # __file__ is src/common/_manager.py, so go up 2 levels to common/
-        package_root = Path(__file__).parent.parent.parent / "secrets.yaml"
+        # 2. Package directory (for regular install)
+        # __file__ is .../common/_manager.py, secrets.yaml is in same directory
+        package_dir = Path(__file__).parent / "secrets.yaml"
+        if package_dir.exists():
+            return package_dir
+
+        # 3. Package root (for editable install, backward compat)
+        # __file__ is src/common/_manager.py, go up 2 levels to common/
+        package_root = Path(__file__).parents[2] / "secrets.yaml"
         if package_root.exists():
             return package_root
 
-        # 3. OpenWRT compatibility
+        # 4. OpenWRT compatibility
         openwrt_path = Path("/root/common/secrets.yaml")
         if openwrt_path.exists():
             return openwrt_path
 
-        # 4. Raise error
+        # 5. Raise error
         raise FileNotFoundError(
             "secrets.yaml not found. Tried:\n"
             f"  - SECRETS_FILE env var: {os.environ.get('SECRETS_FILE', 'not set')}\n"
+            f"  - Package directory: {package_dir}\n"
             f"  - Package root: {package_root}\n"
             f"  - OpenWRT path: {openwrt_path}\n"
         )

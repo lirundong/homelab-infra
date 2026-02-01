@@ -19,7 +19,7 @@ common-secret-decoder = "common._cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-common = ["../secrets.yaml"]
+common = ["secrets.yaml"]
 
 [tool.black]
 line-length = 99

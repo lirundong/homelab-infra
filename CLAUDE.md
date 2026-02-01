@@ -150,12 +150,12 @@ The `common` package is a standalone, pip-installable Python package for secrets
 ```
 common/
 ├── pyproject.toml          # Package configuration
-├── secrets.yaml            # Encrypted secrets storage (not in git)
 └── src/
     └── common/
         ├── __init__.py     # Exports: secrets, CLASH_RULESET_FORMATS, COMMENT_BEGINS
         ├── _manager.py     # SecretsManager implementation
         ├── secrets.py      # Module replacement for attribute access
+        ├── secrets.yaml    # Encrypted secrets storage (checked into git)
         └── _cli.py         # CLI entry point (common-secret-decoder)
 ```
 
@@ -167,15 +167,16 @@ pip install -e .  # Editable install for development
 
 **Multi-layer encryption architecture:**
 
-1. **Storage** (`common/secrets.yaml`): Fernet-encrypted key-value pairs
+1. **Storage** (`common/src/common/secrets.yaml`): Fernet-encrypted key-value pairs
 2. **Runtime** (`common/src/common/_manager.py`): Singleton `_SecretsManager` class
    - Encryption: Fernet (AEAD) with PBKDF2HMAC (SHA256, 100k iterations)
    - Master password from `PASSWORD` env var
    - Salt from `SALT` env var (default: "19260817")
    - **Path Resolution**: Finds secrets.yaml via fallback strategy:
      1. `SECRETS_FILE` environment variable
-     2. Package root: `common/secrets.yaml` (for editable install)
-     3. `/root/common/secrets.yaml` (OpenWRT compatibility)
+     2. Package directory: `common/secrets.yaml` (for regular install)
+     3. Package root: `common/secrets.yaml` (for editable install, backward compat)
+     4. `/root/common/secrets.yaml` (OpenWRT compatibility)
 
 3. **Expansion Syntax:**
    - `@secret:<KEY>`: Decrypts and returns string
@@ -234,7 +235,7 @@ pip install -e .  # Editable install for development
 
 - `conf-gen/source.yaml` (755 lines): Single source of truth for all configurations
 - `conf-gen/pyproject.toml`: conf-gen package configuration
-- `common/secrets.yaml`: Encrypted secrets storage
+- `common/src/common/secrets.yaml`: Encrypted secrets storage
 - `common/pyproject.toml`: common package configuration
 - `openwrt-builder/build.sh`: Main build orchestration script
 - `conf-gen/generate.py`: Backwards compatibility wrapper (deprecated, use `conf-gen` CLI)
