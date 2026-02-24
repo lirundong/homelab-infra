@@ -4,9 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a monorepo for homelab infrastructure management with three main components:
+This is a monorepo for homelab infrastructure management with four main components:
 - **conf-gen**: Generates proxy configurations (Clash, Quantumult-X, sing-box) from a single source
 - **openwrt-builder**: Builds custom OpenWRT firmware images with integrated proxy capabilities
+- **conf-cookbook**: Reference configurations for Docker, Nginx, Shadowsocks-Rust, V2Ray
 - **util-cookbook**: Utility scripts for DDNS, router management, etc.
 
 ## Common Development Commands
@@ -35,24 +36,33 @@ cd openwrt-builder
 # Build stable x86/64 image
 ./build.sh
 
-# Build with custom parameters
-TARGET_ARCH=rockchip/armv8 VERSION=snapshots GCC_VERSION=14.2.0 ./build.sh
+# Build with custom parameters (CI uses these values)
+VERSION=24.10.5 GCC_VERSION=13.3.0_musl ./build.sh
+TARGET_ARCH=rockchip/armv8 VERSION=snapshots GCC_VERSION=14.3.0_musl PROFILE=friendlyarm_nanopi-r6s ./build.sh
 
 # Required environment variables:
 # - PASSWORD: Master password for decrypting secrets
+# - VERSION: "24.10.5" or "snapshots" (build.sh default is stale, always set explicitly)
 # Optional:
 # - SING_BOX_VERSION, SING_BOX_ARCH, SING_BOX_CONFIG
-# - TARGET_ARCH (default: x86/64)
-# - VERSION (default: 24.10.5, or "snapshots")
+# - TARGET_ARCH (default: x86/64), TOOLCHAIN_ARCH, HOST_ARCH
+# - GCC_VERSION (e.g. 13.3.0_musl for stable, 14.3.0_musl for snapshots)
+# - REPOSITORY (default: mirrors.tuna.tsinghua.edu.cn/openwrt)
+# - WORK_DIR (default: /tmp/openwrt)
+# - PROFILE (e.g. friendlyarm_nanopi-r6s for rockchip/armv8)
 ```
 
 ### Python Environment
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Install packages (editable mode for development)
+pip install -e ./common
+pip install -e ./conf-gen
 
-# Format code (Black configured in pyproject.toml)
-black --line-length 100 <file>
+# Format code (Black configured in pyproject.toml, line-length=99)
+black <file>
+
+# Type checking (mypy configured in pyproject.toml)
+mypy common/src/common conf-gen/src/conf_gen
 ```
 
 ## Architecture Overview
@@ -72,6 +82,7 @@ conf-gen/
     └── conf_gen/           # Python package (note: underscore)
         ├── __init__.py     # Package exports
         ├── _cli.py         # CLI entry point (conf-gen command)
+        ├── py.typed        # PEP 561 typed package marker
         ├── generator/      # Platform-specific generators
         ├── proxy/          # Proxy implementations
         ├── proxy_group/    # Proxy grouping logic
@@ -95,7 +106,7 @@ source.yaml → Parser → IR Objects → Generator → Platform Config
 
 1. **Proxy System** (`conf_gen.proxy`)
    - Base class: `ProxyBase`
-   - Implementations: ShadowSocks, Trojan, VMess (WebSocket/GRPC variants), SOCKS5
+   - Implementations: ShadowSocks, ShadowSocks2022, Trojan, VMess (WebSocket/GRPC variants), SOCKS5
    - Each proxy implements platform-specific output: `clash_proxy()`, `quantumult_proxy()`, `sing_box_proxy()`
    - Parser: `parse_clash_proxies()`, `parse_subscriptions()`
 
@@ -115,7 +126,7 @@ source.yaml → Parser → IR Objects → Generator → Platform Config
    - Base class: `GeneratorBase`
    - **ClashGenerator**: Outputs YAML with deduplicated rules
    - **QuantumultGenerator**: Outputs .conf format with mandatory sections, integrates rewrites
-   - **SingBoxGenerator**: Most complex generator (418 lines)
+   - **SingBoxGenerator**: Most complex generator (425 lines)
      - Compiles rule sets to binary `.srs` format using sing-box CLI
      - Separates DNS and route rules
      - Process-based filtering support
@@ -129,16 +140,19 @@ source.yaml → Parser → IR Objects → Generator → Platform Config
 
 The `build.sh` script orchestrates:
 1. Downloads OpenWRT SDK for cross-compilation
-2. Decrypts custom files using `secret_decoder.py -r files/`
+2. Decrypts custom files using `common-secret-decoder -r files/`
 3. Cross-compiles sing-box with CGO using OpenWRT toolchain
 4. Cross-compiles vlmcsd (KMS emulator)
-5. Builds firmware image with custom packages and overlay filesystem
+5. Downloads Yacd-meta web dashboard for sing-box UI
+6. Builds firmware image with custom packages and overlay filesystem
 
 **Custom file structure:**
 - `files/etc/init.d/`: Service init scripts (sing-box, vlmcsd)
-- `files/etc/uci-defaults/`: First-boot configuration (network, firewall, DHCP)
+- `files/etc/uci-defaults/`: First-boot configuration (network, firewall, DHCP, SQM)
 - `files/etc/nftables.d/`: nftables rules for transparent proxy
 - `files/etc/dropbear/`: SSH authorized_keys
+- `files/etc/crontabs/`: Scheduled tasks
+- `files/etc/opkg/`: Package manager configuration
 
 **Package lists:** `packages/24.10.5.txt`, `packages/snapshots.txt`
 
@@ -156,7 +170,8 @@ common/
         ├── _manager.py     # SecretsManager implementation
         ├── secrets.py      # Module replacement for attribute access
         ├── secrets.yaml    # Encrypted secrets storage (checked into git)
-        └── _cli.py         # CLI entry point (common-secret-decoder)
+        ├── _cli.py         # CLI entry point (common-secret-decoder)
+        └── py.typed        # PEP 561 typed package marker
 ```
 
 **Installation:**
@@ -211,16 +226,28 @@ pip install -e .  # Editable install for development
 **File:** `.github/workflows/artifacts-release-nightly.yaml`
 
 **Jobs:**
-1. `build_configuration`: Generates all proxy configs, extracts config names for matrix
-2. `build_openwrt`: Matrix build (2 architectures × 2 versions)
-3. `release_proxy_configurations`: GPG-encrypts and releases configs to GitHub
-4. `release_openwrt_builds`: GPG-encrypts and releases firmware images
+1. `type_check`: Runs mypy type checking on both packages
+2. `build_configuration`: Generates all proxy configs, extracts config names for matrix
+3. `build_openwrt`: Matrix build (2 architectures × 2 versions)
+4. `release_proxy_configurations`: GPG-encrypts and releases configs to GitHub
+5. `release_openwrt_builds`: GPG-encrypts and releases firmware images
 
 **Matrix dimensions:**
-- Architectures: x86/64, rockchip/armv8
-- Versions: 24.10.5 (stable), snapshots
+- Architectures: x86/64, rockchip/armv8 (with profile: friendlyarm_nanopi-r6s)
+- Versions: 24.10.5 (stable, GCC 13.3.0_musl), snapshots (GCC 14.3.0_musl, allow_failure)
 
 **Security:** All releases GPG-encrypted with `secrets.MASTER_PASSWORD`
+
+## Code Quality
+
+Both packages are fully typed (PEP 561 `py.typed` markers) with strict mypy configuration:
+- `disallow_untyped_defs`, `disallow_incomplete_defs`, `strict_optional`, `no_implicit_optional`
+- Python 3.12+ type syntax (PEP 604 unions, PEP 695 generics)
+- CI runs mypy on every push via the `type_check` job
+
+Formatting: Black (line-length=99) and isort (profile=black), configured in each `pyproject.toml`.
+
+No test infrastructure exists yet (no pytest, no test directories).
 
 ## Design Patterns Used
 
