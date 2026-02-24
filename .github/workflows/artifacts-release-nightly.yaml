@@ -4,6 +4,19 @@ on:
   schedule:
   - cron: '1 0 * * *'  # Nightly build.
 jobs:
+  type_check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+    - run: |
+        pip3 install --user --upgrade ./common ./conf-gen
+        pip3 install --user mypy types-PyYAML types-requests types-pytz
+    - run: mypy common/src/common conf-gen/src/conf_gen
+
   build_configuration:
     name: Build Configurations
     runs-on: ubuntu-latest
