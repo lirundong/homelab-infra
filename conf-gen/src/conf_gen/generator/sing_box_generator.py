@@ -7,7 +7,7 @@ import random
 import re
 import subprocess
 import tempfile
-from typing import Dict, List, Literal, Optional, Self, Union
+from typing import Any, Literal, Self, Sequence
 from urllib.parse import urlparse, urljoin
 from warnings import warn
 
@@ -52,16 +52,20 @@ RULE_SET_COMPLIANT_IRS = frozenset([
 ])
 
 
-def expand_filters_inplace(rule, filters_key="filters", included_process_irs=None):
+def expand_filters_inplace(
+    rule: Any,
+    filters_key: str = "filters",
+    included_process_irs: list[str] | None = None,
+) -> None:
     if isinstance(rule, dict) and filters_key in rule:
         # We assume that match_with_dns might live in the same level as filters.
-        filters = []
+        filter_irs: list[Any] = []
         for f in rule.pop(filters_key):
-            filters += parse_filter(f, match_with_dns=rule.get("match_with_dns"))
-        filters = group_sing_box_filters(
-            filters, included_process_irs=included_process_irs
+            filter_irs += parse_filter(f, match_with_dns=rule.get("match_with_dns"))
+        grouped_filters = group_sing_box_filters(
+            filter_irs, included_process_irs=included_process_irs
         )
-        rule.update(filters)
+        rule.update(grouped_filters)
         if "match_with_dns" in rule:
             rule.pop("match_with_dns")
         return
@@ -74,14 +78,14 @@ def expand_filters_inplace(rule, filters_key="filters", included_process_irs=Non
 
 
 def extract_ruleset_inplace(
-    rule,
-    tag_prefix,
-    ruleset_literals,
+    rule: dict[str, Any],
+    tag_prefix: str,
+    ruleset_literals: dict[str, Any],
     rules_per_set_minimum: int = 10,
 ) -> str | None:
     # Return ruleset tag only if one valid ruleset is created.
     if rule.get("type") == "logical":
-        mergeable_subrulesets = []
+        mergeable_subrulesets: list[str] = []
         for i, subrule in enumerate(rule["rules"]):
             sub_prefix = f"{tag_prefix}.{i}"
             sub_tag = extract_ruleset_inplace(subrule, sub_prefix, ruleset_literals)
@@ -90,8 +94,9 @@ def extract_ruleset_inplace(
                 mergeable_subrulesets.append(sub_tag)
         if len(mergeable_subrulesets) == len(rule["rules"]):
             # All subrules are purely ruleset compliant, merge to a mega ruleset.
-            assert (mega_ruleset_tag := tag_prefix) not in ruleset_literals
-            mega_ruleset_content = {
+            mega_ruleset_tag = tag_prefix
+            assert mega_ruleset_tag not in ruleset_literals
+            mega_ruleset_content: dict[str, Any] = {
                 "type": "logical",
                 "mode": rule["mode"],
                 "invert": rule.get("invert", False),
@@ -101,7 +106,7 @@ def extract_ruleset_inplace(
             for k in mega_ruleset_content.keys():
                 rule.pop(k, None)
             rule["rule_set"] = mega_ruleset_tag
-            return mega_ruleset_content
+            return mega_ruleset_tag
         else:
             return None
     else:
@@ -199,30 +204,33 @@ class SingBoxGenerator(GeneratorBase):
     def __init__(
         self,
         src_file: str,
-        proxies: List[Union[ProxyBase, ProxyGroupBase]],
-        per_region_proxies: List[Union[FallbackProxyGroup, ProxyBase]],
-        proxy_groups: List[ProxyGroupBase],
-        dns: Dict,
-        route: Dict,
-        inbounds: Optional[List] = None,
-        log: Optional[Dict] = None,
-        ntp: Optional[Dict] = None,
-        experimental: Optional[Dict] = None,
-        included_process_irs: Optional[List[str]] = None,
-        ruleset_url: Optional[str] = None,
-        dial_fields: Optional[Dict[Literal["direct", "proxy"], Dict[str, str]]] = None,
-        add_resolve_action: Optional[Dict] = None,
-    ):
+        proxies: Sequence[ProxyBase | ProxyGroupBase],
+        per_region_proxies: Sequence[ProxyGroupBase | ProxyBase],
+        proxy_groups: list[ProxyGroupBase],
+        dns: dict[str, Any],
+        route: dict[str, Any],
+        inbounds: list[dict[str, Any]] | None = None,
+        log: dict[str, Any] | None = None,
+        ntp: dict[str, Any] | None = None,
+        experimental: dict[str, Any] | None = None,
+        included_process_irs: list[str] | None = None,
+        ruleset_url: str | None = None,
+        dial_fields: dict[Literal["direct", "proxy"], dict[str, str]] | None = None,
+        add_resolve_action: dict[str, Any] | None = None,
+    ) -> None:
         # Construct the special group `PROXY` for sing-box.
         proxy_groups = copy(proxy_groups)
         the_per_region_proxy_group = SelectProxyGroup(
-            name="PROXY", filters=None, proxies=per_region_proxies
+            name="PROXY", filters=None, proxies=list(per_region_proxies)
         )
         the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
         proxy_groups.insert(0, the_per_region_proxy_group)
 
-        super().__init__(src_file, proxies, proxy_groups)
+        # Filter proxies to only ProxyBase for parent class
+        base_proxies = [p for p in proxies if isinstance(p, ProxyBase)]
+        super().__init__(src_file, base_proxies, proxy_groups)
         self.included_process_irs = included_process_irs
+        self.ruleset_url: str | None
         if ruleset_url:
             if not urlparse(ruleset_url).path.endswith("/"):
                 raise ValueError(f"ruleset_url must point to a directory, but got {ruleset_url=}")
@@ -263,7 +271,7 @@ class SingBoxGenerator(GeneratorBase):
         self.dns = dns
         self.ntp = ntp
         self.inbounds = inbounds
-        self.outbounds = []
+        self.outbounds: list[dict[str, Any]] = []
         self.route = route
         self.experimental = experimental
         self.add_resolve_action = add_resolve_action
@@ -279,16 +287,16 @@ class SingBoxGenerator(GeneratorBase):
     # - Define a former behavior of replacements and overwrites.
     # - Make '!clear' behavior more general.
     @classmethod
-    def from_base(
+    def from_base(  # type: ignore[override]
         cls,
         base_object: Self,
-        dns,
-        inbounds,
-        route,
-        experimental,
-        included_process_irs,
-        ruleset_url,
-    ):
+        dns: dict[str, list[dict[str, str]]] | None = None,
+        inbounds: list[dict[str, str]] | None = None,
+        route: dict[str, list[dict[str, str]] | str] | None = None,
+        experimental: dict[str, str] | None = None,
+        included_process_irs: list[str] | None = None,
+        ruleset_url: str | None = None,
+    ) -> Self:
         new_object = copy(base_object)
         # `dns` only overwrites or appends DNS servers.
         if dns is not None:

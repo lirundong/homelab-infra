@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal
 
 from conf_gen.rule._base_ir import _IR_REGISTRY
 from conf_gen.rule._base_ir import IRBase
@@ -18,9 +18,9 @@ def group_sing_box_filters(
     filters: list[IRBase],
     included_process_irs: list[str] | None = None,
     process_irs_combination_mode: Literal["and", "or"] = "or",
-) -> dict | defaultdict:
-    normal_filters = defaultdict[str, list[str]](list)
-    process_filters = defaultdict[str, list[str]](list)
+) -> dict[str, Any]:
+    normal_filters: defaultdict[str, list[str]] = defaultdict(list)
+    process_filters: defaultdict[str, list[str]] = defaultdict(list)
     if included_process_irs is not None:
         included_process_ir_types = tuple[type[IRBase], ...](_IR_REGISTRY[t] for t in included_process_irs)
         excluded_process_ir_types = tuple[type[IRBase], ...](set(_PROCESS_IRS) - set(included_process_ir_types))
@@ -42,28 +42,29 @@ def group_sing_box_filters(
         else:
             normal_filters[k].append(v)
     # NOTE: We enforce process-related IRs to take precedence over others if applicable.
+    grouped_filters: dict[str, Any]
     if process_filters:
         grouped_filters = {
             "type": "logical",
             "mode": process_irs_combination_mode,
             "rules": [
-                process_filters,
-                normal_filters,
+                dict(process_filters),
+                dict(normal_filters),
             ]
         }
     else:
-        grouped_filters = normal_filters
+        grouped_filters = dict(normal_filters)
     return grouped_filters
 
 
 @dataclass
 class SplittedSingBoxFilters:
-    no_resolve_filters: dict
-    dst_ip_filters: dict
+    no_resolve_filters: dict[str, Any]
+    dst_ip_filters: dict[str, Any]
 
 
 def split_sing_box_dst_ip_filters(
-    grouped_filters: dict,
+    grouped_filters: dict[str, Any],
     must_have_action: bool = True,
 ) -> SplittedSingBoxFilters:
     if grouped_filters.get("type") == "logical":

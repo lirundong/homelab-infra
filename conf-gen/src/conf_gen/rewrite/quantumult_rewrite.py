@@ -5,22 +5,22 @@ from common import COMMENT_BEGINS
 
 
 class QuantumultRewrite(RewriteBase):
-    def __init__(self, name, url):
+    def __init__(self, name: str, url: str) -> None:
         super().__init__(name, url)
 
         r = requests.get(url)
         if r.status_code != 200:
             raise requests.HTTPError(r.reason)
-        for l in r.text.splitlines():
-            l = l.strip()
+        for line in r.text.splitlines():
+            line = line.strip()
             if (
-                not l
-                or any(l.startswith(prefix) for prefix in COMMENT_BEGINS)
-                or l.startswith("hostname")
+                not line
+                or any(line.startswith(prefix) for prefix in COMMENT_BEGINS)
+                or line.startswith("hostname")
             ):
                 continue
-            self._rewrites.append(l)
+            self._rewrites.append(line)
 
     @property
-    def quantumult_rewrite(self):
+    def quantumult_rewrite(self) -> list[str]:
         return self._rewrites

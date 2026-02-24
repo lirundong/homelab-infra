@@ -4,26 +4,27 @@ from argparse import ArgumentParser
 import os
 import re
 import sys
+from typing import Any
 
 from common import secrets
 
 
-def copy_single_file(src, dst, force=False):
+def copy_single_file(src: str, dst: str, force: bool = False) -> None:
     if os.path.exists(dst) and not force:
         raise RuntimeError(f"Destination file {dst} already exists.")
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
 
     with open(src, "r", encoding="utf-8") as f_in, open(dst, "w", encoding="utf-8") as f_out:
-        decoded_lines = []
+        decoded_lines: list[Any] = []
         for line in f_in.readlines():
             decoded_lines.append(secrets.expand_secret(line.rstrip("\n")))
-        f_out.write("\n".join(decoded_lines) + "\n")
+        f_out.write("\n".join(str(line) for line in decoded_lines) + "\n")
 
     os.chmod(dst, mode=os.stat(src).st_mode)
 
 
-def main():
+def main() -> None:
     parser = ArgumentParser("Copy files and expand secrets within.")
     parser.add_argument("src", nargs="?", default=None, help="Source file path.")
     parser.add_argument("dst", nargs="?", default=None, help="Destination path.")

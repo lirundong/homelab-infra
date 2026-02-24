@@ -1,18 +1,22 @@
 from copy import copy
 import os
+from typing import Any, ClassVar, Sequence
 
 from conf_gen.generator._base_generator import GeneratorBase
 from conf_gen.proxy import (
+    ProxyBase,
     ShadowSocksProxy,
     TrojanProxy,
     VMessProxy,
     VMessWebSocketProxy,
 )
+from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
+from conf_gen.rewrite._base_rewrite import RewriteBase
 
 
 class QuantumultGenerator(GeneratorBase):
-    _MANDATORY_SECTIONS = (
+    _MANDATORY_SECTIONS: ClassVar[tuple[str, ...]] = (
         "dns",
         "general",
         "filter_local",
@@ -34,19 +38,25 @@ class QuantumultGenerator(GeneratorBase):
     )
 
     def __init__(
-        self, src_file, proxies, per_region_proxies, proxy_groups, rewrites, **additional_sections
-    ):
+        self,
+        src_file: str,
+        proxies: Sequence[ProxyBase],
+        per_region_proxies: Sequence[ProxyBase | ProxyGroupBase],
+        proxy_groups: Sequence[ProxyGroupBase],
+        rewrites: Sequence[RewriteBase],
+        **additional_sections: Any,
+    ) -> None:
         # Quantumult-X has a built-in "PROXY" selective group that contains all servers, thus we
         # have to create another selective proxy group to contain per-region auto-fallback servers,
         # then rewrite "PROXY" in rules with this group's name.
-        proxy_groups = copy(proxy_groups)
+        proxy_groups_list = list(proxy_groups)
         the_per_region_proxy_group = SelectProxyGroup(
-            name="PROXY-PER-REGION", filters=None, proxies=per_region_proxies
+            name="PROXY-PER-REGION", filters=None, proxies=list(per_region_proxies)
         )
         the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
-        proxy_groups.insert(0, the_per_region_proxy_group)
+        proxy_groups_list.insert(0, the_per_region_proxy_group)
 
-        super().__init__(src_file, proxies, proxy_groups)
+        super().__init__(src_file, proxies, proxy_groups_list)
         self._rewrites = rewrites
         self._additional_sections = additional_sections
         for group in self._proxy_groups:
@@ -56,24 +66,24 @@ class QuantumultGenerator(GeneratorBase):
                     group._proxies[i] = the_per_region_proxy_group.name
 
     @staticmethod
-    def parse_tasks(tasks_info):
-        ret = []
+    def parse_tasks(tasks_info: list[dict[str, Any]]) -> list[str]:
+        ret: list[str] = []
         for t in tasks_info:
             if t["type"] == "event-interaction":
-                task = [
+                task_parts: list[str] = [
                     f"event-interaction {t['url']}",
                     f"tag={t['name']}",
                     f"img-url={t['img-url']}",
                     "enabled=true",
                 ]
-                task = ",".join(task)
+                task = ",".join(task_parts)
                 ret.append(task)
             else:
                 raise ValueError(f"Unsupported task type: {t['type']}.")
 
         return ret
 
-    def generate(self, file):
+    def generate(self, file: str) -> None:
         base, _ = os.path.split(file)
         os.makedirs(base, exist_ok=True)
         missing_sections = set(self._MANDATORY_SECTIONS)
@@ -107,9 +117,9 @@ class QuantumultGenerator(GeneratorBase):
             # Filter.
             f.write("[filter_local]\n")
             missing_sections.remove("filter_local")
-            no_resolve_filters = []
-            resolve_filters = []
-            existing_matchers = set()
+            no_resolve_filters: list[str] = []
+            resolve_filters: list[str] = []
+            existing_matchers: set[str] = set()
             num_duplications = 0
             for g in self._proxy_groups:
                 for filters, filters_in_g in zip(

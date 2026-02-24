@@ -1,5 +1,6 @@
+from typing import Any, get_args
+
 import requests
-from typing import Dict, get_args, List, Union
 import yaml
 
 from conf_gen.proxy import ProxyBase
@@ -15,10 +16,11 @@ from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 
 
 def parse_clash_proxies(
-    proxies_info: List[Dict[str, any]],
-) -> List[Union[ProxyBase, SelectProxyGroup]]:
-    ret = []
+    proxies_info: list[dict[str, Any]],
+) -> list[ProxyBase]:
+    ret: list[ProxyBase] = []
     for proxy_info in proxies_info:
+        proxy: ProxyBase
         if proxy_info["type"] == "ss":
             if proxy_info["cipher"] in get_args(ShadowSocks2022CiphersT):
                 proxy = ShadowSocks2022Proxy(
@@ -117,7 +119,12 @@ def parse_clash_proxies(
     return ret
 
 
-def parse_clash_subscription(url, backup_url=None, params=None, headers=None):
+def parse_clash_subscription(
+    url: str,
+    backup_url: str | None = None,
+    params: dict[str, str] | None = None,
+    headers: dict[str, str] | None = None,
+) -> list[ProxyBase]:
     r = requests.get(url, params=params, headers=headers)
     if r.status_code != 200 and backup_url is not None:
         r = requests.get(backup_url)
@@ -128,16 +135,18 @@ def parse_clash_subscription(url, backup_url=None, params=None, headers=None):
     return parse_clash_proxies(proxies)
 
 
-def parse_subscriptions(subscriptions_info):
-    proxies = []
+def parse_subscriptions(
+    subscriptions_info: list[dict[str, Any]],
+) -> list[ProxyBase]:
+    proxies: list[ProxyBase] = []
     for sub_info in subscriptions_info:
-        type = sub_info["type"]
+        sub_type = sub_info["type"]
         url = sub_info["url"]
         backup_url = sub_info.get("backup_url")
         params = sub_info.get("params", {})
         headers = sub_info.get("headers", {})
-        if type == "clash":
+        if sub_type == "clash":
             proxies += parse_clash_subscription(url, backup_url, params, headers)
         else:
-            raise ValueError(f"Not supported subscription type: {type}")
+            raise ValueError(f"Not supported subscription type: {sub_type}")
     return proxies

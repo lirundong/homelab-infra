@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "conf-gen"
 version = "0.1.0"
 description = "Configuration generator for Clash, Quantumult-X, and sing-box proxy clients"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "common",
     "emoji>=2.0.0",
@@ -32,3 +32,13 @@ line-length = 99
 [tool.isort]
 profile = "black"
 line_length = 99
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_optional = true
+no_implicit_optional = true

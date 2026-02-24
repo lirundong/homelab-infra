@@ -1,37 +1,40 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from functools import lru_cache
 import re
-from typing import Dict, Optional, List, Literal, Tuple, Union
+from typing import Any, Sequence, TypeAlias
 
 from conf_gen.proxy import ProxyBase
 from conf_gen.rule import FilterT, parse_filter
 from conf_gen.rule import group_sing_box_filters
+from conf_gen.rule._base_ir import IRBase
 from conf_gen.rule.ir import Match
 
 
-ProxyT = Union[ProxyBase, str, Dict[str, str]]
-ProxyLeafT = Union[ProxyBase, str]
+ProxyT: TypeAlias = ProxyBase | str | dict[str, str]
+ProxyLeafT: TypeAlias = ProxyBase | str
 
 
 class ProxyGroupBase:
     def __init__(
         self,
         name: str,
-        filters: Optional[List[FilterT]],
-        proxies: List[Union[ProxyT, "ProxyGroupBase"]],
-        img_url: Optional[str] = None,
-        available_proxies: Optional[List[ProxyT]] = None,
-    ):
+        filters: Sequence[FilterT] | None,
+        proxies: Sequence[ProxyT | "ProxyGroupBase"],
+        img_url: str | None = None,
+        available_proxies: Sequence[ProxyT | "ProxyGroupBase"] | None = None,
+    ) -> None:
         self.name = name
         self.img_url = img_url
-        self.included_process_irs = None  # TODO: Consider expose this in interface?
-        self._filters = []
+        self.included_process_irs: list[str] | None = None
+        self._filters: list[IRBase] = []
         self._proxies: list[str] = []
 
         if filters:  # `filters` could be None, e.g., clash's special PROXY group.
-            for filter in filters:
-                filter = parse_filter(filter)
-                self._filters += filter
+            for f in filters:
+                parsed = parse_filter(f)
+                self._filters += parsed
 
         for proxy in proxies:
             if isinstance(proxy, str):
@@ -67,43 +70,43 @@ class ProxyGroupBase:
         raise NotImplementedError()
 
     @property
-    def quantumult_filters(self) -> Tuple[List[str], List[str]]:
-        no_resolve_filters = []
-        resolve_filters = []
-        for filter in self._filters:
-            if filter._might_resolvable and filter._resolve:
-                filters = resolve_filters
+    def quantumult_filters(self) -> tuple[list[str], list[str]]:
+        no_resolve_filters: list[str] = []
+        resolve_filters: list[str] = []
+        for ir_filter in self._filters:
+            if ir_filter._might_resolvable and ir_filter._resolve:
+                target_filters = resolve_filters
             else:
-                filters = no_resolve_filters
+                target_filters = no_resolve_filters
             try:
-                filter = filter.quantumult_rule.split(",")
+                filter_parts = ir_filter.quantumult_rule.split(",")
             except ValueError as e:
                 if str(e).endswith("is not supported by quantumult x."):
                     continue
                 else:
                     raise e
-            if filter[-1] == "no-resolve":
-                filter.insert(-1, self.name)
+            if filter_parts[-1] == "no-resolve":
+                filter_parts.insert(-1, self.name)
             else:
-                filter.append(self.name)
-            filters.append(",".join(filter))
+                filter_parts.append(self.name)
+            target_filters.append(",".join(filter_parts))
         return no_resolve_filters, resolve_filters
 
     @property
-    def clash_proxy_group(self) -> Dict[str, Union[str, List[str], int]]:
+    def clash_proxy_group(self) -> dict[str, str | list[str] | int]:
         raise NotImplementedError()
 
     @property
-    def clash_rules(self) -> Tuple[List[str], List[str]]:
-        no_resolve_rules = []
-        resolve_rules = []
-        for filter in self._filters:
-            if filter._might_resolvable and filter._resolve:
+    def clash_rules(self) -> tuple[list[str], list[str]]:
+        no_resolve_rules: list[str] = []
+        resolve_rules: list[str] = []
+        for ir_filter in self._filters:
+            if ir_filter._might_resolvable and ir_filter._resolve:
                 rules = resolve_rules
             else:
                 rules = no_resolve_rules
             try:
-                clash_rule = filter.clash_rule.split(",")
+                clash_rule = ir_filter.clash_rule.split(",")
             except ValueError as e:
                 if str(e).endswith("is not supported by clash."):
                     continue
@@ -117,11 +120,11 @@ class ProxyGroupBase:
         return no_resolve_rules, resolve_rules
 
     @property
-    def sing_box_outbound(self) -> Dict:
+    def sing_box_outbound(self) -> dict[str, Any]:
         raise NotImplementedError()
 
     @property
-    def sing_box_filers(self) -> dict:
+    def sing_box_filers(self) -> dict[str, Any]:
         if not self._filters or 1 == len(self._filters) and isinstance(self._filters[0], Match):
             return {}
         if self.prefer_reject:

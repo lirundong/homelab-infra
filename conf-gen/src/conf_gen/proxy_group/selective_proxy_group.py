@@ -1,4 +1,6 @@
-from typing import Dict, Optional, List, Union
+from __future__ import annotations
+
+from typing import Any, Sequence
 
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase, ProxyT
 from conf_gen.rule import FilterT
@@ -8,11 +10,11 @@ class SelectProxyGroup(ProxyGroupBase):
     def __init__(
         self,
         name: str,
-        filters: Optional[List[FilterT]],
-        proxies: List[ProxyT],
-        img_url: Optional[str] = None,
-        available_proxies: Optional[List[ProxyT]] = None,
-    ):
+        filters: Sequence[FilterT] | None,
+        proxies: Sequence[ProxyT | ProxyGroupBase],
+        img_url: str | None = None,
+        available_proxies: Sequence[ProxyT | ProxyGroupBase] | None = None,
+    ) -> None:
         super().__init__(
             name, filters, proxies, img_url=img_url, available_proxies=available_proxies
         )
@@ -26,7 +28,7 @@ class SelectProxyGroup(ProxyGroupBase):
         return ",".join(info)
 
     @property
-    def clash_proxy_group(self) -> Dict[str, Union[str, List[str], int]]:
+    def clash_proxy_group(self) -> dict[str, str | list[str] | int]:
         return {
             "name": self.name,
             "type": "select",
@@ -34,7 +36,7 @@ class SelectProxyGroup(ProxyGroupBase):
         }
 
     @property
-    def sing_box_outbound(self) -> Dict:
+    def sing_box_outbound(self) -> dict[str, Any]:
         if self.prefer_reject:
             return {}
         else:

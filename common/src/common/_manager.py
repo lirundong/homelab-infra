@@ -5,7 +5,7 @@ from pprint import pprint
 from pydoc import locate
 import re
 import subprocess
-from typing import Any, Dict, Iterable, Mapping
+from typing import Any, Iterable, Mapping
 from warnings import warn
 
 from cryptography.fernet import Fernet
@@ -107,7 +107,7 @@ class _SecretsManager:
         self._secrets_file = self._find_secrets_file()
         self._project_root = self._find_project_root()
 
-        self._encrypted_secrets: Dict[str, str] = yaml.load(
+        self._encrypted_secrets: dict[str, str] = yaml.load(
             open(self._secrets_file, "r", encoding="utf-8"), Loader=yaml.SafeLoader
         )
 
@@ -121,10 +121,10 @@ class _SecretsManager:
         )
         key = base64.urlsafe_b64encode(kdf.derive(master_password))
         self._fernet = Fernet(key)
-        self._staged_changes = dict()
+        self._staged_changes: dict[str, str] = {}
 
     @property
-    def fernet(self):
+    def fernet(self) -> Fernet:
         return self._fernet
 
     def __getattr__(self, name: str) -> Any:
@@ -142,18 +142,18 @@ class _SecretsManager:
                 f"{name} was neither registered as a secret in {self._secrets_file} nor an environment variable."
             )
 
-    def update(self, key: str, value: str):
+    def update(self, key: str, value: str) -> None:
         if not isinstance(value, str):
             raise ValueError(f"Credential values should be str, but got {type(value)} instead.")
-        value = self._fernet.encrypt(value.encode("utf-8")).decode("ascii")
-        self._staged_changes[key] = value
+        encrypted_value = self._fernet.encrypt(value.encode("utf-8")).decode("ascii")
+        self._staged_changes[key] = encrypted_value
 
-    def status(self):
+    def status(self) -> None:
         if self._staged_changes:
             print(f"These credential changes will be written into {self._secrets_file}:")
             pprint(self._staged_changes)
 
-    def commit(self):
+    def commit(self) -> None:
         self._encrypted_secrets.update(self._staged_changes)
         print(f"These credentials have been changed:")
         pprint(list(self._staged_changes.keys()))
@@ -164,11 +164,13 @@ class _SecretsManager:
 
     def _expand_secret(self, match_obj: re.Match[str]) -> JsonPrimitiveT:
         if (secret_key := match_obj.group("key")) == "MASTER_PASSWORD":
-            secret_val = self._password
+            secret_val: JsonPrimitiveT = self._password
         else:
             secret_val = getattr(self, secret_key)
             if secret_type := match_obj.group("type"):
-                secret_val = locate(secret_type)(secret_val)
+                type_converter = locate(secret_type)
+                if callable(type_converter):
+                    secret_val = type_converter(secret_val)
         return secret_val
 
     def _expand_include(self, match_obj: re.Match[str]) -> str:

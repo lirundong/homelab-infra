@@ -1,5 +1,5 @@
 import re
-from typing import Literal, NotRequired, Optional, Sequence, TypedDict, Union
+from typing import Literal, NotRequired, Sequence, TypedDict
 import warnings
 
 import requests
@@ -71,15 +71,15 @@ def _fetch_rule_set_payload(url: str, format: Literal["yaml", "text"]) -> Sequen
 def parse_clash_classical_filter(
     url: str,
     format: Literal["yaml", "text"],
-    resolve: Union[bool, Literal["literal"]],
+    resolve: bool | Literal["literal"],
 ) -> Sequence[IRBase]:
     if not resolve in ("literal", True, False):
         raise ValueError(f"Unsupported resolve argument {resolve}, expect boolean or 'literal'")
     filters = _fetch_rule_set_payload(url, format)
     ret = []
     for l in filters:
-        type, *args = l.split(",")
-        rule_requires_resolve: Optional[bool]
+        rule_type, *args = l.split(",")
+        rule_requires_resolve: bool | None
         if len(args) < 1:
             raise ValueError(f"Got unparsable rule {l}")
         elif len(args) == 1:
@@ -93,7 +93,7 @@ def parse_clash_classical_filter(
             if resolve == "literal":
                 if (
                     args[-1].lower() not in ("no-resolve", "resolve")
-                    and _IR_REGISTRY[type]._might_resolvable
+                    and _IR_REGISTRY[rule_type]._might_resolvable
                 ):
                     raise ValueError(
                         f"Specified resolve=literal but the rule {l} did not indicate whether to "
@@ -108,7 +108,7 @@ def parse_clash_classical_filter(
             else:
                 rule_requires_resolve = resolve
         try:
-            ir = _IR_REGISTRY[type](val, rule_requires_resolve)
+            ir = _IR_REGISTRY[rule_type](val, rule_requires_resolve)
         except RuntimeError as e:
             if re.match(r"^[^\s]+ was not registered as an IR\.", str(e)):
                 warnings.warn(f"{e} (when parsing from {url})")
@@ -122,7 +122,7 @@ def parse_clash_classical_filter(
 def parse_clash_ipcidr_filter(
     url: str,
     format: Literal["yaml", "text"],
-    resolve: Optional[bool],
+    resolve: bool | None,
 ) -> Sequence[IRBase]:
     if resolve is None:
         raise ValueError("Must explicitly specify IP rules resolve, but got None instead.")
@@ -130,10 +130,10 @@ def parse_clash_ipcidr_filter(
     ret = []
     for l in filters:
         if re.search(r"[0-9]+(?:\.[0-9]+){3}", l):  # Is it IPv4?
-            type = "IP-CIDR"
+            rule_type = "IP-CIDR"
         else:
-            type = "IP-CIDR6"
-        ir = _IR_REGISTRY[type](l, resolve)
+            rule_type = "IP-CIDR6"
+        ir = _IR_REGISTRY[rule_type](l, resolve)
         ret.append(ir)
     return ret
 
@@ -195,7 +195,7 @@ class RuleItemT(RuleItemKwargsT):
         "match",
         "final",
     ]
-    args: NotRequired[Union[str, Sequence[str], RuleItemKwargsT]]
+    args: NotRequired[str | Sequence[str] | RuleItemKwargsT]
 
 
 class QuantumultXRuleSetT(TypedDict):
@@ -222,12 +222,12 @@ class ClashRuleSetT(TypedDict):
     resolve: bool
 
 
-FilterT = Union[str, RuleItemT, QuantumultXRuleSetT, DomainListT, ClashRuleSetT, DNSMasqT]
+FilterT = str | RuleItemT | QuantumultXRuleSetT | DomainListT | ClashRuleSetT | DNSMasqT
 
 
 def parse_filter(
     filter: FilterT,
-    match_with_dns: Optional[Literal["response", "request"]] = None,
+    match_with_dns: Literal["response", "request"] | None = None,
 ) -> Sequence[IRBase]:
     ret: Sequence[IRBase]
 
@@ -279,7 +279,7 @@ def parse_filter(
                 ir,
             ]
     elif isinstance(filter, str):
-        type, *args = filter.split(",")
+        rule_type, *args = filter.split(",")
         if 1 < len(args):  # The last flag should specify resolve or not.
             if args[-1].lower() == "no-resolve":
                 resolve = False
@@ -293,13 +293,13 @@ def parse_filter(
                 )
         else:
             resolve = None
-        if type in _IR_REGISTRY:
+        if rule_type in _IR_REGISTRY:
             if args:
-                ir = _IR_REGISTRY[type](val=args[0], resolve=resolve)
+                ir = _IR_REGISTRY[rule_type](val=args[0], resolve=resolve)
             else:
-                if type not in ("final", "match"):
+                if rule_type not in ("final", "match"):
                     raise RuntimeError(f"Got incomplete rule {filter}")
-                ir = _IR_REGISTRY[type](val="match", resolve=True)
+                ir = _IR_REGISTRY[rule_type](val="match", resolve=True)
             ret = [
                 ir,
             ]
@@ -307,12 +307,13 @@ def parse_filter(
     if not ret:
         raise ValueError(f"Got empty parsing result from: {filter}")
     if match_with_dns is not None:
+        dns_matcher: tuple[type[IRBase], ...]
         if match_with_dns == "request":
-            dns_matcher = DNS_REQUEST_MATCHERS 
+            dns_matcher = DNS_REQUEST_MATCHERS
         elif match_with_dns == "response":
             dns_matcher = DNS_RESPONSE_MATCHERS
         else:
-            raise ValueError(f"Unsupported {dns_matcher=}, expect request or response")
+            raise ValueError(f"Unsupported {match_with_dns=}, expect request or response")
         ret = [r for r in ret if isinstance(r, dns_matcher)]
 
     return ret

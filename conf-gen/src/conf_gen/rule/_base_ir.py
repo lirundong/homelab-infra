@@ -1,18 +1,18 @@
 import functools
 import re
-from typing import Any, Callable, Dict, Hashable, Optional, Tuple, Type
+from typing import Any, Callable, Hashable
 from warnings import warn
 
 
 class IRBase:
 
-    _clash_prefix: Optional[str] = None
-    _quantumult_prefix: Optional[str] = None
-    _sing_box_prefix: Optional[str] = None
+    _clash_prefix: str | None = None
+    _quantumult_prefix: str | None = None
+    _sing_box_prefix: str | None = None
     _might_resolvable: bool = False
-    _val_is_domain: Optional[bool] = None
+    _val_is_domain: bool | None = None
 
-    def __init__(self, val: str, resolve: Optional[bool]=None):
+    def __init__(self, val: str, resolve: bool | None = None):
         if self._might_resolvable and resolve is None:
             raise ValueError(
                 f"{self.__class__.__name__} requires explicitly specify whether this rule requires "
@@ -74,7 +74,7 @@ class IRBase:
             return f"{self._quantumult_prefix},{self._val}"
 
     @property
-    def sing_box_rule(self) -> Tuple[str, str]:
+    def sing_box_rule(self) -> tuple[str, str]:
         if self._sing_box_prefix is None:
             raise ValueError(f"{self.__class__.__name__} is not supported by sing-box.")
         return self._sing_box_prefix, self._val
@@ -82,7 +82,7 @@ class IRBase:
 
 class IRRegistry:
     def __init__(self) -> None:
-        self._registry: Dict[Tuple[str, ...], Type[IRBase]] = {}
+        self._registry: dict[tuple[str, ...], type[IRBase]] = {}
 
     @staticmethod
     @functools.lru_cache(maxsize=128)
@@ -92,8 +92,8 @@ class IRRegistry:
         key = tuple(k for k in re.split(r"_|-", prefix.lower()) if isinstance(k, str))
         return key
 
-    def register(self) -> Callable[[Type[IRBase]], Type[IRBase]]:
-        def _do_register(cls: Type[IRBase]) -> Type[IRBase]:
+    def register(self) -> Callable[[type[IRBase]], type[IRBase]]:
+        def _do_register(cls: type[IRBase]) -> type[IRBase]:
             assert issubclass(cls, IRBase), f"{cls} is not a subclass of IRBase"
             keys = set[tuple[str, ...]]()
             if cls._clash_prefix is not None:
@@ -114,7 +114,7 @@ class IRRegistry:
         else:
             return False
 
-    def __getitem__(self, key: Hashable) -> Type[IRBase]:
+    def __getitem__(self, key: Hashable) -> type[IRBase]:
         if isinstance(key, str) and self.prefix2key(key) in self._registry:
             return self._registry[self.prefix2key(key)]
         else:

@@ -1,10 +1,12 @@
 import os
 from copy import copy
+from typing import Any, Sequence
 
 import yaml
 
 from conf_gen.generator._base_generator import GeneratorBase
 from conf_gen.proxy import (
+    ProxyBase,
     Socks5Proxy,
     ShadowSocksProxy,
     TrojanProxy,
@@ -12,6 +14,7 @@ from conf_gen.proxy import (
     VMessGRPCProxy,
     VMessWebSocketProxy,
 )
+from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 
 
@@ -26,18 +29,25 @@ class ClashGenerator(GeneratorBase):
         VMessWebSocketProxy,
     )
 
-    def __init__(self, src_file, proxies, per_region_proxies, proxy_groups, **general_options):
+    def __init__(
+        self,
+        src_file: str,
+        proxies: Sequence[ProxyBase],
+        per_region_proxies: Sequence[ProxyBase | ProxyGroupBase],
+        proxy_groups: Sequence[ProxyGroupBase],
+        **general_options: Any,
+    ) -> None:
         # Construct special group `PROXY` for clash.
-        proxy_groups = copy(proxy_groups)
+        proxy_groups_list = list(proxy_groups)
         the_per_region_proxy_group = SelectProxyGroup(
-            name="PROXY", filters=None, proxies=per_region_proxies
+            name="PROXY", filters=None, proxies=list(per_region_proxies)
         )
         the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
-        proxy_groups.insert(0, the_per_region_proxy_group)
-        super().__init__(src_file, proxies, proxy_groups)
+        proxy_groups_list.insert(0, the_per_region_proxy_group)
+        super().__init__(src_file, proxies, proxy_groups_list)
         self._general_options = general_options
 
-    def generate(self, file):
+    def generate(self, file: str) -> None:
         conf = {}
         conf.update(self._general_options)
         conf["proxies"] = [p.clash_proxy for p in self._proxies]

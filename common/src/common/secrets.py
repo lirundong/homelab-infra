@@ -7,4 +7,6 @@ from common._manager import _SecretsManager
 import sys
 
 # Allow accessing secrets as module-level attributes, see https://stackoverflow.com/a/880550.
-sys.modules[__name__] = _SecretsManager()
+# This is intentional - we replace the module with an instance for attribute access
+_manager_instance: _SecretsManager = _SecretsManager()
+sys.modules[__name__] = _manager_instance  # type: ignore[assignment]

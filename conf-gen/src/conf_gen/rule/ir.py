@@ -1,5 +1,3 @@
-from typing import Optional, Tuple
-
 from conf_gen.rule._base_ir import _IR_REGISTRY, IRBase as _IRBase
 
 
@@ -57,7 +55,7 @@ class DomainWildcard(_IRBase):
     _val_is_domain = True
 
     @property
-    def sing_box_rule(self) -> Tuple[str, str]:
+    def sing_box_rule(self) -> tuple[str, str]:
         key = "domain_regex"
         val = self._val.replace("*", r"([\w\-]*)")
         return key, val
@@ -108,7 +106,7 @@ class DomainListItem(_IRBase):
             return f"host,{domain}"
 
     @property
-    def sing_box_rule(self) -> Tuple[str, str]:
+    def sing_box_rule(self) -> tuple[str, str]:
         domain = self._val
         if "+" in domain:
             if domain.startswith("+") and domain.count("+") == 1:
@@ -167,7 +165,7 @@ class IPCIDR6(_IRBase):
     _might_resolvable = True
     
     @property
-    def sing_box_rule(self) -> Tuple[str, str]:
+    def sing_box_rule(self) -> tuple[str, str]:
         return "ip_cidr", self._val
 
 
@@ -199,7 +197,7 @@ class Match(_IRBase):
     _quantumult_prefix = "final"
     _might_resolvable = True  # Ensure this is the last rule for Clash and Quantumult-X.
 
-    def __init__(self, val: Optional[str]=None, resolve: Optional[bool]=None) -> None:
+    def __init__(self, val: str | None = None, resolve: bool | None = None) -> None:
         if val is None:
             val = "match"
         super().__init__(val=val, resolve=resolve)

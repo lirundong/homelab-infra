@@ -1,4 +1,4 @@
-from typing import Literal, NotRequired, Optional, Sequence, TypedDict
+from typing import Literal, NotRequired, Sequence, TypedDict
 
 from conf_gen.proxy._base_proxy import ClashProxyT, ProxyBase, SingBoxProxyT, SingBoxTlsT
 
@@ -35,8 +35,8 @@ class TrojanProxy(ProxyBase):
         port: int,
         password: str,
         udp: bool = False,
-        sni: Optional[str] = None,
-        alpn: Optional[Sequence[str]] = None,
+        sni: str | None = None,
+        alpn: Sequence[str] | None = None,
         skip_cert_verify: bool = False,
     ):
         super().__init__(name, server, port)
@@ -44,7 +44,7 @@ class TrojanProxy(ProxyBase):
         self.udp = udp
         self.sni = sni
         self.skip_cert_verify = skip_cert_verify
-        self.alpn: Optional[Sequence[str]]
+        self.alpn: Sequence[str] | None
         if alpn is not None:
             assert isinstance(alpn, (list, tuple))
             self.alpn = list(alpn)

@@ -1,6 +1,9 @@
-from typing import Dict, get_args, Optional, List, Union
+from __future__ import annotations
 
-from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase, ProxyT, ProxyLeafT
+from typing import Any, Sequence
+
+from conf_gen.proxy import ProxyBase
+from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase, ProxyT
 from conf_gen.rule import FilterT
 
 
@@ -8,17 +11,17 @@ class FallbackProxyGroup(ProxyGroupBase):
     def __init__(
         self,
         name: str,
-        filters: Optional[List[FilterT]],
-        proxies: List[ProxyT],
+        filters: Sequence[FilterT] | None,
+        proxies: Sequence[ProxyT | ProxyGroupBase],
         proxy_check_url: str,
         proxy_check_interval: int = 300,
-        img_url: Optional[str] = None,
-        available_proxies: Optional[List[ProxyT]] = None,
-    ):
+        img_url: str | None = None,
+        available_proxies: Sequence[ProxyT | ProxyGroupBase] | None = None,
+    ) -> None:
         if filters is not None:
-            raise ValueError(f"{self.__class.__name__} doesn't accept filters/rules.")
+            raise ValueError(f"{self.__class__.__name__} doesn't accept filters/rules.")
         for proxy in proxies:
-            if not isinstance(proxy, get_args(ProxyLeafT)):
+            if not isinstance(proxy, (ProxyBase, str)):
                 raise ValueError(f"{self.__class__.__name__} only accept leaf proxy specs.")
         if proxy_check_interval <= 0:
             raise ValueError(f"Invalid proxy check interval {proxy_check_interval}")
@@ -37,7 +40,7 @@ class FallbackProxyGroup(ProxyGroupBase):
         return ",".join(info)
 
     @property
-    def clash_proxy_group(self) -> Dict[str, Union[str, List[str], int]]:
+    def clash_proxy_group(self) -> dict[str, str | list[str] | int]:
         return {
             "name": self.name,
             "type": "fallback",
@@ -47,7 +50,7 @@ class FallbackProxyGroup(ProxyGroupBase):
         }
 
     @property
-    def sing_box_outbound(self) -> Dict:
+    def sing_box_outbound(self) -> dict[str, Any]:
         return {
             "tag": self.name,
             "type": "urltest",
