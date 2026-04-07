@@ -3,13 +3,21 @@ import io
 import itertools
 import json
 import os
+from pathlib import Path
+import platform
 import random
 import re
+import shutil
+import stat
 import subprocess
+import tarfile
 import tempfile
+import types
 from typing import Any, Literal, Self, Sequence
 from urllib.parse import urlparse, urljoin
 from warnings import warn
+
+import requests
 
 from conf_gen.generator._base_generator import GeneratorBase
 from packaging.version import Version, parse
@@ -127,71 +135,174 @@ def extract_ruleset_inplace(
             return None
 
 
-def compile_ruleset(ruleset_literals):
-    ret = subprocess.run(
-        ["sing-box", "version"],
-        check=True,
-        capture_output=True,
-        encoding="utf-8",
-    )
-    sing_box_version = parse(re.search(r'sing-box version (.*)', ret.stdout).group(1))
-    if Version("1.13") <= sing_box_version:
-        ruleset_version = 4
-    elif Version("1.11") <= sing_box_version:
-        ruleset_version = 3
-    elif Version("1.10") <= sing_box_version:
-        ruleset_version = 2
-    else:
-        ruleset_version = 1
-    ruleset_binaries = dict()
-    for tag, rule in ruleset_literals.items():
-        normalized_tag = tag.replace(" ", "_")
-        ruleset = {
-            "version": ruleset_version,
-            "rules": rule if isinstance(rule, list) else [rule, ],
-        }
-        with tempfile.TemporaryDirectory() as tmpdir:
-            json_file = os.path.join(tmpdir, f"{normalized_tag}.json")
-            srs_file = os.path.join(tmpdir, f"{normalized_tag}.srs")
-            json.dump(ruleset, open(json_file, "w", encoding="utf-8"), ensure_ascii=False)
+class RuleSetCompiler:
+    """Manages a sing-box binary and working directory for rule-set compilation.
+
+    Use as a context manager — the working directory (and extracted binary) are cleaned
+    up on exit.  Downloaded tarballs are cached at the class level so that multiple
+    compiler instances within the same process only fetch once.
+    """
+
+    _github_release = "https://github.com/SagerNet/sing-box/releases"
+    _arch_map = {"x86_64": "amd64", "aarch64": "arm64", "armv7l": "armv7"}
+    _download_cache: dict[str, bytes] = {}
+
+    def __init__(self) -> None:
+        self._tmpdir: tempfile.TemporaryDirectory[str] | None = None
+        self._workdir: Path | None = None
+        self._sing_box: Path | None = None
+        self._ruleset_version: int = 0
+
+    def __enter__(self) -> Self:
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self._workdir = Path(self._tmpdir.__enter__())
+        self._sing_box = self._resolve_sing_box()
+        self._ruleset_version = self._detect_ruleset_version()
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
+    ) -> None:
+        if self._tmpdir is not None:
+            self._tmpdir.__exit__(exc_type, exc_val, exc_tb)
+            self._tmpdir = None
+
+    @classmethod
+    def _fetch_tarball(cls, url: str) -> bytes:
+        """Download a tarball, or return cached bytes if already fetched."""
+        if url not in cls._download_cache:
+            print(f"Downloading {url} ...")
+            resp = requests.get(url, stream=True, timeout=60)
+            resp.raise_for_status()
+            cls._download_cache[url] = resp.content
+            print(f"Cached {len(cls._download_cache[url])} bytes for {url}")
+        else:
+            print(f"Using cached download for {url}")
+        return cls._download_cache[url]
+
+    def _resolve_sing_box(self) -> Path:
+        assert self._workdir is not None
+        path = shutil.which("sing-box")
+        if path is not None:
+            return Path(path)
+
+        system = platform.system().lower()
+        machine = platform.machine()
+        arch = self._arch_map.get(machine)
+        if system != "linux" or arch is None:
+            raise RuntimeError(
+                f"sing-box not found in PATH and auto-download is not supported for "
+                f"{system}/{machine}. Please install sing-box manually."
+            )
+
+        # Resolve latest version via GitHub redirect.
+        resp = requests.head(
+            f"{self._github_release}/latest", allow_redirects=True, timeout=15
+        )
+        resp.raise_for_status()
+        match = re.search(r"/v(\d+\.\d+\.\d+)$", resp.url)
+        if not match:
+            raise RuntimeError(
+                f"Could not determine latest sing-box version from {resp.url}"
+            )
+        version = match.group(1)
+
+        tarball_name = f"sing-box-{version}-{system}-{arch}"
+        url = f"{self._github_release}/download/v{version}/{tarball_name}.tar.gz"
+        tarball_bytes = self._fetch_tarball(url)
+
+        with tarfile.open(fileobj=io.BytesIO(tarball_bytes), mode="r:gz") as tar:
+            tar.extractall(self._workdir, filter="data")
+
+        binary = self._workdir / tarball_name / "sing-box"
+        if not binary.is_file():
+            raise RuntimeError(
+                f"Expected sing-box binary at {binary} but not found after extraction"
+            )
+        binary.chmod(binary.stat().st_mode | stat.S_IEXEC)
+        print(f"sing-box {version} extracted to {binary}")
+        return binary
+
+    def _detect_ruleset_version(self) -> int:
+        assert self._sing_box is not None
+        ret = subprocess.run(
+            [self._sing_box, "version"],
+            check=True,
+            capture_output=True,
+            encoding="utf-8",
+        )
+        sing_box_version = parse(
+            re.search(r"sing-box version (.*)", ret.stdout).group(1)  # type: ignore[union-attr]
+        )
+        if Version("1.13") <= sing_box_version:
+            return 4
+        elif Version("1.11") <= sing_box_version:
+            return 3
+        elif Version("1.10") <= sing_box_version:
+            return 2
+        else:
+            return 1
+
+    def compile(self, ruleset_literals: dict[str, Any]) -> dict[str, io.BytesIO]:
+        assert self._workdir is not None and self._sing_box is not None
+        ruleset_binaries: dict[str, io.BytesIO] = dict()
+        for tag, rule in ruleset_literals.items():
+            normalized_tag = tag.replace(" ", "_")
+            ruleset = {
+                "version": self._ruleset_version,
+                "rules": rule if isinstance(rule, list) else [rule],
+            }
+            json_file = self._workdir / f"{normalized_tag}.json"
+            srs_file = self._workdir / f"{normalized_tag}.srs"
+            with open(json_file, "w", encoding="utf-8") as f:
+                json.dump(ruleset, f, ensure_ascii=False)
             subprocess.run(
-                ["sing-box", "rule-set", "compile", json_file, "-o", srs_file],
+                [self._sing_box, "rule-set", "compile", json_file, "-o", srs_file],
                 check=True,
             )
-            ruleset_binaries[tag] = io.BytesIO(open(srs_file, "rb").read())
-    return ruleset_binaries
+            with open(srs_file, "rb") as f:
+                ruleset_binaries[tag] = io.BytesIO(f.read())
+        return ruleset_binaries
 
-
-def build_rule_set(rules, ruleset_prefix, ruleset_url, download_detour):
-    ruleset_literals = dict()
-    for i, rule in enumerate(rules):
-        if rule["action"] == "route" and "server" in rule:
-            tag_prefix = rule["server"]
-        elif rule["action"] == "route" and "outbound" in rule:
-            tag_prefix = rule["outbound"]
-        elif rule["action"] == "reject":
-            tag_prefix = "Reject"
-        else:
-            print(f"Skip extracting ruleset from #{ruleset_prefix}.{i}: {rule}")
-            continue
-        # Normalize ruleset tag to be compliant with URLs.
-        tag_prefix = re.sub(r"(\s+\&\s+)|(\s+)", "_", tag_prefix)
-        extract_ruleset_inplace(
-            rule,
-            tag_prefix=f"{ruleset_prefix}.{i}.{tag_prefix}",
-            ruleset_literals=ruleset_literals,
-        )
-    ruleset_binaries = compile_ruleset(ruleset_literals)
-    ruleset = list()
-    for tag in ruleset_literals.keys():
-        ruleset.append({
-            "tag": tag,
-            "type": "remote",
-            "format": "binary",
-            "url": urljoin(ruleset_url, f"{tag}.srs"),
-            "download_detour": download_detour,
-        })
-    return ruleset, ruleset_binaries
+    def build_rule_set(
+        self,
+        rules: list[dict[str, Any]],
+        ruleset_prefix: str,
+        ruleset_url: str,
+        download_detour: str,
+    ) -> tuple[list[dict[str, Any]], dict[str, io.BytesIO]]:
+        ruleset_literals: dict[str, Any] = dict()
+        for i, rule in enumerate(rules):
+            if rule["action"] == "route" and "server" in rule:
+                tag_prefix = rule["server"]
+            elif rule["action"] == "route" and "outbound" in rule:
+                tag_prefix = rule["outbound"]
+            elif rule["action"] == "reject":
+                tag_prefix = "Reject"
+            else:
+                print(f"Skip extracting ruleset from #{ruleset_prefix}.{i}: {rule}")
+                continue
+            # Normalize ruleset tag to be compliant with URLs.
+            tag_prefix = re.sub(r"(\s+\&\s+)|(\s+)", "_", tag_prefix)
+            extract_ruleset_inplace(
+                rule,
+                tag_prefix=f"{ruleset_prefix}.{i}.{tag_prefix}",
+                ruleset_literals=ruleset_literals,
+            )
+        ruleset_binaries = self.compile(ruleset_literals)
+        ruleset: list[dict[str, Any]] = list()
+        for tag in ruleset_literals.keys():
+            ruleset.append({
+                "tag": tag,
+                "type": "remote",
+                "format": "binary",
+                "url": urljoin(ruleset_url, f"{tag}.srs"),
+                "download_detour": download_detour,
+            })
+        return ruleset, ruleset_binaries
 
 
 class SingBoxGenerator(GeneratorBase):
@@ -401,18 +512,19 @@ class SingBoxGenerator(GeneratorBase):
             # TODO: Enable specify the download detour from config file.
             assert (hk_group := next(g for g in self._proxy_groups if "🇭🇰" in g.name))
             download_detour = random.choice(hk_group._proxies)
-            dns_ruleset, dns_ruleset_binaries = build_rule_set(
-                rules=conf["dns"]["rules"],
-                ruleset_prefix="dns",
-                ruleset_url=self.ruleset_url,
-                download_detour=download_detour,
-            )
-            route_ruleset, route_ruleset_binaries = build_rule_set(
-                rules=conf["route"]["rules"],
-                ruleset_prefix="route",
-                ruleset_url=self.ruleset_url,
-                download_detour=download_detour,
-            )
+            with RuleSetCompiler() as compiler:
+                dns_ruleset, dns_ruleset_binaries = compiler.build_rule_set(
+                    rules=conf["dns"]["rules"],
+                    ruleset_prefix="dns",
+                    ruleset_url=self.ruleset_url,
+                    download_detour=download_detour,
+                )
+                route_ruleset, route_ruleset_binaries = compiler.build_rule_set(
+                    rules=conf["route"]["rules"],
+                    ruleset_prefix="route",
+                    ruleset_url=self.ruleset_url,
+                    download_detour=download_detour,
+                )
             for tag, binary in itertools.chain(
                 dns_ruleset_binaries.items(), route_ruleset_binaries.items()
             ):
