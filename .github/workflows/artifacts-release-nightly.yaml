@@ -9,38 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v6
-      with:
-        python-version: '3.13'
-    - run: |
-        pip3 install --user --upgrade ./common ./conf-gen
-        pip3 install --user mypy types-PyYAML types-requests types-pytz
-    - run: mypy common/src/common conf-gen/src/conf_gen
+    - uses: astral-sh/setup-uv@v6
+    - run: uv run --with mypy --with types-PyYAML --with types-requests --with types-pytz mypy common/src/common conf-gen/src/conf_gen
 
   build_configuration:
     name: Build Configurations
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v6
-      with:
-        python-version: '3.13'
-    - id: setup_dependencies
-      run: |
-        pip3 install --user --upgrade ./common ./conf-gen
-        SING_BOX_ARCH=amd64
-        SING_BOX_VERSION=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/SagerNet/sing-box/releases/latest | grep -Po 'v\K\d+\.\d+\.\d+')
-        curl -sSL https://github.com/SagerNet/sing-box/releases/download/v${SING_BOX_VERSION}/sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}.tar.gz -o sing-box.tar.gz
-        tar -xf sing-box.tar.gz
-        chmod +x sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH}/sing-box
-        echo "$(realpath ./sing-box-${SING_BOX_VERSION}-linux-${SING_BOX_ARCH})" >> "$GITHUB_PATH"
-        echo "SING_BOX_VERSION=${SING_BOX_VERSION}" >> "$GITHUB_OUTPUT"
+    - uses: astral-sh/setup-uv@v6
     - id: generate_proxy_conf
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
-        conf-gen -s conf-gen/source.yaml -o artifacts-conf/
-        python3 - <<- 'EOF' >> "$GITHUB_OUTPUT"
+        uv run conf-gen -s conf-gen/source.yaml -o artifacts-conf/
+        uv run python3 - <<- 'EOF' >> "$GITHUB_OUTPUT"
         import yaml
         conf = yaml.safe_load(open("conf-gen/source.yaml"))
         print(f"CONFIG_NAMES={list(g['name'] for g in conf['generates'])}")
@@ -50,7 +33,6 @@ jobs:
         name: artifacts-conf
         path: artifacts-conf/
     outputs:
-      sing_box_version: ${{ steps.setup_dependencies.outputs.SING_BOX_VERSION }}
       config_names: ${{ steps.generate_proxy_conf.outputs.CONFIG_NAMES }}
 
   build_openwrt:
@@ -82,15 +64,13 @@ jobs:
     continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v6
-      with:
-        python-version: '3.13'
+    - uses: astral-sh/setup-uv@v6
     - uses: actions/setup-go@v6
       with:
         go-version: stable
         cache: false
     - uses: actions/download-artifact@v4
-      with: 
+      with:
         name: artifacts-conf
         path: ${{ github.workspace }}/conf
     - id: run_build_script
@@ -102,7 +82,6 @@ jobs:
         VERSION: ${{ matrix.version.openwrt }}
         GCC_VERSION: ${{ matrix.version.gcc }}
         SING_BOX_ARCH: ${{ matrix.arch.sing_box }}
-        SING_BOX_VERSION: ${{ needs.build_configuration.outputs.sing_box_version }}
         SING_BOX_CONFIG: ${{ github.workspace }}/conf/sing-box-daemon/config.json
         REPOSITORY: https://downloads.openwrt.org
         WORK_DIR: ${{ github.workspace }}/openwrt
@@ -116,7 +95,6 @@ jobs:
         fi
         OUTPUT_DIR=${{ github.workspace }}/outputs
         mkdir -p ${OUTPUT_DIR}
-        pip3 install --user --upgrade ./common ./conf-gen
         bash openwrt-builder/build.sh
         for f in $(find ${BUILD_DIR} -iname '*.gz'); do
           cp ${f} ${OUTPUT_DIR}/

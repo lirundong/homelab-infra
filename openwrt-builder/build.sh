@@ -48,9 +48,7 @@ SDK_CC=${SDK_BIN_DIR}/${TOOLCHAIN_ARCH/\//_}-openwrt-linux-gcc
 SDK_LD=${SDK_BIN_DIR}/${TOOLCHAIN_ARCH/\//_}-openwrt-linux-ld
 
 # Prepare custom files.
-# Ensure common package is installed
-pip3 install -q -e $ROOT_DIR/common
-common-secret-decoder -r $SRC_DIR/files ./files -e '.*skip$' '__pycache__'
+uv run --project $ROOT_DIR common-secret-decoder -r $SRC_DIR/files ./files -e '.*skip$' '__pycache__'
 mkdir -p files/usr/bin files/root
 CUSTOM_FILES_DIR=$(realpath -- ./files)
 
