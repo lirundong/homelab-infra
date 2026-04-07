@@ -1,0 +1,11 @@
+[project]
+name = "homelab-infra"
+version = "0.0.0"
+description = "Homelab infrastructure monorepo"
+requires-python = ">=3.12"
+
+[tool.uv.workspace]
+members = ["common", "conf-gen"]
+
+[tool.uv.sources]
+common = { workspace = true }
