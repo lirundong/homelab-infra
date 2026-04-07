@@ -5,6 +5,8 @@ Encrypted secrets management for homelab infrastructure with Fernet encryption.
 ## Installation
 
 ```bash
+uv sync            # from repo root, installs all workspace packages
+# or standalone:
 pip install -e ./common
 ```
 
@@ -29,9 +31,9 @@ secrets.commit()
 ## CLI Tool
 
 ```bash
-echo "@secret:MY_KEY" | common-secret-decoder
-common-secret-decoder source.txt destination.txt
-common-secret-decoder -r source_dir/ dest_dir/ -e '.*\.skip$'
+uv run common-secret-decoder source.txt destination.txt
+uv run common-secret-decoder -r source_dir/ dest_dir/ -e '.*\.skip$'
+echo "@secret:MY_KEY" | uv run common-secret-decoder
 ```
 
 ## Template Syntax

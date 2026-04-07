@@ -5,15 +5,16 @@ Generate Clash, Quantumult-X, and sing-box configurations from unified YAML sour
 ## Installation
 
 ```bash
-pip install -e ./common
-pip install -e ./conf-gen
+uv sync            # from repo root, installs all workspace packages
+# or standalone:
+pip install -e ./common && pip install -e ./conf-gen
 ```
 
 ## Usage
 
 ```bash
 # Command line
-conf-gen -s source.yaml -o output-dir/
+uv run conf-gen -s source.yaml -o output-dir/
 
 # Python API
 from conf_gen import generate_conf, parse_clash_proxies

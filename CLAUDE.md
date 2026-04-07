@@ -1,6 +1,9 @@
 # CLAUDE.md — Homelab Infrastructure Monorepo
 
-## Components
+## Project Structure
+uv workspace monorepo (`pyproject.toml` at root). `uv sync` installs
+both `common` and `conf-gen` into a shared `.venv`. `uv.lock` pinned.
+
 - **conf-gen**: Proxy config generator (Clash, Quantumult-X, sing-box)
 - **openwrt-builder**: Custom OpenWRT firmware with integrated proxy
 - **conf-cookbook**: Reference configs (Docker, Nginx, SS-Rust, V2Ray)
@@ -8,10 +11,10 @@
 
 ## Commands
 ```bash
-pip install -e ./common && pip install -e ./conf-gen   # setup
-conf-gen -s conf-gen/source.yaml -o output/            # gen configs
-black <file>                                           # format (99 cols)
-mypy common/src/common conf-gen/src/conf_gen           # typecheck
+uv sync                                                # setup
+uv run conf-gen -s conf-gen/source.yaml -o output/     # gen configs
+uv run black <file>                                    # format (99 cols)
+uv run mypy common/src/common conf-gen/src/conf_gen    # typecheck
 # OpenWRT (PASSWORD env var required):
 VERSION=24.10.5 GCC_VERSION=13.3.0_musl openwrt-builder/build.sh
 ```
@@ -29,12 +32,11 @@ Pipeline: `source.yaml -> Parser -> IR Objects -> Generator -> Config`
   `parse_dnsmasq_conf()`. Utils: `group_sing_box_filters()`,
   `split_sing_box_dst_ip_filters()`, `SplittedSingBoxFilters`
 - **generator/**: `GeneratorBase` -> Clash (YAML, dedup rules),
-  Quantumult (.conf, rewrites), SingBox (425 lines, .srs compilation,
+  Quantumult (.conf, rewrites), SingBox (.srs compilation via
+  `RuleSetCompiler` ctx mgr, auto-downloads sing-box if not in PATH,
   DNS/route split, `from_base()`, `extract_ruleset_inplace()`)
 - **rewrite/**: `QuantumultRewrite` for Quantumult-X URL rewriting
 - CLI: `conf-gen -s/--src <source.yaml> -o/--dst <output-dir>`
-- `generate.py`: deprecated wrapper, use `conf-gen` CLI instead
-- Deps: common, emoji, packaging, pycountry, pytz, PyYAML, requests
 
 ## common — Secrets Management (`common/src/common/`)
 Singleton `_SecretsManager`: Fernet (AEAD) + PBKDF2HMAC (SHA256, 100k).
@@ -73,7 +75,8 @@ Jobs: type_check (mypy) -> build_configuration -> build_openwrt
 (matrix: {x86/64, rockchip/armv8} x {24.10.5, snapshots}) ->
 release_{proxy_configurations,openwrt_builds} (GPG-encrypted).
 GCC: 13.3.0_musl (stable), 14.3.0_musl (snapshots, allow_failure).
-rockchip profile: friendlyarm_nanopi-r6s. Python 3.13 in CI.
+rockchip profile: friendlyarm_nanopi-r6s. Uses uv (astral-sh/setup-uv)
+for Python/dependency management; uv auto-downloads Python as needed.
 
 ## Code Quality
 Python >=3.12 (3.12+ syntax: PEP 604 unions, PEP 695 generics).
