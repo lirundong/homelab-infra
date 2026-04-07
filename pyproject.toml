@@ -3,9 +3,14 @@ name = "homelab-infra"
 version = "0.0.0"
 description = "Homelab infrastructure monorepo"
 requires-python = ">=3.12"
+dependencies = [
+    "common",
+    "conf-gen",
+]
 
 [tool.uv.workspace]
 members = ["common", "conf-gen"]
 
 [tool.uv.sources]
 common = { workspace = true }
+conf-gen = { workspace = true }

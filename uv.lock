@@ -254,6 +254,16 @@ wheels = [
 name = "homelab-infra"
 version = "0.0.0"
 source = { virtual = "." }
+dependencies = [
+    { name = "common" },
+    { name = "conf-gen" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "common", editable = "common" },
+    { name = "conf-gen", editable = "conf-gen" },
+]
 
 [[package]]
 name = "idna"
