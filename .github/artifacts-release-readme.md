@@ -1,5 +1,3 @@
-# Nightly {ARTIFACT_NAME} Release
-
 ## Release Date
 {RELEASE_DATE}
 
