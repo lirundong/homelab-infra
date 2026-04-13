@@ -13,19 +13,18 @@ PROFILE=${PROFILE:-''}
 SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( cd -- "$( dirname -- "${SRC_DIR}" )" &> /dev/null && pwd )
 PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages/${VERSION}.txt)
+REPO_FILE=repositories
 if [[ $VERSION == 'snapshots' ]]; then
-  SDK=openwrt-sdk-${TARGET_ARCH/\//-}_gcc-$GCC_VERSION.Linux-${HOST_ARCH/\//_}
-  SDK_URL=$REPOSITORY/$VERSION/targets/$TARGET_ARCH/$SDK.$TAR_EXT
-  IMG_BUILDER=openwrt-imagebuilder-${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}
-  IMG_BUILDER_URL=$REPOSITORY/$VERSION/targets/$TARGET_ARCH/$IMG_BUILDER.$TAR_EXT
-  REPO_FILE=repositories
+  VERSION_PREFIX=''
+  BASE_URL=$REPOSITORY/$VERSION/targets/$TARGET_ARCH
 else
-  SDK=openwrt-sdk-$VERSION-${TARGET_ARCH/\//-}_gcc-$GCC_VERSION.Linux-${HOST_ARCH/\//_}
-  SDK_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET_ARCH/$SDK.$TAR_EXT
-  IMG_BUILDER=openwrt-imagebuilder-$VERSION-${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}
-  IMG_BUILDER_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET_ARCH/$IMG_BUILDER.$TAR_EXT
-  REPO_FILE=repositories.conf
+  VERSION_PREFIX=$VERSION-
+  BASE_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET_ARCH
 fi
+SDK=openwrt-sdk-${VERSION_PREFIX}${TARGET_ARCH/\//-}_gcc-$GCC_VERSION.Linux-${HOST_ARCH/\//_}
+SDK_URL=$BASE_URL/$SDK.$TAR_EXT
+IMG_BUILDER=openwrt-imagebuilder-${VERSION_PREFIX}${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}
+IMG_BUILDER_URL=$BASE_URL/$IMG_BUILDER.$TAR_EXT
 
 # Prepare working directory.
 if [[ -d $WORK_DIR ]]; then

@@ -7,8 +7,8 @@ kmod-nft-tproxy
 kmod-tun
 luci
 luci-app-sqm
-python3-cryptography
 python3-ifaddr
+python3-pip
 python3-requests
 python3-yaml
 qemu-ga

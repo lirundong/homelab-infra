@@ -55,8 +55,8 @@ jobs:
           artifact: rockchip_armv8
           profile: friendlyarm_nanopi-r6s
         version:
-        - openwrt: '24.10.5'
-          gcc: 13.3.0_musl
+        - openwrt: '25.12.2'
+          gcc: 14.3.0_musl
           allow_failure: false
         - openwrt: snapshots
           gcc: 14.3.0_musl
@@ -89,10 +89,11 @@ jobs:
         PROFILE: ${{ matrix.arch.profile }}
       run: |
         if [[ ${{ matrix.version.openwrt }} == 'snapshots' ]]; then
-          BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}/bin/targets/${TARGET_ARCH}"
+          VERSION_PREFIX=""
         else
-          BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${VERSION}-${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}/bin/targets/${TARGET_ARCH}"
+          VERSION_PREFIX="${VERSION}-"
         fi
+        BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${VERSION_PREFIX}${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}/bin/targets/${TARGET_ARCH}"
         OUTPUT_DIR=${{ github.workspace }}/outputs
         mkdir -p ${OUTPUT_DIR}
         bash openwrt-builder/build.sh
@@ -171,8 +172,8 @@ jobs:
         - openwrt: rockchip/armv8
           artifact: rockchip_armv8
         version:
-        - openwrt: '24.10.5'
-          gcc: 13.3.0_musl
+        - openwrt: '25.12.2'
+          gcc: 14.3.0_musl
           allow_failure: false
         - openwrt: snapshots
           gcc: 14.3.0_musl

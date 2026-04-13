@@ -16,7 +16,7 @@ uv run conf-gen -s conf-gen/source.yaml -o output/     # gen configs
 uv run black <file>                                    # format (99 cols)
 uv run mypy common/src/common conf-gen/src/conf_gen    # typecheck
 # OpenWRT (PASSWORD env var required):
-VERSION=24.10.5 GCC_VERSION=13.3.0_musl openwrt-builder/build.sh
+VERSION=25.12.2 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
 ```
 
 ## conf-gen (`conf-gen/src/conf_gen/`, note underscore)
@@ -62,7 +62,7 @@ Exports: `secrets`, `CLASH_RULESET_FORMATS`, `COMMENT_BEGINS`
 Steps: download SDK -> decrypt files (`common-secret-decoder -r`) ->
 cross-compile sing-box (CGO) + vlmcsd -> download Yacd-meta -> build.
 Custom files: `files/etc/{init.d,uci-defaults,nftables.d,dropbear,
-crontabs,opkg}/`. Packages: `packages/{24.10.5,snapshots}.txt`.
+crontabs,opkg}/`. Packages: `packages/{25.12.2,snapshots}.txt`.
 
 Env vars: `PASSWORD` (required), `VERSION` (required, default stale),
 `TARGET_ARCH` (x86/64), `GCC_VERSION`, `PROFILE`, `REPOSITORY`
@@ -72,9 +72,9 @@ Env vars: `PASSWORD` (required), `VERSION` (required, default stale),
 
 ## CI (`.github/workflows/artifacts-release-nightly.yaml`)
 Jobs: type_check (mypy) -> build_configuration -> build_openwrt
-(matrix: {x86/64, rockchip/armv8} x {24.10.5, snapshots}) ->
+(matrix: {x86/64, rockchip/armv8} x {25.12.2, snapshots}) ->
 release_{proxy_configurations,openwrt_builds} (GPG-encrypted).
-GCC: 13.3.0_musl (stable), 14.3.0_musl (snapshots, allow_failure).
+GCC: 14.3.0_musl (stable and snapshots, snapshots allow_failure).
 rockchip profile: friendlyarm_nanopi-r6s. Uses uv (astral-sh/setup-uv)
 for Python/dependency management; uv auto-downloads Python as needed.
 
