@@ -156,6 +156,7 @@ jobs:
         overwrite: true
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ matrix.conf }}
+        release_name: Nightly ${{ matrix.conf }} Configuration Release
         body: |
           ${{ steps.prepare_readme.outputs.RELEASE_README }}
 
@@ -213,5 +214,6 @@ jobs:
         overwrite: true
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         tag: openwrt_${{ matrix.version.openwrt }}_${{ matrix.arch.openwrt }}
+        release_name: Nightly OpenWRT ${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }} Release
         body: |
           ${{ steps.prepare_readme.outputs.RELEASE_README }}
