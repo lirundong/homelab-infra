@@ -62,7 +62,8 @@ Exports: `secrets`, `CLASH_RULESET_FORMATS`, `COMMENT_BEGINS`
 Steps: download SDK -> decrypt files (`common-secret-decoder -r`) ->
 cross-compile sing-box (CGO) + vlmcsd -> download Yacd-meta -> build.
 Custom files: `files/etc/{init.d,uci-defaults,nftables.d,dropbear,
-crontabs,opkg}/`. Packages: `packages/{25.12.2,snapshots}.txt`.
+crontabs,apk}/`. Packages: `packages/{25.12.2,snapshots}.txt`.
+Note: 25.12+ uses apk (not opkg). Runtime feeds: `files/etc/apk/repositories.d/distfeeds.list`.
 
 Env vars: `PASSWORD` (required), `VERSION` (required, default stale),
 `TARGET_ARCH` (x86/64), `GCC_VERSION`, `PROFILE`, `REPOSITORY`

@@ -1,0 +1,7 @@
+https://mirrors.tuna.tsinghua.edu.cn/openwrt/releases/@secret:VERSION/targets/@secret:TARGET_ARCH/packages/packages.adb
+https://mirrors.tuna.tsinghua.edu.cn/openwrt/releases/@secret:VERSION/packages/@secret:PACKAGE_ARCH/base/packages.adb
+https://mirrors.tuna.tsinghua.edu.cn/openwrt/releases/@secret:VERSION/packages/@secret:PACKAGE_ARCH/luci/packages.adb
+https://mirrors.tuna.tsinghua.edu.cn/openwrt/releases/@secret:VERSION/packages/@secret:PACKAGE_ARCH/packages/packages.adb
+https://mirrors.tuna.tsinghua.edu.cn/openwrt/releases/@secret:VERSION/packages/@secret:PACKAGE_ARCH/routing/packages.adb
+https://mirrors.tuna.tsinghua.edu.cn/openwrt/releases/@secret:VERSION/packages/@secret:PACKAGE_ARCH/telephony/packages.adb
+https://mirrors.tuna.tsinghua.edu.cn/openwrt/releases/@secret:VERSION/packages/@secret:PACKAGE_ARCH/video/packages.adb
