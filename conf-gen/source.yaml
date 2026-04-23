@@ -203,14 +203,19 @@ rules:
   - type: regex
     pattern: SG|Singapore|新加坡|🇸🇬
 # ------------------------------------------------------------------------------
-# OpenAI.
+# AI Services.
 # ------------------------------------------------------------------------------
-- name: OpenAI
+- name: AI Services
   type: select
   filters:
-  - type: quantumult
+  - type: clash-classical
+    format: text
     resolve: false
-    url: https://github.com/GeQ1an/Rules/raw/refs/heads/master/QuantumultX/Filter/AI%20Suite.list
+    url: https://ruleset.skk.moe/Clash/non_ip/ai.txt
+  - type: clash-classical
+    format: text
+    resolve: false
+    url: https://ruleset.skk.moe/Clash/non_ip/apple_intelligence.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/Images/Icons/Policies/OpenAI.png
   proxies:
   - type: regex
@@ -278,6 +283,10 @@ rules:
     format: text
     resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/apple_cdn.txt
+  - type: clash-classical
+    format: text
+    resolve: false
+    url: https://ruleset.skk.moe/Clash/non_ip/apple_cn.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Apple.png
   proxies:
   - Mainland
@@ -372,10 +381,6 @@ rules:
   - type: clash-classical
     format: text
     resolve: false
-    url: https://ruleset.skk.moe/Clash/non_ip/apple_cn.txt
-  - type: clash-classical
-    format: text
-    resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/apple_services.txt
   - type: clash-classical
     format: text
@@ -385,6 +390,8 @@ rules:
   proxies:
   - Mainland
   - PROXY
+  - type: regex
+    pattern: US|United\w{0,1}States|美国|🇺🇸
 # ------------------------------------------------------------------------------
 # Mainland.
 # ------------------------------------------------------------------------------
