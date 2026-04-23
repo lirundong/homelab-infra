@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-#
-# Copy to /usr/bin/update_qcloud_dns on OpenWRT.
+
+"""Update Tencent Cloud DNSPod records from host public IP addresses."""
 
 from argparse import ArgumentParser
 import copy
@@ -372,7 +372,7 @@ def update_qcloud_subdomain_record(
         pprint(new_records)
 
 
-if __name__ == "__main__":
+def main() -> None:
     parser = ArgumentParser("Update QCloud DNS records by host IP addresses.")
     parser.add_argument("--domain", "-d", help="Domain to be updated.")
     parser.add_argument("--sub-domain", "-s", help="Sub-domain to be updated.")
@@ -399,3 +399,7 @@ if __name__ == "__main__":
         interface=args.interface,
         dry_run=args.dry_run,
     )
+
+
+if __name__ == "__main__":
+    main()

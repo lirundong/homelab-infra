@@ -6,11 +6,13 @@ requires-python = ">=3.12"
 dependencies = [
     "common",
     "conf-gen",
+    "tencent-cloud",
 ]
 
 [tool.uv.workspace]
-members = ["common", "conf-gen"]
+members = ["common", "conf-gen", "util-cookbook/tencent-cloud"]
 
 [tool.uv.sources]
 common = { workspace = true }
 conf-gen = { workspace = true }
+tencent-cloud = { workspace = true }
