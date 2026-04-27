@@ -162,6 +162,77 @@ class _SecretsManager:
             yaml.dump(self._encrypted_secrets, f, Dumper=yaml.SafeDumper)
         print(f"Changes have been written into {self._secrets_file}")
 
+    def rotate_password(self, new_password: str, new_salt: str | None = None) -> int:
+        """Re-encrypt every entry in secrets.yaml with a new master password.
+
+        Decrypts all secrets with the current Fernet, derives a new Fernet from
+        `new_password` (and optionally `new_salt`), re-encrypts everything, and
+        writes the result atomically via temp-file + fsync + os.replace + dir
+        fsync. Any staged but uncommitted changes block the rotation.
+
+        Returns the number of secrets re-encrypted.
+        """
+        if not new_password:
+            raise ValueError("new_password must not be empty.")
+        if self._staged_changes:
+            raise RuntimeError(
+                "Refusing to rotate password while staged changes are pending; "
+                "call commit() or clear them first."
+            )
+
+        plaintexts = {
+            key: self._fernet.decrypt(cipher.encode("utf-8")).decode("utf-8")
+            for key, cipher in (self._encrypted_secrets or {}).items()
+        }
+
+        salt = (new_salt or self._salt).encode("utf-8")
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=100000,
+        )
+        new_key = base64.urlsafe_b64encode(kdf.derive(new_password.encode("utf-8")))
+        new_fernet = Fernet(new_key)
+
+        new_encrypted = {
+            key: new_fernet.encrypt(plain.encode("utf-8")).decode("ascii")
+            for key, plain in plaintexts.items()
+        }
+
+        # Crash-safe atomic replace: write tmp, flush+fsync the file, restore
+        # original mode, swap, then fsync the parent dir so the rename is
+        # durable. A half-written secrets.yaml would lock us out of every secret.
+        original_mode = self._secrets_file.stat().st_mode & 0o777
+        tmp_path = self._secrets_file.with_suffix(self._secrets_file.suffix + ".tmp")
+        try:
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                yaml.dump(new_encrypted, f, Dumper=yaml.SafeDumper)
+                f.flush()
+                os.fsync(f.fileno())
+            os.chmod(tmp_path, original_mode)
+            os.replace(tmp_path, self._secrets_file)
+        except BaseException:
+            # Clean up tmp on any failure path (including KeyboardInterrupt).
+            try:
+                os.unlink(tmp_path)
+            except FileNotFoundError:
+                pass
+            raise
+        # Durably commit the rename so the swap survives a crash.
+        dir_fd = os.open(self._secrets_file.parent, os.O_RDONLY)
+        try:
+            os.fsync(dir_fd)
+        finally:
+            os.close(dir_fd)
+
+        self._encrypted_secrets = new_encrypted
+        self._password = new_password
+        if new_salt is not None:
+            self._salt = new_salt
+        self._fernet = new_fernet
+        return len(new_encrypted)
+
     def _expand_secret(self, match_obj: re.Match[str]) -> JsonPrimitiveT:
         if (secret_key := match_obj.group("key")) == "MASTER_PASSWORD":
             secret_val: JsonPrimitiveT = self._password

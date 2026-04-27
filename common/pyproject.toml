@@ -14,6 +14,7 @@ dependencies = [
 
 [project.scripts]
 common-secret-decoder = "common._cli:main"
+common-rotate-password = "common._rotate_password:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
