@@ -25,6 +25,14 @@ jobs:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
         uv run conf-gen -s conf-gen/source.yaml -o artifacts-conf/
+        # Encrypt every config in place; .srs rule sets are public domain
+        # lists and stay plaintext. Workflow artifacts on a public repo are
+        # downloadable by anyone with read access, so we cannot upload the
+        # post-secret-expansion configs unencrypted.
+        find artifacts-conf -type f ! -name '*.srs' | while read f; do
+          gpg -c --batch --yes --passphrase="$PASSWORD" -o "$f.gpg" "$f"
+          rm -f "$f"
+        done
         uv run python3 - <<- 'EOF' >> "$GITHUB_OUTPUT"
         import yaml
         conf = yaml.safe_load(open("conf-gen/source.yaml"))
@@ -34,6 +42,7 @@ jobs:
       with:
         name: artifacts-conf
         path: artifacts-conf/
+        retention-days: 7
     outputs:
       config_names: ${{ steps.generate_proxy_conf.outputs.CONFIG_NAMES }}
 
@@ -75,6 +84,14 @@ jobs:
       with:
         name: artifacts-conf
         path: ${{ github.workspace }}/conf
+    - name: Decrypt configs needed by build.sh
+      env:
+        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+      run: |
+        find ${{ github.workspace }}/conf -name '*.gpg' | while read f; do
+          gpg -d --batch --yes --passphrase="$PASSWORD" -o "${f%.gpg}" "$f"
+          rm -f "$f"
+        done
     - id: run_build_script
       env:
         TARGET_ARCH: ${{ matrix.arch.openwrt }}
@@ -99,14 +116,20 @@ jobs:
         OUTPUT_DIR=${{ github.workspace }}/outputs
         mkdir -p ${OUTPUT_DIR}
         bash openwrt-builder/build.sh
+        # Encrypt before staging into the artifact upload directory; the .gz
+        # contents include the post-secret-expansion rootfs which leaks the
+        # master password (it's the on-device cron passphrase) if uploaded raw.
         for f in $(find ${BUILD_DIR} -iname '*.gz'); do
-          cp ${f} ${OUTPUT_DIR}/
+          gpg -c --batch --yes --passphrase="$PASSWORD" \
+            -o ${OUTPUT_DIR}/$(basename ${f}).gpg \
+            ${f}
         done
         echo "OUTPUT_DIR=${OUTPUT_DIR}" >> "$GITHUB_OUTPUT"
     - uses: actions/upload-artifact@v4
       with:
         name: openwrt-${{ matrix.version.openwrt }}-${{ matrix.arch.artifact }}-gcc-${{ matrix.version.gcc }}
         path: ${{ steps.run_build_script.outputs.OUTPUT_DIR }}
+        retention-days: 7
 
   release_proxy_configurations:
     name: Release ${{ matrix.conf }} Configuration
@@ -123,19 +146,17 @@ jobs:
         name: artifacts-conf
         path: ${{ github.workspace }}/conf
     - run: |
+        # Configs are already GPG-encrypted at build_configuration time; just
+        # copy them to the release dir alongside the plaintext .srs rule sets.
+        # sing-box config directories must always carry .srs rule sets; a
+        # missing-glob failure here is the desired signal, not noise to suppress.
         mkdir -p ${{ github.workspace }}/release
         if [[ -d ${{ github.workspace }}/conf/${{ matrix.conf }} ]]; then
-          gpg -c --batch --yes --passphrase=${{ secrets.MASTER_PASSWORD }} \
-            -o ${{ github.workspace }}/release/config.json.gpg \
-            ${{ github.workspace }}/conf/${{ matrix.conf }}/config.json
-          # Copy rule set binaries, no need to encrypt.
+          cp ${{ github.workspace }}/conf/${{ matrix.conf }}/*.gpg ${{ github.workspace }}/release/
           cp ${{ github.workspace }}/conf/${{ matrix.conf }}/*.srs ${{ github.workspace }}/release/
         else
-          conf_file=$(find ${{ github.workspace }}/conf -iname "${{ matrix.conf }}\.*")
-          conf_name=$(basename ${conf_file})
-          gpg -c --batch --yes --passphrase=${{ secrets.MASTER_PASSWORD }} \
-            -o ${{ github.workspace }}/release/${conf_name}.gpg \
-            ${conf_file}
+          conf_file=$(find ${{ github.workspace }}/conf -iname "${{ matrix.conf }}.*.gpg")
+          cp ${conf_file} ${{ github.workspace }}/release/
         fi
     - id: prepare_readme
       run: |
@@ -189,12 +210,10 @@ jobs:
         name: openwrt-${{ matrix.version.openwrt }}-${{ matrix.arch.artifact }}-gcc-${{ matrix.version.gcc }}
         path: ${{ github.workspace }}/openwrt
     - run: |
+        # Images are already GPG-encrypted at build_openwrt time; just stage
+        # the .gpg files for upload to the GitHub Release.
         mkdir -p ${{ github.workspace }}/release
-        for f in $(find ${{ github.workspace }}/openwrt -iname "*.gz"); do
-          gpg -c --batch --yes --passphrase=${{ secrets.MASTER_PASSWORD }} \
-            -o ${{ github.workspace }}/release/$(basename ${f}).gpg \
-            ${f}
-        done
+        cp ${{ github.workspace }}/openwrt/*.gpg ${{ github.workspace }}/release/
     - id: prepare_readme
       run: |
         mkdir artifacts-readme
