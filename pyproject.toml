@@ -9,6 +9,17 @@ dependencies = [
     "tencent-cloud",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.11",
+    "black>=24.0",
+    "isort>=5.13",
+    "types-PyYAML",
+    "types-requests",
+    "types-pytz",
+    "types-netifaces",
+]
+
 [tool.uv.workspace]
 members = ["common", "conf-gen", "util-cookbook/tencent-cloud"]
 

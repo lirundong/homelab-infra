@@ -11,6 +11,10 @@ uv sync
 
 # Standalone (e.g. on OpenWRT, inside a Docker image, etc.):
 pip install -e ./common && pip install -e ./util-cookbook/tencent-cloud
+
+# Optional: add netifaces (C extension; not available on OpenWRT) only if
+# you need --get-ipv*-method=netifaces. Default is ifaddr (pure Python).
+pip install -e './util-cookbook/tencent-cloud[netifaces]'
 ```
 
 Either path exposes `register-dns` on `PATH`.
@@ -51,7 +55,7 @@ DNSPod. Omit it for a live update.
 | `-s`, `--sub-domain` | Subdomain to update (e.g. `home`) |
 | `-i`, `--interface` | Interface name for `netifaces` / `ifaddr` lookups |
 | `--get-ipv4-method` | `ipify` (default), `taobao`, `ifconfig`, `requests`, `netifaces`, `ifaddr` |
-| `--get-ipv6-method` | Same set, default `netifaces`. `ifaddr` is the OpenWRT-friendly choice |
+| `--get-ipv6-method` | Same set, default `ifaddr`. Pass `netifaces` only if you installed the `[netifaces]` extra |
 | `-n`, `--dry-run` | Print intended changes; no API writes |
 
 ## OpenWRT deployment

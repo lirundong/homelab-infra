@@ -10,7 +10,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: astral-sh/setup-uv@v6
-    - run: uv run --with mypy --with types-PyYAML --with types-requests --with types-pytz mypy common/src/common conf-gen/src/conf_gen
+    - run: |
+        uv sync --extra dev
+        uv run mypy common/src/common conf-gen/src/conf_gen util-cookbook/tencent-cloud/src/tencent_cloud
 
   build_configuration:
     name: Build Configurations

@@ -2,7 +2,9 @@
 
 ## Project Structure
 uv workspace monorepo (`pyproject.toml` at root). `uv sync` installs
-both `common` and `conf-gen` into a shared `.venv`. `uv.lock` pinned.
+`common`, `conf-gen`, and `tencent-cloud` into a shared `.venv`.
+`uv.lock` pinned. Dev tooling (mypy/black/isort + type stubs) lives in
+the root `[project.optional-dependencies]` `dev` extra.
 
 - **conf-gen**: Proxy config generator (Clash, Quantumult-X, sing-box)
 - **openwrt-builder**: Custom OpenWRT firmware with integrated proxy
@@ -11,10 +13,12 @@ both `common` and `conf-gen` into a shared `.venv`. `uv.lock` pinned.
 
 ## Commands
 ```bash
-uv sync                                                # setup
+uv sync                                                # runtime setup
+uv sync --extra dev                                    # + mypy/black/isort
 uv run conf-gen -s conf-gen/source.yaml -o output/     # gen configs
 uv run black <file>                                    # format (99 cols)
-uv run mypy common/src/common conf-gen/src/conf_gen    # typecheck
+uv run mypy common/src/common conf-gen/src/conf_gen \
+    util-cookbook/tencent-cloud/src/tencent_cloud      # typecheck
 # OpenWRT (PASSWORD env var required):
 VERSION=25.12.2 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
 ```

@@ -13,6 +13,12 @@ dependencies = [
     "requests>=2.28.0",
 ]
 
+[project.optional-dependencies]
+# netifaces is a C extension that has no OpenWRT apk package and no musl
+# wheels on PyPI. Keep it optional so on-device `pip install -e` succeeds;
+# install with `.[netifaces]` only if you need --get-ipv*-method=netifaces.
+netifaces = ["netifaces>=0.11.0"]
+
 [project.scripts]
 register-dns = "tencent_cloud.register_dns:main"
 
