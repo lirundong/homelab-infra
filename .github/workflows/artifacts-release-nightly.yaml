@@ -8,8 +8,8 @@ jobs:
     name: Type Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: astral-sh/setup-uv@v6
+    - uses: actions/checkout@v5
+    - uses: astral-sh/setup-uv@v7
     - run: |
         uv sync --extra dev
         uv run mypy common/src/common conf-gen/src/conf_gen util-cookbook/tencent-cloud/src/tencent_cloud
@@ -18,8 +18,8 @@ jobs:
     name: Build Configurations
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: astral-sh/setup-uv@v6
+    - uses: actions/checkout@v5
+    - uses: astral-sh/setup-uv@v7
     - id: generate_proxy_conf
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
@@ -38,7 +38,7 @@ jobs:
         conf = yaml.safe_load(open("conf-gen/source.yaml"))
         print(f"CONFIG_NAMES={list(g['name'] for g in conf['generates'])}")
         EOF
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: artifacts-conf
         path: artifacts-conf/
@@ -74,13 +74,13 @@ jobs:
           allow_failure: true
     continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: astral-sh/setup-uv@v6
+    - uses: actions/checkout@v5
+    - uses: astral-sh/setup-uv@v7
     - uses: actions/setup-go@v6
       with:
         go-version: stable
         cache: false
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v7
       with:
         name: artifacts-conf
         path: ${{ github.workspace }}/conf
@@ -125,7 +125,7 @@ jobs:
             ${f}
         done
         echo "OUTPUT_DIR=${OUTPUT_DIR}" >> "$GITHUB_OUTPUT"
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: openwrt-${{ matrix.version.openwrt }}-${{ matrix.arch.artifact }}-gcc-${{ matrix.version.gcc }}
         path: ${{ steps.run_build_script.outputs.OUTPUT_DIR }}
@@ -140,9 +140,9 @@ jobs:
       matrix:
         conf: ${{ fromJSON(needs.build_configuration.outputs.config_names) }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v4
-      with: 
+    - uses: actions/checkout@v5
+    - uses: actions/download-artifact@v7
+      with:
         name: artifacts-conf
         path: ${{ github.workspace }}/conf
     - run: |
@@ -204,9 +204,9 @@ jobs:
           allow_failure: true
     continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v4
-      with: 
+    - uses: actions/checkout@v5
+    - uses: actions/download-artifact@v7
+      with:
         name: openwrt-${{ matrix.version.openwrt }}-${{ matrix.arch.artifact }}-gcc-${{ matrix.version.gcc }}
         path: ${{ github.workspace }}/openwrt
     - run: |
