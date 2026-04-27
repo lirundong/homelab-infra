@@ -5,6 +5,9 @@
 *.swo
 *~
 
+# Claude Code (track shared settings.json + skills, ignore per-user overrides)
+.claude/settings.local.json
+
 # macOS
 .DS_Store
 .AppleDouble
