@@ -10,6 +10,8 @@ jobs:
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
+      with:
+        cache-suffix: type-check
     - run: |
         uv sync --extra dev
         uv run mypy common/src/common conf-gen/src/conf_gen util-cookbook/tencent-cloud/src/tencent_cloud
