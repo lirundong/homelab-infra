@@ -14,12 +14,15 @@ SRC_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( cd -- "$( dirname -- "${SRC_DIR}" )" &> /dev/null && pwd )
 PACKAGES=$(tr '\n' ' ' < ${SRC_DIR}/packages/${VERSION}.txt)
 REPO_FILE=repositories
+PACKAGE_ARCH=${PACKAGE_ARCH:-'x86_64'}
 if [[ $VERSION == 'snapshots' ]]; then
   VERSION_PREFIX=''
   BASE_URL=$REPOSITORY/$VERSION/targets/$TARGET_ARCH
+  PKG_FEED_URL=$REPOSITORY/$VERSION/packages/$PACKAGE_ARCH/packages/
 else
   VERSION_PREFIX=$VERSION-
   BASE_URL=$REPOSITORY/releases/$VERSION/targets/$TARGET_ARCH
+  PKG_FEED_URL=$REPOSITORY/releases/$VERSION/packages/$PACKAGE_ARCH/packages/
 fi
 SDK=openwrt-sdk-${VERSION_PREFIX}${TARGET_ARCH/\//-}_gcc-$GCC_VERSION.Linux-${HOST_ARCH/\//_}
 SDK_URL=$BASE_URL/$SDK.$TAR_EXT
@@ -82,9 +85,25 @@ chmod +x bin/vlmcs bin/vlmcsd
 popd
 cp vlmcsd/bin/vlmcs vlmcsd/bin/vlmcsd $CUSTOM_FILES_DIR/usr/bin/
 
-# DDNS.
-rsync -aP --exclude='__pycache__' $ROOT_DIR/common $CUSTOM_FILES_DIR/root/
-rsync -aP --exclude='__pycache__' $ROOT_DIR/util-cookbook/tencent-cloud $CUSTOM_FILES_DIR/root/util-cookbook/
+# Bake common + tencent-cloud into the rootfs site-packages. Both are
+# pure-Python; runtime deps (cryptography, PyYAML, requests, ifaddr) come
+# from python3-* apk packages, hence --no-deps. Target Python version is
+# read from the apk feed so stable (3.13) and snapshots (3.14) both work.
+TARGET_PY=$(curl -fsSL "$PKG_FEED_URL" | grep -oE 'python3-3\.[0-9]+-[0-9]' | head -1 | grep -oE '3\.[0-9]+')
+SITE_PACKAGES=$CUSTOM_FILES_DIR/usr/lib/python$TARGET_PY/site-packages
+mkdir -p "$SITE_PACKAGES" "$CUSTOM_FILES_DIR/usr/bin"
+uv pip install --no-deps --no-compile-bytecode --target "$SITE_PACKAGES" \
+  "$ROOT_DIR/common" "$ROOT_DIR/util-cookbook/tencent-cloud"
+# Rewrite pip-generated entry-point shebangs from the host venv python to
+# /usr/bin/env python3 (provided by coreutils-env), then expose them under
+# /usr/bin via relative symlinks so pip's --target layout is preserved.
+if [[ -d $SITE_PACKAGES/bin ]]; then
+  sed -i '1c#!/usr/bin/env python3' "$SITE_PACKAGES"/bin/*
+  for script in "$SITE_PACKAGES"/bin/*; do
+    name=$(basename "$script")
+    ln -sf "../lib/python$TARGET_PY/site-packages/bin/$name" "$CUSTOM_FILES_DIR/usr/bin/$name"
+  done
+fi
 
 # Image builder.
 image_builder_args=(ROOTFS_PARTSIZE=256 FILES=$CUSTOM_FILES_DIR PACKAGES="$PACKAGES")
