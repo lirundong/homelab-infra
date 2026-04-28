@@ -12,8 +12,8 @@ uci -q batch << EOI
     set dhcp.lan.ra='server'
     set dhcp.lan.ra_slaac='1'
     delete dhcp.lan.ra_flags
-    add_list dhcp.lan.ra_flags='managed-config'
-    add_list dhcp.lan.ra_flags='other-config'
+    set dhcp.lan.ra_dns='1'
+    set dhcp.lan.ra_preference='high'
     set dhcp.odhcpd.maindhcp='0'
 
     commit dhcp
