@@ -273,6 +273,7 @@ rules:
   proxies:
   - Mainland
   - Microsoft
+  - Overseas CDN
 # ------------------------------------------------------------------------------
 # Apple CDN.
 # ------------------------------------------------------------------------------
@@ -283,14 +284,11 @@ rules:
     format: text
     resolve: false
     url: https://ruleset.skk.moe/Clash/non_ip/apple_cdn.txt
-  - type: clash-classical
-    format: text
-    resolve: false
-    url: https://ruleset.skk.moe/Clash/non_ip/apple_cn.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Apple.png
   proxies:
   - Mainland
   - Apple
+  - Overseas CDN
 # ------------------------------------------------------------------------------
 # Overseas CDN.
 # ------------------------------------------------------------------------------
