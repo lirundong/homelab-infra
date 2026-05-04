@@ -617,9 +617,8 @@ generates:
         strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/
   add_resolve_action:
-    server: PROXY
+    server: DIRECT
     strategy: prefer_ipv4  # Easier to match with IP rules.
-    client_subnet: 139.226.3.0/24
   inbounds:
   - tag: tun
     type: tun
