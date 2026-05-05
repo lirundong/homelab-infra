@@ -391,6 +391,20 @@ rules:
   - type: regex
     pattern: US|United\w{0,1}States|美国|🇺🇸
 # ------------------------------------------------------------------------------
+# Global.
+# ------------------------------------------------------------------------------
+- name: Global
+  type: select
+  filters:
+  - type: clash-classical
+    format: text
+    resolve: false
+    url: https://ruleset.skk.moe/Clash/non_ip/global.txt
+  img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Outside.png
+  proxies:
+  - PROXY
+  - DIRECT
+# ------------------------------------------------------------------------------
 # Mainland.
 # ------------------------------------------------------------------------------
 - name: Mainland
