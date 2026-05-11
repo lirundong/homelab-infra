@@ -19,7 +19,7 @@ uv run black <file>                                    # format (99 cols)
 uv run mypy common/src/common conf-gen/src/conf_gen \
     util-cookbook/tencent-cloud/src/tencent_cloud      # typecheck
 # OpenWRT (PASSWORD env required; read secret-handling skill before invoking):
-VERSION=25.12.2 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
+VERSION=25.12.3 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
 ```
 
 ## conf-gen (`conf-gen/src/conf_gen/`, note underscore)
@@ -60,7 +60,7 @@ Steps: SDK download -> decrypt files (`common-secret-decoder -r`) -> cross-compi
 into rootfs `usr/lib/python$TARGET_PY/site-packages` (rewrite shebangs to `#!/usr/bin/env
 python3`, expose via relative `usr/bin` symlinks) -> imagebuilder. Custom files:
 `files/etc/{init.d,uci-defaults,nftables.d,dropbear,crontabs,apk}/`. Packages:
-`packages/{25.12.2,snapshots}.txt` (25.12+ uses apk). Required apks: `coreutils-env`,
+`packages/{25.12.3,snapshots}.txt` (25.12+ uses apk). Required apks: `coreutils-env`,
 `python3-cryptography`. Env: `PASSWORD`, `VERSION` (default stale), `TARGET_ARCH` (`x86/64`),
 `GCC_VERSION`, `PROFILE`, `PACKAGE_ARCH`, `REPOSITORY` (default Tsinghua mirror), `WORK_DIR`,
 `SING_BOX_*`, `TOOLCHAIN_ARCH`, `HOST_ARCH`, `TAR_EXT`. `TARGET_PY` auto-detected from apk
@@ -70,7 +70,7 @@ into the image, or use `hotplug.d/iface` with a default-route guard.
 
 ## CI (`.github/workflows/artifacts-release-nightly.yaml`)
 Jobs: type_check -> build_configuration -> build_openwrt (matrix {x86/64, rockchip/armv8} x
-{25.12.2, snapshots}) -> release_{proxy_configurations,openwrt_builds}. GCC `14.3.0_musl`;
+{25.12.3, snapshots}) -> release_{proxy_configurations,openwrt_builds}. GCC `14.3.0_musl`;
 rockchip profile `friendlyarm_nanopi-r6s`; snapshots `allow_failure`. **Workflow-artifact
 encryption (commit `dcee14b`):** public-repo artifacts are world-downloadable for the
 retention window; `build_configuration` and `build_openwrt` GPG-encrypt outputs with
