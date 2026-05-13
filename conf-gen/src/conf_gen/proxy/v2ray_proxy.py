@@ -13,7 +13,6 @@ class VMessClashProxyT(ClashProxyT):
     uuid: str
 
 
-# TypedDict for VMessWebSocket - includes ws-opts and tls settings
 _VMessWSMixinT = TypedDict(
     "_VMessWSMixinT",
     {
@@ -29,7 +28,6 @@ class VMessWSClashProxyT(VMessClashProxyT, _VMessWSMixinT):
     pass
 
 
-# TypedDict for VMessGRPC - includes grpc-opts and tls settings
 _VMessGRPCMixinT = TypedDict(
     "_VMessGRPCMixinT",
     {

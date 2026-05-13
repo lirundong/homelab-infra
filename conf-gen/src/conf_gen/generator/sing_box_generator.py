@@ -136,12 +136,8 @@ def extract_ruleset_inplace(
 
 
 class RuleSetCompiler:
-    """Manages a sing-box binary and working directory for rule-set compilation.
-
-    Use as a context manager — the working directory (and extracted binary) are cleaned
-    up on exit.  Downloaded tarballs are cached at the class level so that multiple
-    compiler instances within the same process only fetch once.
-    """
+    # Use as a context manager: the workdir (and extracted binary) are cleaned up on exit.
+    # Downloaded tarballs are cached on the class so multiple instances only fetch once.
 
     _github_release = "https://github.com/SagerNet/sing-box/releases"
     _arch_map = {"x86_64": "amd64", "aarch64": "arm64", "armv7l": "armv7"}
@@ -172,7 +168,6 @@ class RuleSetCompiler:
 
     @classmethod
     def _fetch_tarball(cls, url: str) -> bytes:
-        """Download a tarball, or return cached bytes if already fetched."""
         if url not in cls._download_cache:
             print(f"Downloading {url} ...")
             resp = requests.get(url, stream=True, timeout=60)
@@ -198,7 +193,6 @@ class RuleSetCompiler:
                 f"{system}/{machine}. Please install sing-box manually."
             )
 
-        # Resolve latest version via GitHub redirect.
         resp = requests.head(
             f"{self._github_release}/latest", allow_redirects=True, timeout=15
         )
@@ -337,7 +331,6 @@ class SingBoxGenerator(GeneratorBase):
         the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
         proxy_groups.insert(0, the_per_region_proxy_group)
 
-        # Filter proxies to only ProxyBase for parent class
         base_proxies = [p for p in proxies if isinstance(p, ProxyBase)]
         super().__init__(src_file, base_proxies, proxy_groups)
         self.included_process_irs = included_process_irs
