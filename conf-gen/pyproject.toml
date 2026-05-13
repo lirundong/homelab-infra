@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "conf-gen"
-version = "0.1.0"
+version = "1.0.0"
 description = "Configuration generator for Clash, Quantumult-X, and sing-box proxy clients"
 requires-python = ">=3.12"
 dependencies = [
