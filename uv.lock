@@ -208,7 +208,7 @@ wheels = [
 
 [[package]]
 name = "common"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "common" }
 dependencies = [
     { name = "cryptography" },
@@ -223,7 +223,7 @@ requires-dist = [
 
 [[package]]
 name = "conf-gen"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "conf-gen" }
 dependencies = [
     { name = "common" },
@@ -310,7 +310,7 @@ wheels = [
 
 [[package]]
 name = "homelab-infra"
-version = "0.0.0"
+version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "common" },
@@ -635,7 +635,7 @@ wheels = [
 
 [[package]]
 name = "tencent-cloud"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "util-cookbook/tencent-cloud" }
 dependencies = [
     { name = "common" },
