@@ -27,39 +27,20 @@ class _SecretsManager:
 
     @classmethod
     def _find_secrets_file(cls) -> Path:
-        """Find secrets.yaml using fallback strategy.
-
-        Priority:
-        1. Environment variable SECRETS_FILE (highest priority)
-        2. Package directory: common/secrets.yaml (for regular install)
-        3. Package root: common/secrets.yaml (for editable install, backward compat)
-        4. /root/common/secrets.yaml (OpenWRT compatibility)
-        5. Raise FileNotFoundError
-        """
-        # 1. Environment variable
         if secrets_env := os.environ.get("SECRETS_FILE"):
             secrets_path = Path(secrets_env)
             if secrets_path.exists():
                 return secrets_path
-
-        # 2. Package directory (for regular install)
-        # __file__ is .../common/_manager.py, secrets.yaml is in same directory
         package_dir = Path(__file__).parent / "secrets.yaml"
         if package_dir.exists():
             return package_dir
-
-        # 3. Package root (for editable install, backward compat)
-        # __file__ is src/common/_manager.py, go up 2 levels to common/
+        # Editable install lays out as src/common/_manager.py; secrets.yaml sits two up.
         package_root = Path(__file__).parents[2] / "secrets.yaml"
         if package_root.exists():
             return package_root
-
-        # 4. OpenWRT compatibility
         openwrt_path = Path("/root/common/secrets.yaml")
         if openwrt_path.exists():
             return openwrt_path
-
-        # 5. Raise error
         raise FileNotFoundError(
             "secrets.yaml not found. Tried:\n"
             f"  - SECRETS_FILE env var: {os.environ.get('SECRETS_FILE', 'not set')}\n"
@@ -70,18 +51,8 @@ class _SecretsManager:
 
     @classmethod
     def _find_project_root(cls) -> Path:
-        """Find project root for @include: expansion.
-
-        Priority:
-        1. Environment variable PROJECT_ROOT
-        2. Git repository root (git rev-parse --show-toplevel)
-        3. Current working directory
-        """
-        # 1. Environment variable
         if project_root_env := os.environ.get("PROJECT_ROOT"):
             return Path(project_root_env)
-
-        # 2. Git repository root
         try:
             result = subprocess.run(
                 ["git", "rev-parse", "--show-toplevel"],
@@ -92,8 +63,6 @@ class _SecretsManager:
             return Path(result.stdout.strip())
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass
-
-        # 3. Current working directory
         return Path.cwd()
 
     def __init__(self) -> None:
@@ -165,12 +134,9 @@ class _SecretsManager:
     def rotate_password(self, new_password: str, new_salt: str | None = None) -> int:
         """Re-encrypt every entry in secrets.yaml with a new master password.
 
-        Decrypts all secrets with the current Fernet, derives a new Fernet from
-        `new_password` (and optionally `new_salt`), re-encrypts everything, and
-        writes the result atomically via temp-file + fsync + os.replace + dir
-        fsync. Any staged but uncommitted changes block the rotation.
-
-        Returns the number of secrets re-encrypted.
+        A half-written secrets.yaml would lock us out of every secret, so the swap is
+        crash-safe (tmp file + fsync + os.replace + parent-dir fsync). Refuses to run
+        while staged changes are pending. Returns the number of secrets re-encrypted.
         """
         if not new_password:
             raise ValueError("new_password must not be empty.")
@@ -200,9 +166,6 @@ class _SecretsManager:
             for key, plain in plaintexts.items()
         }
 
-        # Crash-safe atomic replace: write tmp, flush+fsync the file, restore
-        # original mode, swap, then fsync the parent dir so the rename is
-        # durable. A half-written secrets.yaml would lock us out of every secret.
         original_mode = self._secrets_file.stat().st_mode & 0o777
         tmp_path = self._secrets_file.with_suffix(self._secrets_file.suffix + ".tmp")
         try:
@@ -212,14 +175,12 @@ class _SecretsManager:
                 os.fsync(f.fileno())
             os.chmod(tmp_path, original_mode)
             os.replace(tmp_path, self._secrets_file)
-        except BaseException:
-            # Clean up tmp on any failure path (including KeyboardInterrupt).
+        except BaseException:  # BaseException so KeyboardInterrupt also clears the tmp.
             try:
                 os.unlink(tmp_path)
             except FileNotFoundError:
                 pass
             raise
-        # Durably commit the rename so the swap survives a crash.
         dir_fd = os.open(self._secrets_file.parent, os.O_RDONLY)
         try:
             os.fsync(dir_fd)

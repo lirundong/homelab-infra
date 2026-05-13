@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 
-"""Rotate the master password used to encrypt secrets.yaml.
-
-The new password must be supplied on stdin (file redirect or pipe). The current
-password is read from the PASSWORD environment variable as usual.
-"""
-
 import sys
 from argparse import ArgumentParser
 

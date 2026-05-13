@@ -1,8 +1,3 @@
-"""Configuration generator for Clash, Quantumult-X, and sing-box proxy clients.
-
-This package generates platform-specific proxy configurations from a unified YAML source file.
-"""
-
 from conf_gen.generator import generate_conf
 from conf_gen.proxy import (
     ProxyBase,
