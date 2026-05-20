@@ -624,7 +624,7 @@ generates:
     direct:
       domain_resolver:
         server: DIRECT
-        strategy: prefer_ipv6
+        strategy: prefer_ipv4  # Better generalization.
     proxy:
       domain_resolver:
         server: DIRECT
