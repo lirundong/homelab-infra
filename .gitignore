@@ -5,8 +5,8 @@
 *.swo
 *~
 
-# Claude Code (track shared settings.json + skills, ignore per-user overrides)
-.claude/settings.local.json
+# Coding-agent config (track shared settings + skills, ignore per-user overrides)
+.agents/settings.local.json
 
 # macOS
 .DS_Store
