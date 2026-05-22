@@ -72,6 +72,7 @@ def generate_conf(
                     experimental=gen_info.get("experimental"),
                     included_process_irs=included_process_irs,
                     ruleset_url=gen_info.get("ruleset_url"),
+                    add_resolve_action=gen_info.get("add_resolve_action"),
                 )
             else:
                 args = copy(gen_info)

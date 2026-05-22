@@ -400,6 +400,7 @@ class SingBoxGenerator(GeneratorBase):
         experimental: dict[str, str] | None = None,
         included_process_irs: list[str] | None = None,
         ruleset_url: str | None = None,
+        add_resolve_action: dict[str, Any] | None = None,
     ) -> Self:
         new_object = copy(base_object)
         # `dns` only overwrites or appends DNS servers.
@@ -435,6 +436,8 @@ class SingBoxGenerator(GeneratorBase):
         # Update ruleset download URL if specified.
         if ruleset_url is not None:
             new_object.ruleset_url = ruleset_url
+        if add_resolve_action is not None:
+            new_object.add_resolve_action = add_resolve_action
 
         # Rebuild outbounds and route rules.
         new_object._build_outbounds()
