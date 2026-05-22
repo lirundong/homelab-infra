@@ -606,12 +606,6 @@ generates:
       inet4_range: 198.18.0.0/15
       inet6_range: fc00::/18
     rules:
-    # Avoid leaking ipv6hint and saturating PROXY DNS with per-connection lookups.
-    - action: reject
-      method: drop
-      query_type:
-      - HTTPS
-      - SVCB
     - action: route
       server: DIRECT
       type: logical
@@ -629,8 +623,10 @@ generates:
       query_type:
       - A
       - AAAA
-    - action: route-options
-      client_subnet: 139.226.3.0/24  # China Unicom Shanghai subnet.
+    # Everything else (HTTPS, SVCB, PTR, SRV, MX, ...) — degraded PROXY DNS
+    # otherwise stalls the network on unmatched queries.
+    - action: reject
+      method: drop
     final: PROXY
     independent_cache: true
   dial_fields:
