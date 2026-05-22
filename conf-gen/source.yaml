@@ -606,6 +606,12 @@ generates:
       inet4_range: 198.18.0.0/15
       inet6_range: fc00::/18
     rules:
+    # Avoid leaking ipv6hint and saturating PROXY DNS with per-connection lookups.
+    - action: reject
+      method: drop
+      query_type:
+      - HTTPS
+      - SVCB
     - action: route
       server: DIRECT
       type: logical
