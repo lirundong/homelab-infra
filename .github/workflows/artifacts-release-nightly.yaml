@@ -133,6 +133,28 @@ jobs:
         path: ${{ steps.run_build_script.outputs.OUTPUT_DIR }}
         retention-days: 7
 
+  ci_gate:
+    name: CI Gate
+    runs-on: ubuntu-latest
+    needs: [type_check, build_configuration, build_openwrt]
+    if: always()
+    steps:
+    - run: |
+        # Single stable check for branch protection. snapshots matrix legs are
+        # continue-on-error, so a failure there does not downgrade
+        # needs.build_openwrt.result; this gate tracks stable legs only.
+        failed=
+        for r in \
+          "type_check=${{ needs.type_check.result }}" \
+          "build_configuration=${{ needs.build_configuration.result }}" \
+          "build_openwrt=${{ needs.build_openwrt.result }}"; do
+          name=${r%=*}; res=${r#*=}
+          if [[ "$res" != "success" ]]; then
+            echo "::error::$name => $res"; failed=1
+          fi
+        done
+        [[ -z "$failed" ]]
+
   release_proxy_configurations:
     name: Release ${{ matrix.conf }} Configuration
     needs: build_configuration
