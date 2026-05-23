@@ -623,10 +623,14 @@ generates:
       query_type:
       - A
       - AAAA
-    # Everything else (HTTPS, SVCB, PTR, SRV, MX, ...) — degraded PROXY DNS
-    # otherwise stalls the network on unmatched queries.
-    - action: reject
-      method: drop
+    # Send PTR to the local resolver so LAN reverse lookups still work.
+    - action: route
+      server: DIRECT
+      query_type:
+      - PTR
+    # NODATA on everything else: instant A/AAAA fallback, no resolver timeout.
+    - action: predefined
+      rcode: NOERROR
     final: PROXY
     independent_cache: true
   dial_fields:
