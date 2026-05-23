@@ -6,6 +6,7 @@
 define tun_mark      = 0x02
 define tun_route_ip  = 172.19.0.2
 define tun_route_ip6 = fdfe:dcba:9876::2
+define fakeip_ip6    = fc00::/18
 define dns_mark      = 0x03
 
 set direct_macs {
@@ -67,8 +68,9 @@ chain mangle_prerouting_custom {
     ether saddr @direct_macs counter return
     # 2. Mark DNS packets, they will be DNAT to the TUN network later.
     iifname $lan_devices meta l4proto {tcp, udp} th dport 53 counter meta mark set $dns_mark return
-    # 3. Bypass local connections.
+    # 3. Bypass local connections, except FakeIPv6 needs TUN.
     ip daddr @local_ipv4 counter return
+    ip6 daddr $fakeip_ip6 counter meta mark set $tun_mark return
     ip6 daddr @local_ipv6 counter return
     # 4. Mark all remaining packets and route them to sing-box TUN later.
     iifname $lan_devices counter meta mark set $tun_mark
