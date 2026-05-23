@@ -594,13 +594,6 @@ generates:
     - tag: DIRECT
       type: local
       detour: DIRECT
-    - tag: ResolveMatch
-      type: https
-      server: '@secret:DOT_PUB'
-      detour: DIRECT
-      domain_resolver:
-        server: DIRECT
-        strategy: prefer_ipv4
     - tag: FakeIP
       type: fakeip
       inet4_range: 198.18.0.0/15
@@ -644,8 +637,9 @@ generates:
         strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/
   add_resolve_action:
-    server: ResolveMatch
+    server: PROXY
     strategy: prefer_ipv4  # Easier to match with IP rules.
+    client_subnet: 139.226.2.0/24  # ECS hint so CDN answers land near the LAN.
   inbounds:
   - tag: tun
     type: tun
@@ -760,8 +754,9 @@ generates:
       server: '1.12.12.12'
       detour: DIRECT
   add_resolve_action:
-    server: DIRECT
+    server: PROXY
     strategy: prefer_ipv4  # Easier to match with IP rules.
+    client_subnet: 139.226.2.0/24  # ECS hint so CDN answers land near the LAN.
   experimental:
     clash_api: null
     cache_file:
