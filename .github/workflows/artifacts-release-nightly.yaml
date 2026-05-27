@@ -1,9 +1,68 @@
 name: Artifacts Release Nightly
 on:
+  pull_request:
   push:
   schedule:
   - cron: '1 0 * * *'  # Nightly build.
 jobs:
+  detect_changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      conf_gen: ${{ steps.changed.outputs.conf_gen }}
+      openwrt_builder: ${{ steps.changed.outputs.openwrt_builder }}
+      release: ${{ steps.changed.outputs.release }}
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+    - id: changed
+      run: |
+        conf_gen=false
+        openwrt_builder=false
+        release=false
+        case "${{ github.event_name }}" in
+          schedule)
+            conf_gen=true
+            openwrt_builder=true
+            release=true
+            ;;
+          push)
+            if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+              conf_gen=true
+              openwrt_builder=true
+              release=true
+            else
+              conf_gen=true
+            fi
+            ;;
+          pull_request)
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+            changed_files="$(git diff --name-only "$base...$head")"
+            while IFS= read -r file; do
+              [[ -n "$file" ]] || continue
+              case "$file" in
+                conf-gen/*)
+                  conf_gen=true
+                  ;;
+                openwrt-builder/*)
+                  openwrt_builder=true
+                  ;;
+              esac
+            done <<< "$changed_files"
+            ;;
+          *)
+            echo "::error::Unsupported event ${{ github.event_name }}"
+            exit 1
+            ;;
+        esac
+        {
+          echo "conf_gen=$conf_gen"
+          echo "openwrt_builder=$openwrt_builder"
+          echo "release=$release"
+        } >> "$GITHUB_OUTPUT"
+
   type_check:
     name: Type Check
     runs-on: ubuntu-latest
@@ -19,6 +78,8 @@ jobs:
   conf_gen_tests:
     name: conf-gen Tests
     runs-on: ubuntu-latest
+    needs: detect_changes
+    if: ${{ needs.detect_changes.outputs.conf_gen == 'true' }}
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
@@ -31,6 +92,8 @@ jobs:
   build_configuration:
     name: Build Configurations
     runs-on: ubuntu-latest
+    needs: detect_changes
+    if: ${{ needs.detect_changes.outputs.conf_gen == 'true' }}
     env:
       LINUX_SING_BOX_CHECK_CONFIGS: sing-box-daemon
     steps:
@@ -56,7 +119,7 @@ jobs:
         # lists and stay plaintext. Workflow artifacts on a public repo are
         # downloadable by anyone with read access, so we cannot upload the
         # post-secret-expansion configs unencrypted.
-        find artifacts-conf -type f ! -name '*.srs' | while read f; do
+        find artifacts-conf -type f ! -name '*.srs' | while IFS= read -r f; do
           gpg -c --batch --yes --passphrase="$PASSWORD" -o "$f.gpg" "$f"
           rm -f "$f"
         done
@@ -76,7 +139,14 @@ jobs:
   build_openwrt:
     name: Build OpenWRT ${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}
     runs-on: ubuntu-latest
-    needs: build_configuration
+    needs: [detect_changes, build_configuration]
+    if: >-
+      ${{
+        always() &&
+        needs.detect_changes.outputs.openwrt_builder == 'true' &&
+        needs.build_configuration.result != 'failure' &&
+        needs.build_configuration.result != 'cancelled'
+      }}
     strategy:
       matrix:
         arch:
@@ -108,17 +178,33 @@ jobs:
         go-version: stable
         cache: false
     - uses: actions/download-artifact@v7
+      if: ${{ needs.build_configuration.result == 'success' }}
       with:
         name: artifacts-conf
         path: ${{ github.workspace }}/conf
     - name: Decrypt configs needed by build.sh
+      if: ${{ needs.build_configuration.result == 'success' }}
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
-        find ${{ github.workspace }}/conf -name '*.gpg' | while read f; do
+        find ${{ github.workspace }}/conf -name '*.gpg' | while IFS= read -r f; do
           gpg -d --batch --yes --passphrase="$PASSWORD" -o "${f%.gpg}" "$f"
           rm -f "$f"
         done
+    - name: Download released config needed by build.sh
+      if: ${{ needs.build_configuration.result == 'skipped' }}
+      env:
+        PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+      run: |
+        conf_dir="${{ github.workspace }}/conf/sing-box-daemon"
+        mkdir -p "$conf_dir"
+        curl -fsSL \
+          https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/config.json.gpg \
+          -o "$conf_dir/config.json.gpg"
+        gpg -d --batch --yes --passphrase="$PASSWORD" \
+          -o "$conf_dir/config.json" \
+          "$conf_dir/config.json.gpg"
+        rm -f "$conf_dir/config.json.gpg"
     - id: run_build_script
       env:
         TARGET_ARCH: ${{ matrix.arch.openwrt }}
@@ -134,23 +220,25 @@ jobs:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
         PROFILE: ${{ matrix.arch.profile }}
       run: |
-        if [[ ${{ matrix.version.openwrt }} == 'snapshots' ]]; then
+        if [[ "${{ matrix.version.openwrt }}" == 'snapshots' ]]; then
           VERSION_PREFIX=""
         else
           VERSION_PREFIX="${VERSION}-"
         fi
         BUILD_DIR="${WORK_DIR}/openwrt-imagebuilder-${VERSION_PREFIX}${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}/bin/targets/${TARGET_ARCH}"
-        OUTPUT_DIR=${{ github.workspace }}/outputs
-        mkdir -p ${OUTPUT_DIR}
+        OUTPUT_DIR="${{ github.workspace }}/outputs"
+        mkdir -p "$OUTPUT_DIR"
         bash openwrt-builder/build.sh
         # Encrypt before staging into the artifact upload directory; the .gz
         # contents include the post-secret-expansion rootfs which leaks the
         # master password (it's the on-device cron passphrase) if uploaded raw.
-        for f in $(find ${BUILD_DIR} -iname '*.gz'); do
+        image_list="$RUNNER_TEMP/openwrt-images"
+        find "$BUILD_DIR" -iname '*.gz' -print0 > "$image_list"
+        while IFS= read -r -d '' f; do
           gpg -c --batch --yes --passphrase="$PASSWORD" \
-            -o ${OUTPUT_DIR}/$(basename ${f}).gpg \
-            ${f}
-        done
+            -o "$OUTPUT_DIR/$(basename "$f").gpg" \
+            "$f"
+        done < "$image_list"
         echo "OUTPUT_DIR=${OUTPUT_DIR}" >> "$GITHUB_OUTPUT"
     - uses: actions/upload-artifact@v6
       with:
@@ -161,19 +249,28 @@ jobs:
   ci_gate:
     name: CI Gate
     runs-on: ubuntu-latest
-    needs: [type_check, conf_gen_tests, build_configuration, build_openwrt]
+    needs: [detect_changes, type_check, conf_gen_tests, build_configuration, build_openwrt]
     if: always()
     steps:
     - run: |
         # Single stable check for branch protection. snapshots matrix legs are
         # continue-on-error, so a failure there does not downgrade
         # needs.build_openwrt.result; this gate tracks stable legs only.
+        required=(
+          "detect_changes=${{ needs.detect_changes.result }}"
+          "type_check=${{ needs.type_check.result }}"
+        )
+        if [[ "${{ needs.detect_changes.outputs.conf_gen }}" == "true" ]]; then
+          required+=(
+            "conf_gen_tests=${{ needs.conf_gen_tests.result }}"
+            "build_configuration=${{ needs.build_configuration.result }}"
+          )
+        fi
+        if [[ "${{ needs.detect_changes.outputs.openwrt_builder }}" == "true" ]]; then
+          required+=("build_openwrt=${{ needs.build_openwrt.result }}")
+        fi
         failed=
-        for r in \
-          "type_check=${{ needs.type_check.result }}" \
-          "conf_gen_tests=${{ needs.conf_gen_tests.result }}" \
-          "build_configuration=${{ needs.build_configuration.result }}" \
-          "build_openwrt=${{ needs.build_openwrt.result }}"; do
+        for r in "${required[@]}"; do
           name=${r%=*}; res=${r#*=}
           if [[ "$res" != "success" ]]; then
             echo "::error::$name => $res"; failed=1
@@ -183,9 +280,9 @@ jobs:
 
   release_proxy_configurations:
     name: Release ${{ matrix.conf }} Configuration
-    needs: build_configuration
+    needs: [detect_changes, build_configuration]
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
+    if: ${{ needs.detect_changes.outputs.release == 'true' }}
     strategy:
       matrix:
         conf: ${{ fromJSON(needs.build_configuration.outputs.config_names) }}
@@ -200,21 +297,31 @@ jobs:
         # copy them to the release dir alongside the plaintext .srs rule sets.
         # sing-box config directories must always carry .srs rule sets; a
         # missing-glob failure here is the desired signal, not noise to suppress.
-        mkdir -p ${{ github.workspace }}/release
-        if [[ -d ${{ github.workspace }}/conf/${{ matrix.conf }} ]]; then
-          cp ${{ github.workspace }}/conf/${{ matrix.conf }}/*.gpg ${{ github.workspace }}/release/
-          cp ${{ github.workspace }}/conf/${{ matrix.conf }}/*.srs ${{ github.workspace }}/release/
+        conf_root="${{ github.workspace }}/conf"
+        release_dir="${{ github.workspace }}/release"
+        mkdir -p "$release_dir"
+        if [[ -d "$conf_root/${{ matrix.conf }}" ]]; then
+          cp "$conf_root/${{ matrix.conf }}"/*.gpg "$release_dir"/
+          cp "$conf_root/${{ matrix.conf }}"/*.srs "$release_dir"/
         else
-          conf_file=$(find ${{ github.workspace }}/conf -iname "${{ matrix.conf }}.*.gpg")
-          cp ${conf_file} ${{ github.workspace }}/release/
+          conf_file_list="$RUNNER_TEMP/conf-files"
+          find "$conf_root" -iname "${{ matrix.conf }}.*.gpg" -print0 > "$conf_file_list"
+          if [[ ! -s "$conf_file_list" ]]; then
+            echo "::error::No release artifact found for ${{ matrix.conf }}"
+            exit 1
+          fi
+          while IFS= read -r -d '' conf_file; do
+            cp "$conf_file" "$release_dir"/
+          done < "$conf_file_list"
         fi
     - id: prepare_readme
       run: |
         mkdir artifacts-readme
         cp .github/artifacts-release-readme.md artifacts-readme/README.md
-        sed -i 's!{ARTIFACT_NAME}!'${{ matrix.conf }}' Configuration!g' artifacts-readme/README.md
-        sed -i 's!{RELEASE_DATE}!'$(date +'%Y/%m/%d')'!g' artifacts-readme/README.md
-        sed -i 's!{CONTENT_DESCRIPTION}!- Configuration file (possibly with companion binaries) for '${{ matrix.conf }}'!g' artifacts-readme/README.md
+        release_date="$(date +'%Y/%m/%d')"
+        sed -i "s!{ARTIFACT_NAME}!${{ matrix.conf }} Configuration!g" artifacts-readme/README.md
+        sed -i "s!{RELEASE_DATE}!$release_date!g" artifacts-readme/README.md
+        sed -i "s!{CONTENT_DESCRIPTION}!- Configuration file (possibly with companion binaries) for ${{ matrix.conf }}!g" artifacts-readme/README.md
         # Load README content to an env variable, see
         # https://github.com/marketplace/actions/upload-files-to-a-github-release#usage
         RELEASE_README=$(cat artifacts-readme/README.md)
@@ -235,9 +342,9 @@ jobs:
 
   release_openwrt_builds:
     name: Release OpenWRT ${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}
-    needs: build_openwrt
+    needs: [detect_changes, build_openwrt]
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.head_commit.message, '[no release]') }}
+    if: ${{ needs.detect_changes.outputs.release == 'true' }}
     strategy:
       matrix:
         arch:
@@ -262,15 +369,17 @@ jobs:
     - run: |
         # Images are already GPG-encrypted at build_openwrt time; just stage
         # the .gpg files for upload to the GitHub Release.
-        mkdir -p ${{ github.workspace }}/release
-        cp ${{ github.workspace }}/openwrt/*.gpg ${{ github.workspace }}/release/
+        release_dir="${{ github.workspace }}/release"
+        mkdir -p "$release_dir"
+        cp "${{ github.workspace }}/openwrt"/*.gpg "$release_dir"/
     - id: prepare_readme
       run: |
         mkdir artifacts-readme
         cp .github/artifacts-release-readme.md artifacts-readme/README.md
-        sed -i 's!{ARTIFACT_NAME}!OpenWRT '${{ matrix.version.openwrt }}' '${{ matrix.arch.openwrt }}'!g' artifacts-readme/README.md
-        sed -i 's!{RELEASE_DATE}!'$(date +'%Y/%m/%d')'!g' artifacts-readme/README.md
-        sed -i 's!{CONTENT_DESCRIPTION}!- OpenWRT '${{ matrix.version.openwrt }}' images built with GCC '${{ matrix.version.gcc }}' for the '${{ matrix.arch.openwrt }}' platform!g' artifacts-readme/README.md
+        release_date="$(date +'%Y/%m/%d')"
+        sed -i "s!{ARTIFACT_NAME}!OpenWRT ${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}!g" artifacts-readme/README.md
+        sed -i "s!{RELEASE_DATE}!$release_date!g" artifacts-readme/README.md
+        sed -i "s!{CONTENT_DESCRIPTION}!- OpenWRT ${{ matrix.version.openwrt }} images built with GCC ${{ matrix.version.gcc }} for the ${{ matrix.arch.openwrt }} platform!g" artifacts-readme/README.md
         # Load README content to an env variable, see
         # https://github.com/marketplace/actions/upload-files-to-a-github-release#usage
         RELEASE_README=$(cat artifacts-readme/README.md)
