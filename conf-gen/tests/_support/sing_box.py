@@ -1,12 +1,7 @@
 from __future__ import annotations
 
-from contextlib import contextmanager
-from copy import deepcopy
-from dataclasses import dataclass
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import ipaddress
 import json
-from pathlib import Path
 import random
 import re
 import shutil
@@ -15,8 +10,19 @@ import struct
 import subprocess
 import threading
 import time
+from contextlib import contextmanager
+from copy import deepcopy
+from dataclasses import dataclass
+from http.server import BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer
+from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Callable, Iterator, Sequence, TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Callable
+from typing import Iterator
+from typing import Sequence
+from typing import TypeVar
 
 import jsonschema
 import requests
@@ -99,7 +105,8 @@ def load_sanitized_source() -> dict[str, Any]:
 
 def build_source_context() -> SourceContext:
     from conf_gen.proxy import parse_clash_proxies
-    from conf_gen.proxy_group import merge_proxy_by_region, parse_proxy_groups
+    from conf_gen.proxy_group import merge_proxy_by_region
+    from conf_gen.proxy_group import parse_proxy_groups
     from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 
     source = load_sanitized_source()

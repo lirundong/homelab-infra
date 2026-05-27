@@ -1,6 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any
+from typing import Literal
 
 from conf_gen.rule._base_ir import _IR_REGISTRY
 from conf_gen.rule._base_ir import IRBase
@@ -8,7 +9,6 @@ from conf_gen.rule.ir import IPCIDR
 from conf_gen.rule.ir import IPCIDR6
 from conf_gen.rule.ir import PackageName
 from conf_gen.rule.ir import ProcessName
-
 
 _DST_IP_IRS = (IPCIDR, IPCIDR6)
 _PROCESS_IRS = (PackageName, ProcessName)

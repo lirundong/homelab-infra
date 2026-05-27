@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Iterator
 
 import pytest
-
-from _support.sing_box import SourceContext, build_source_context, generate_daemon_artifacts
+from _support.sing_box import SourceContext
+from _support.sing_box import build_source_context
+from _support.sing_box import generate_daemon_artifacts
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:

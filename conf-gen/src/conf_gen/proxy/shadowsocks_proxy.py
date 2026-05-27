@@ -1,7 +1,10 @@
-from typing import get_args, Literal, NotRequired
+from typing import Literal
+from typing import NotRequired
+from typing import get_args
 
-from conf_gen.proxy._base_proxy import ClashProxyT, ProxyBase, SingBoxProxyT
-
+from conf_gen.proxy._base_proxy import ClashProxyT
+from conf_gen.proxy._base_proxy import ProxyBase
+from conf_gen.proxy._base_proxy import SingBoxProxyT
 
 ShadowSocksAEADCiphersT = Literal[
     "aes-128-gcm",

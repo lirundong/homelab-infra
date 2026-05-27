@@ -1,31 +1,29 @@
 from __future__ import annotations
 
 import ipaddress
-from pathlib import Path
 import socket
+from pathlib import Path
 
-from _support.sing_box import (
-    SourceContext,
-    collect_rule_set_references,
-    exercise_generated_dns_rules,
-    exercise_generated_route_rules,
-    fakeip_dns_answers,
-    fetch_live_schema,
-    file_contains,
-    generate_runtime_config,
-    generate_selected_artifacts,
-    http_server,
-    http_get_via_mixed,
-    load_config,
-    route_clash_modes,
-    rule_set_compiler,
-    run_sing_box_check,
-    running_sing_box,
-    sanitize_host_label,
-    unused_port,
-    validate_config_schema,
-    wait_for_tcp_port,
-)
+from _support.sing_box import SourceContext
+from _support.sing_box import collect_rule_set_references
+from _support.sing_box import exercise_generated_dns_rules
+from _support.sing_box import exercise_generated_route_rules
+from _support.sing_box import fakeip_dns_answers
+from _support.sing_box import fetch_live_schema
+from _support.sing_box import file_contains
+from _support.sing_box import generate_runtime_config
+from _support.sing_box import generate_selected_artifacts
+from _support.sing_box import http_get_via_mixed
+from _support.sing_box import http_server
+from _support.sing_box import load_config
+from _support.sing_box import route_clash_modes
+from _support.sing_box import rule_set_compiler
+from _support.sing_box import run_sing_box_check
+from _support.sing_box import running_sing_box
+from _support.sing_box import sanitize_host_label
+from _support.sing_box import unused_port
+from _support.sing_box import validate_config_schema
+from _support.sing_box import wait_for_tcp_port
 
 
 def test_source_derived_daemon_generates_valid_artifacts(

@@ -1,4 +1,5 @@
-from conf_gen.rule._base_ir import _IR_REGISTRY, IRBase as _IRBase
+from conf_gen.rule._base_ir import _IR_REGISTRY
+from conf_gen.rule._base_ir import IRBase as _IRBase
 
 
 @_IR_REGISTRY.register()

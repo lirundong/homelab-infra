@@ -3,7 +3,9 @@
 import ipaddress as ip
 import re
 import socket
-from typing import Any, Literal, cast
+from typing import Any
+from typing import Literal
+from typing import cast
 
 import requests
 import urllib3.util.connection as urllib3_cn

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Sequence
+from typing import Any
+from typing import Sequence
 
 from conf_gen.proxy import ProxyBase
-from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase, ProxyT
+from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
+from conf_gen.proxy_group._base_proxy_group import ProxyT
 from conf_gen.rule import FilterT
 
 

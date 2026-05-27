@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from functools import lru_cache
-import re
-from typing import Any, Sequence, TypeAlias
+from typing import Any
+from typing import Sequence
+from typing import TypeAlias
 
 from conf_gen.proxy import ProxyBase
-from conf_gen.rule import FilterT, parse_filter
+from conf_gen.rule import FilterT
 from conf_gen.rule import group_sing_box_filters
+from conf_gen.rule import parse_filter
 from conf_gen.rule._base_ir import IRBase
 from conf_gen.rule.ir import Match
-
 
 ProxyT: TypeAlias = ProxyBase | str | dict[str, str]
 ProxyLeafT: TypeAlias = ProxyBase | str

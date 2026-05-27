@@ -1,17 +1,17 @@
-from typing import Any, get_args
+from typing import Any
+from typing import get_args
 
 import requests
 import yaml
-
 from conf_gen.proxy import ProxyBase
-from conf_gen.proxy.shadowsocks_proxy import (
-    ShadowSocks2022CiphersT,
-    ShadowSocks2022Proxy,
-    ShadowSocksProxy,
-)
+from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022CiphersT
+from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022Proxy
+from conf_gen.proxy.shadowsocks_proxy import ShadowSocksProxy
 from conf_gen.proxy.socks_proxy import Socks5Proxy
 from conf_gen.proxy.trojan_proxy import TrojanProxy
-from conf_gen.proxy.v2ray_proxy import VMessProxy, VMessGRPCProxy, VMessWebSocketProxy
+from conf_gen.proxy.v2ray_proxy import VMessGRPCProxy
+from conf_gen.proxy.v2ray_proxy import VMessProxy
+from conf_gen.proxy.v2ray_proxy import VMessWebSocketProxy
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 
 

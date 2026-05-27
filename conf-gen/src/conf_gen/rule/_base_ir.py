@@ -1,6 +1,8 @@
 import functools
 import re
-from typing import Any, Callable, Hashable
+from typing import Any
+from typing import Callable
+from typing import Hashable
 from warnings import warn
 
 

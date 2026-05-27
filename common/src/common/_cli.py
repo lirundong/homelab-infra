@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser
 import os
 import re
 import sys
+from argparse import ArgumentParser
 from typing import Any
 
 from common import secrets

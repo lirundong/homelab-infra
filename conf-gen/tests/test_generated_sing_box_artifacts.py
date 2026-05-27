@@ -3,14 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
-from _support.sing_box import (
-    fetch_live_schema,
-    load_config,
-    run_redacted_sing_box_check,
-    rule_set_compiler,
-    validate_config_schema,
-)
+from _support.sing_box import fetch_live_schema
+from _support.sing_box import load_config
+from _support.sing_box import rule_set_compiler
+from _support.sing_box import run_redacted_sing_box_check
+from _support.sing_box import validate_config_schema
 
 
 def test_generated_artifacts_pass_schema_and_sing_box_check(

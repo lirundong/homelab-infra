@@ -1,7 +1,11 @@
 from copy import copy
-from typing import Any, Literal, NotRequired, TypedDict
+from typing import Any
+from typing import Literal
+from typing import NotRequired
+from typing import TypedDict
 
-from conf_gen.proxy._base_proxy import ClashProxyT, ProxyBase
+from conf_gen.proxy._base_proxy import ClashProxyT
+from conf_gen.proxy._base_proxy import ProxyBase
 
 
 class VMessClashProxyT(ClashProxyT):

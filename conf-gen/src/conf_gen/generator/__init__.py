@@ -1,6 +1,7 @@
-from copy import copy
 import os
-from typing import Any, Sequence
+from copy import copy
+from typing import Any
+from typing import Sequence
 
 from conf_gen.generator._base_generator import GeneratorBase
 from conf_gen.generator.clash_generator import ClashGenerator

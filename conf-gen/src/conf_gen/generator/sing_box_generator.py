@@ -1,9 +1,7 @@
-from copy import copy, deepcopy
 import io
 import itertools
 import json
 import os
-from pathlib import Path
 import platform
 import random
 import re
@@ -13,26 +11,31 @@ import subprocess
 import tarfile
 import tempfile
 import types
-from typing import Any, Literal, Self, Sequence
-from urllib.parse import urlparse, urljoin
+from copy import copy
+from copy import deepcopy
+from pathlib import Path
+from typing import Any
+from typing import Literal
+from typing import Self
+from typing import Sequence
+from urllib.parse import urljoin
+from urllib.parse import urlparse
 from warnings import warn
 
 import requests
-
 from conf_gen.generator._base_generator import GeneratorBase
-from packaging.version import Version, parse
-from conf_gen.proxy import (
-    ProxyBase,
-    ShadowSocksProxy,
-    ShadowSocks2022Proxy,
-    TrojanProxy,
-)
+from conf_gen.proxy import ProxyBase
+from conf_gen.proxy import ShadowSocks2022Proxy
+from conf_gen.proxy import ShadowSocksProxy
+from conf_gen.proxy import TrojanProxy
 from conf_gen.proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.fallback_proxy_group import FallbackProxyGroup
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 from conf_gen.rule.parser import parse_filter
 from conf_gen.rule.utils import group_sing_box_filters
 from conf_gen.rule.utils import split_sing_box_dst_ip_filters
+from packaging.version import Version
+from packaging.version import parse
 
 # TODO: Make this an attribute of rule IR.
 # https://sing-box.sagernet.org/configuration/rule-set/headless-rule/

@@ -1,7 +1,12 @@
-from typing import Literal, NotRequired, Sequence, TypedDict
+from typing import Literal
+from typing import NotRequired
+from typing import Sequence
+from typing import TypedDict
 
-from conf_gen.proxy._base_proxy import ClashProxyT, ProxyBase, SingBoxProxyT, SingBoxTlsT
-
+from conf_gen.proxy._base_proxy import ClashProxyT
+from conf_gen.proxy._base_proxy import ProxyBase
+from conf_gen.proxy._base_proxy import SingBoxProxyT
+from conf_gen.proxy._base_proxy import SingBoxTlsT
 
 _ClashTrojanMixinT = TypedDict(
     "_ClashTrojanMixinT",

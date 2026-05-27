@@ -1,4 +1,6 @@
-from typing import NotRequired, Sequence, TypedDict
+from typing import NotRequired
+from typing import Sequence
+from typing import TypedDict
 
 
 class ClashProxyT(TypedDict):

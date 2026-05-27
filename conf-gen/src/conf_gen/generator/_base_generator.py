@@ -1,11 +1,12 @@
 from copy import copy
 from datetime import datetime
-from typing import Any, ClassVar, Sequence
-
-from pytz import timezone
+from typing import Any
+from typing import ClassVar
+from typing import Sequence
 
 from conf_gen.proxy._base_proxy import ProxyBase
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
+from pytz import timezone
 
 
 class GeneratorBase:
