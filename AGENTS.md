@@ -38,8 +38,6 @@ Non-trivial changes follow this pipeline:
 5. **Rebase-merge** after `ci_gate` is green (linear history; no merge commits).
 
 Commit messages: `[scope] imperative summary` (e.g. `[conf-gen] drop HTTPS DNS queries`).
-Append `[no release]` to the *commit message* to skip the `release_*` jobs while still
-running `build_*` as integration tests — required during master-password rotation.
 
 ## conf-gen (`conf-gen/src/conf_gen/`, note underscore)
 Pipeline: `source.yaml -> Parser -> IR Objects -> Generator -> Config`. CLI:
@@ -97,14 +95,11 @@ into the image, or use `hotplug.d/iface` with a default-route guard.
 ## CI (`.github/workflows/artifacts-release-nightly.yaml`)
 DAG: `type_check`, `conf_gen_tests`, `build_configuration` → `build_openwrt` (matrix
 {x86/64, rockchip/armv8} × {25.12.3, snapshots}) →
-`release_{proxy_configurations,openwrt_builds}`. The `ci_gate` job fans in `type_check +
-conf_gen_tests + build_configuration + build_openwrt` and is the **single required check**
-for branch protection (snapshots legs `continue-on-error`, so their failures don't
-propagate). GCC `14.3.0_musl`; rockchip profile `friendlyarm_nanopi-r6s`. Workflow-artifact
-encryption: see `.agents/skills/secret-handling/references/artifact-encryption.md`.
-`[no release]` in
-the commit message skips `release_*` while still running `build_*` as integration tests —
-use during rotation or when the deployed router can't yet decrypt new artifacts.
+`release_{proxy_configurations,openwrt_builds}`. The `ci_gate` job fans in required jobs
+based on event type and touched paths and is the **single required check** for branch
+protection (snapshots legs `continue-on-error`, so their failures don't propagate). GCC
+`14.3.0_musl`; rockchip profile `friendlyarm_nanopi-r6s`. Workflow-artifact encryption:
+see `.agents/skills/secret-handling/references/artifact-encryption.md`.
 `verify-master-password.yaml` (workflow_dispatch only, repo-owner gated, `permissions: {}`)
 emits a 16-hex sha256 prefix of `MASTER_PASSWORD` for rotation fingerprint comparison.
 
