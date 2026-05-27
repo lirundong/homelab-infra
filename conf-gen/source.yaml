@@ -280,10 +280,10 @@ rules:
 - name: Apple CDN
   type: select
   filters:
-  - type: clash-classical
+  - type: domain-list
     format: text
     resolve: false
-    url: https://ruleset.skk.moe/Clash/non_ip/apple_cdn.txt
+    url: https://ruleset.skk.moe/Clash/domainset/apple_cdn.txt
   img-url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/IconSet/Apple.png
   proxies:
   - Mainland
