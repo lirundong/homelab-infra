@@ -22,6 +22,9 @@ uv run conf-gen -s conf-gen/source.yaml -o output/     # gen configs
 uv run black <file>                                    # format (99 cols)
 uv run mypy common/src/common conf-gen/src/conf_gen \
     util-cookbook/tencent-cloud/src/tencent_cloud      # typecheck
+uv run pytest conf-gen/tests                           # conf-gen tests
+uv run pytest conf-gen/tests/test_generated_sing_box_artifacts.py \
+    --artifact-dir artifacts-conf --check-config sing-box-daemon
 # OpenWRT (PASSWORD env required; read secret-handling skill before invoking):
 VERSION=25.12.3 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
 ```
@@ -50,6 +53,10 @@ Pipeline: `source.yaml -> Parser -> IR Objects -> Generator -> Config`. CLI:
 - **generator/**: `GeneratorBase` -> Clash YAML, Quantumult `.conf` + rewrites, SingBox
   (.srs via `RuleSetCompiler` ctx mgr; auto-downloads sing-box; DNS/route split).
 - **rewrite/**: `QuantumultRewrite` for Quantumult-X URL rewriting.
+- **tests/**: pytest-only helpers stay under tests, not `src/`. Source-derived sing-box
+  tests sanitize secrets and cover structure, schema/check, and no-TUN runtime behavior.
+  Generated artifact validation uses `--artifact-dir`; CI passes `--check-config` for
+  configs the local runner can validate with `sing-box check`.
 
 ## common — Secrets Management (`common/src/common/`)
 Singleton `_SecretsManager`: Fernet (AEAD) + PBKDF2HMAC (SHA256, 100k iter). Env: `PASSWORD`
@@ -88,10 +95,11 @@ feed (3.13 stable / 3.14 snapshots). **`uci-defaults/*` runs before networking**
 into the image, or use `hotplug.d/iface` with a default-route guard.
 
 ## CI (`.github/workflows/artifacts-release-nightly.yaml`)
-DAG: `type_check`, `build_configuration` → `build_openwrt` (matrix {x86/64, rockchip/armv8}
-× {25.12.3, snapshots}) → `release_{proxy_configurations,openwrt_builds}`. The `ci_gate` job
-fans in `type_check + build_configuration + build_openwrt` and is the **single required
-check** for branch protection (snapshots legs `continue-on-error`, so their failures don't
+DAG: `type_check`, `conf_gen_tests`, `build_configuration` → `build_openwrt` (matrix
+{x86/64, rockchip/armv8} × {25.12.3, snapshots}) →
+`release_{proxy_configurations,openwrt_builds}`. The `ci_gate` job fans in `type_check +
+conf_gen_tests + build_configuration + build_openwrt` and is the **single required check**
+for branch protection (snapshots legs `continue-on-error`, so their failures don't
 propagate). GCC `14.3.0_musl`; rockchip profile `friendlyarm_nanopi-r6s`. Workflow-artifact
 encryption: see `.agents/skills/secret-handling/references/artifact-encryption.md`.
 `[no release]` in
