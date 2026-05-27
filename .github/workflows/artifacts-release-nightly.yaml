@@ -21,6 +21,7 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        set -euo pipefail
         conf_gen=false
         openwrt_builder=false
         release=false
@@ -37,11 +38,14 @@ jobs:
               openwrt_builder=true
               release=true
             else
-              open_pr_count="$(gh pr list \
+              if ! open_pr_count="$(gh pr list \
                 --head "${{ github.ref_name }}" \
                 --state open \
                 --json number \
-                --jq 'length')"
+                --jq 'length')"; then
+                echo "::error::gh pr list failed for ${{ github.ref_name }}"
+                exit 1
+              fi
               if [[ "$open_pr_count" == "0" ]]; then
                 conf_gen=true
               else
@@ -52,14 +56,21 @@ jobs:
           pull_request)
             base="${{ github.event.pull_request.base.sha }}"
             head="${{ github.event.pull_request.head.sha }}"
-            changed_files="$(git diff --name-only "$base...$head")"
+            if ! changed_files="$(git diff --name-only "$base...$head")"; then
+              echo "::error::git diff failed for $base...$head"
+              exit 1
+            fi
             while IFS= read -r file; do
               [[ -n "$file" ]] || continue
               case "$file" in
                 conf-gen/*)
                   conf_gen=true
                   ;;
-                openwrt-builder/*)
+                openwrt-builder/*|util-cookbook/tencent-cloud/*)
+                  openwrt_builder=true
+                  ;;
+                common/*|pyproject.toml|uv.lock|.github/workflows/*)
+                  conf_gen=true
                   openwrt_builder=true
                   ;;
               esac
@@ -224,7 +235,7 @@ jobs:
         conf_dir="${{ github.workspace }}/conf/sing-box-daemon"
         mkdir -p "$conf_dir"
         curl -fsSL \
-          https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/config.json.gpg \
+          "${{ github.server_url }}/${{ github.repository }}/releases/download/sing-box-daemon/config.json.gpg" \
           -o "$conf_dir/config.json.gpg"
         gpg -d --batch --yes --passphrase="$PASSWORD" \
           -o "$conf_dir/config.json" \
