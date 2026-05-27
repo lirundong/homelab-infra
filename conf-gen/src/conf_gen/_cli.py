@@ -2,18 +2,22 @@
 
 """Generate config files for various clients from a common source spec."""
 
-from argparse import ArgumentParser
 import os
+from argparse import ArgumentParser
 from typing import Any
 
 import yaml
-
-from common import secrets
 from conf_gen.generator import generate_conf
-from conf_gen.proxy import ProxyBase, parse_clash_proxies, parse_subscriptions
-from conf_gen.proxy_group import ProxyGroupBase, parse_proxy_groups, merge_proxy_by_region
+from conf_gen.proxy import ProxyBase
+from conf_gen.proxy import parse_clash_proxies
+from conf_gen.proxy import parse_subscriptions
+from conf_gen.proxy_group import ProxyGroupBase
+from conf_gen.proxy_group import merge_proxy_by_region
+from conf_gen.proxy_group import parse_proxy_groups
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 from conf_gen.rewrite import parse_rewrites
+
+from common import secrets
 
 
 def main() -> None:

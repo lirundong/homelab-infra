@@ -4,7 +4,8 @@ import copy
 import hashlib
 import hmac
 import json
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from typing import Any
 
 import requests

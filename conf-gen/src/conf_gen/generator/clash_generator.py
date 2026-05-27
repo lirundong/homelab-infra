@@ -1,19 +1,17 @@
 import os
 from copy import copy
-from typing import Any, Sequence
+from typing import Any
+from typing import Sequence
 
 import yaml
-
 from conf_gen.generator._base_generator import GeneratorBase
-from conf_gen.proxy import (
-    ProxyBase,
-    Socks5Proxy,
-    ShadowSocksProxy,
-    TrojanProxy,
-    VMessProxy,
-    VMessGRPCProxy,
-    VMessWebSocketProxy,
-)
+from conf_gen.proxy import ProxyBase
+from conf_gen.proxy import ShadowSocksProxy
+from conf_gen.proxy import Socks5Proxy
+from conf_gen.proxy import TrojanProxy
+from conf_gen.proxy import VMessGRPCProxy
+from conf_gen.proxy import VMessProxy
+from conf_gen.proxy import VMessWebSocketProxy
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 

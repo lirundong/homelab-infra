@@ -1,11 +1,12 @@
+import re
 from collections import defaultdict
 from random import shuffle
-import re
-from typing import Any, Literal, Sequence
+from typing import Any
+from typing import Literal
+from typing import Sequence
 
 import emoji
 import pycountry
-
 from conf_gen.proxy_group import ProxyGroupBase
 from conf_gen.proxy_group._base_proxy_group import ProxyBase
 from conf_gen.proxy_group.fallback_proxy_group import FallbackProxyGroup

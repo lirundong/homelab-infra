@@ -6,7 +6,8 @@ import copy
 from argparse import ArgumentParser
 from pprint import pprint
 
-from tencent_cloud import dnspod, public_ip
+from tencent_cloud import dnspod
+from tencent_cloud import public_ip
 
 
 def update_qcloud_subdomain_record(

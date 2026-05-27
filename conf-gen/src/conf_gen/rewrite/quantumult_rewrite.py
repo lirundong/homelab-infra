@@ -1,6 +1,6 @@
 import requests
-
 from conf_gen.rewrite._base_rewrite import RewriteBase
+
 from common import COMMENT_BEGINS
 
 

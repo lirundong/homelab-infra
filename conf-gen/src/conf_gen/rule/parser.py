@@ -1,24 +1,26 @@
 import re
-from typing import Literal, NotRequired, Sequence, TypedDict
 import warnings
+from typing import Literal
+from typing import NotRequired
+from typing import Sequence
+from typing import TypedDict
 
 import requests
 import yaml
+from conf_gen.rule._base_ir import _IR_REGISTRY
+from conf_gen.rule._base_ir import IRBase
+from conf_gen.rule.ir import IPCIDR
+from conf_gen.rule.ir import IPCIDR6
+from conf_gen.rule.ir import Domain
+from conf_gen.rule.ir import DomainKeyword
+from conf_gen.rule.ir import DomainListItem
+from conf_gen.rule.ir import DomainSuffix
+from conf_gen.rule.ir import DomainWildcard
+from conf_gen.rule.ir import PackageName
+from conf_gen.rule.ir import ProcessName
 
-from conf_gen.rule._base_ir import _IR_REGISTRY, IRBase
-from conf_gen.rule.ir import (
-    Domain,
-    DomainKeyword,
-    DomainListItem,
-    DomainSuffix,
-    DomainWildcard,
-    IPCIDR,
-    IPCIDR6,
-    PackageName,
-    ProcessName,
-)
-from common import CLASH_RULESET_FORMATS, COMMENT_BEGINS
-
+from common import CLASH_RULESET_FORMATS
+from common import COMMENT_BEGINS
 
 DNS_REQUEST_MATCHERS = (
     Domain,
