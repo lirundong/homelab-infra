@@ -97,9 +97,11 @@ DAG: `type_check`, `conf_gen_tests`, `build_configuration` → `build_openwrt` (
 {x86/64, rockchip/armv8} × {25.12.3, snapshots}) →
 `release_{proxy_configurations,openwrt_builds}`. The `ci_gate` job fans in required jobs
 based on event type and touched paths and is the **single required check** for branch
-protection (snapshots legs `continue-on-error`, so their failures don't propagate). GCC
-`14.3.0_musl`; rockchip profile `friendlyarm_nanopi-r6s`. Workflow-artifact encryption:
-see `.agents/skills/secret-handling/references/artifact-encryption.md`.
+protection (snapshots legs `continue-on-error`, so their failures don't propagate). Pushes
+to non-master branches skip CI when an open PR exists for the branch, leaving the PR run as
+the authoritative check set. GCC `14.3.0_musl`; rockchip profile `friendlyarm_nanopi-r6s`.
+Workflow-artifact encryption:
+`.agents/skills/secret-handling/references/artifact-encryption.md`.
 `verify-master-password.yaml` (workflow_dispatch only, repo-owner gated, `permissions: {}`)
 emits a 16-hex sha256 prefix of `MASTER_PASSWORD` for rotation fingerprint comparison.
 

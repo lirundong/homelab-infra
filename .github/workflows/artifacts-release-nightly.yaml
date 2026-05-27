@@ -12,15 +12,19 @@ jobs:
       conf_gen: ${{ steps.changed.outputs.conf_gen }}
       openwrt_builder: ${{ steps.changed.outputs.openwrt_builder }}
       release: ${{ steps.changed.outputs.release }}
+      run_ci: ${{ steps.changed.outputs.run_ci }}
     steps:
     - uses: actions/checkout@v5
       with:
         fetch-depth: 0
     - id: changed
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         conf_gen=false
         openwrt_builder=false
         release=false
+        run_ci=true
         case "${{ github.event_name }}" in
           schedule)
             conf_gen=true
@@ -33,7 +37,16 @@ jobs:
               openwrt_builder=true
               release=true
             else
-              conf_gen=true
+              open_pr_count="$(gh pr list \
+                --head "${{ github.ref_name }}" \
+                --state open \
+                --json number \
+                --jq 'length')"
+              if [[ "$open_pr_count" == "0" ]]; then
+                conf_gen=true
+              else
+                run_ci=false
+              fi
             fi
             ;;
           pull_request)
@@ -61,11 +74,14 @@ jobs:
           echo "conf_gen=$conf_gen"
           echo "openwrt_builder=$openwrt_builder"
           echo "release=$release"
+          echo "run_ci=$run_ci"
         } >> "$GITHUB_OUTPUT"
 
   type_check:
     name: Type Check
     runs-on: ubuntu-latest
+    needs: detect_changes
+    if: ${{ needs.detect_changes.outputs.run_ci == 'true' }}
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
@@ -79,7 +95,11 @@ jobs:
     name: conf-gen Tests
     runs-on: ubuntu-latest
     needs: detect_changes
-    if: ${{ needs.detect_changes.outputs.conf_gen == 'true' }}
+    if: >-
+      ${{
+        needs.detect_changes.outputs.run_ci == 'true' &&
+        needs.detect_changes.outputs.conf_gen == 'true'
+      }}
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
@@ -93,7 +113,11 @@ jobs:
     name: Build Configurations
     runs-on: ubuntu-latest
     needs: detect_changes
-    if: ${{ needs.detect_changes.outputs.conf_gen == 'true' }}
+    if: >-
+      ${{
+        needs.detect_changes.outputs.run_ci == 'true' &&
+        needs.detect_changes.outputs.conf_gen == 'true'
+      }}
     env:
       LINUX_SING_BOX_CHECK_CONFIGS: sing-box-daemon
     steps:
@@ -143,6 +167,7 @@ jobs:
     if: >-
       ${{
         always() &&
+        needs.detect_changes.outputs.run_ci == 'true' &&
         needs.detect_changes.outputs.openwrt_builder == 'true' &&
         needs.build_configuration.result != 'failure' &&
         needs.build_configuration.result != 'cancelled'
@@ -250,7 +275,14 @@ jobs:
     name: CI Gate
     runs-on: ubuntu-latest
     needs: [detect_changes, type_check, conf_gen_tests, build_configuration, build_openwrt]
-    if: always()
+    if: >-
+      ${{
+        always() &&
+        (
+          needs.detect_changes.result != 'success' ||
+          needs.detect_changes.outputs.run_ci == 'true'
+        )
+      }}
     steps:
     - run: |
         # Single stable check for branch protection. snapshots matrix legs are
@@ -282,7 +314,11 @@ jobs:
     name: Release ${{ matrix.conf }} Configuration
     needs: [detect_changes, build_configuration]
     runs-on: ubuntu-latest
-    if: ${{ needs.detect_changes.outputs.release == 'true' }}
+    if: >-
+      ${{
+        needs.detect_changes.outputs.run_ci == 'true' &&
+        needs.detect_changes.outputs.release == 'true'
+      }}
     strategy:
       matrix:
         conf: ${{ fromJSON(needs.build_configuration.outputs.config_names) }}
@@ -344,7 +380,11 @@ jobs:
     name: Release OpenWRT ${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}
     needs: [detect_changes, build_openwrt]
     runs-on: ubuntu-latest
-    if: ${{ needs.detect_changes.outputs.release == 'true' }}
+    if: >-
+      ${{
+        needs.detect_changes.outputs.run_ci == 'true' &&
+        needs.detect_changes.outputs.release == 'true'
+      }}
     strategy:
       matrix:
         arch:
