@@ -16,17 +16,42 @@ jobs:
         uv sync --extra dev
         uv run mypy common/src/common conf-gen/src/conf_gen util-cookbook/tencent-cloud/src/tencent_cloud
 
-  build_configuration:
-    name: Build Configurations
+  conf_gen_tests:
+    name: conf-gen Tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
+      with:
+        cache-suffix: conf-gen-tests
+    - run: |
+        uv sync --extra dev
+        uv run pytest conf-gen/tests
+
+  build_configuration:
+    name: Build Configurations
+    runs-on: ubuntu-latest
+    env:
+      LINUX_SING_BOX_CHECK_CONFIGS: sing-box-daemon
+    steps:
+    - uses: actions/checkout@v5
+    - uses: astral-sh/setup-uv@v7
+    - run: uv sync --extra dev
     - id: generate_proxy_conf
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
         uv run conf-gen -s conf-gen/source.yaml -o artifacts-conf/
+        sing_box_check_args=()
+        case "$RUNNER_OS" in
+          Linux)
+            for config in $LINUX_SING_BOX_CHECK_CONFIGS; do
+              sing_box_check_args+=(--check-config "$config")
+            done
+            ;;
+        esac
+        uv run pytest conf-gen/tests/test_generated_sing_box_artifacts.py \
+          --artifact-dir artifacts-conf "${sing_box_check_args[@]}"
         # Encrypt every config in place; .srs rule sets are public domain
         # lists and stay plaintext. Workflow artifacts on a public repo are
         # downloadable by anyone with read access, so we cannot upload the
@@ -136,7 +161,7 @@ jobs:
   ci_gate:
     name: CI Gate
     runs-on: ubuntu-latest
-    needs: [type_check, build_configuration, build_openwrt]
+    needs: [type_check, conf_gen_tests, build_configuration, build_openwrt]
     if: always()
     steps:
     - run: |
@@ -146,6 +171,7 @@ jobs:
         failed=
         for r in \
           "type_check=${{ needs.type_check.result }}" \
+          "conf_gen_tests=${{ needs.conf_gen_tests.result }}" \
           "build_configuration=${{ needs.build_configuration.result }}" \
           "build_openwrt=${{ needs.build_openwrt.result }}"; do
           name=${r%=*}; res=${r#*=}

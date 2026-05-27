@@ -34,30 +34,31 @@ from conf_gen.rule.parser import parse_filter
 from conf_gen.rule.utils import group_sing_box_filters
 from conf_gen.rule.utils import split_sing_box_dst_ip_filters
 
-
 # TODO: Make this an attribute of rule IR.
 # https://sing-box.sagernet.org/configuration/rule-set/headless-rule/
-RULE_SET_COMPLIANT_IRS = frozenset([
-    "query_type",
-    "network",
-    "domain",
-    "domain_suffix",
-    "domain_keyword",
-    "domain_regex",
-    "source_ip_cidr",
-    "ip_cidr",
-    "source_port",
-    "source_port_range",
-    "port",
-    "port_range",
-    "process_name",
-    "process_path",
-    "process_path_regex",
-    "package_name",
-    "wifi_ssid",
-    "wifi_bssid",
-    "invert",
-])
+RULE_SET_COMPLIANT_IRS = frozenset(
+    [
+        "query_type",
+        "network",
+        "domain",
+        "domain_suffix",
+        "domain_keyword",
+        "domain_regex",
+        "source_ip_cidr",
+        "ip_cidr",
+        "source_port",
+        "source_port_range",
+        "port",
+        "port_range",
+        "process_name",
+        "process_path",
+        "process_path_regex",
+        "package_name",
+        "wifi_ssid",
+        "wifi_bssid",
+        "invert",
+    ]
+)
 
 
 def expand_filters_inplace(
@@ -108,7 +109,7 @@ def extract_ruleset_inplace(
                 "type": "logical",
                 "mode": rule["mode"],
                 "invert": rule.get("invert", False),
-                "rules": [ruleset_literals.pop(tag) for tag in mergeable_subrulesets]
+                "rules": [ruleset_literals.pop(tag) for tag in mergeable_subrulesets],
             }
             ruleset_literals[mega_ruleset_tag] = mega_ruleset_content
             for k in mega_ruleset_content.keys():
@@ -193,15 +194,11 @@ class RuleSetCompiler:
                 f"{system}/{machine}. Please install sing-box manually."
             )
 
-        resp = requests.head(
-            f"{self._github_release}/latest", allow_redirects=True, timeout=15
-        )
+        resp = requests.head(f"{self._github_release}/latest", allow_redirects=True, timeout=15)
         resp.raise_for_status()
         match = re.search(r"/v(\d+\.\d+\.\d+)$", resp.url)
         if not match:
-            raise RuntimeError(
-                f"Could not determine latest sing-box version from {resp.url}"
-            )
+            raise RuntimeError(f"Could not determine latest sing-box version from {resp.url}")
         version = match.group(1)
 
         tarball_name = f"sing-box-{version}-{system}-{arch}"
@@ -289,13 +286,15 @@ class RuleSetCompiler:
         ruleset_binaries = self.compile(ruleset_literals)
         ruleset: list[dict[str, Any]] = list()
         for tag in ruleset_literals.keys():
-            ruleset.append({
-                "tag": tag,
-                "type": "remote",
-                "format": "binary",
-                "url": urljoin(ruleset_url, f"{tag}.srs"),
-                "download_detour": download_detour,
-            })
+            ruleset.append(
+                {
+                    "tag": tag,
+                    "type": "remote",
+                    "format": "binary",
+                    "url": urljoin(ruleset_url, f"{tag}.srs"),
+                    "download_detour": download_detour,
+                }
+            )
         return ruleset, ruleset_binaries
 
 
@@ -397,7 +396,7 @@ class SingBoxGenerator(GeneratorBase):
         dns: dict[str, list[dict[str, str]]] | None = None,
         inbounds: list[dict[str, str]] | None = None,
         route: dict[str, list[dict[str, str]] | str] | None = None,
-        experimental: dict[str, str] | None = None,
+        experimental: dict[str, Any] | None = None,
         included_process_irs: list[str] | None = None,
         ruleset_url: str | None = None,
         add_resolve_action: dict[str, Any] | None = None,
@@ -416,7 +415,9 @@ class SingBoxGenerator(GeneratorBase):
                 new_dns_rules = copy(dns["rules"])
                 for rule in new_dns_rules:
                     expand_filters_inplace(
-                        rule, filters_key="filters", included_process_irs=included_process_irs,
+                        rule,
+                        filters_key="filters",
+                        included_process_irs=included_process_irs,
                     )
                 new_object.dns["rules"] = new_dns_rules
         if inbounds is not None:
@@ -430,7 +431,11 @@ class SingBoxGenerator(GeneratorBase):
                 else:
                     new_object.route[k] = v
         if experimental is not None:
-            new_object.experimental.update(experimental)
+            for key, value in experimental.items():
+                if value is None:
+                    new_object.experimental.pop(key, None)
+                else:
+                    new_object.experimental[key] = value
         # Always overwrite included_process_irs. Default fallback was handed by upper-level logic.
         new_object.included_process_irs = included_process_irs
         # Update ruleset download URL if specified.
