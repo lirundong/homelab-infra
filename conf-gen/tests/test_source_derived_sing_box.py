@@ -23,7 +23,6 @@ from _support.sing_box import running_sing_box
 from _support.sing_box import sanitize_host_label
 from _support.sing_box import unused_port
 from _support.sing_box import validate_config_schema
-from _support.sing_box import wait_for_tcp_port
 
 
 def test_source_derived_daemon_generates_valid_artifacts(
@@ -126,7 +125,6 @@ def test_source_derived_runtime_without_tun(
         http_server() as http_port,
         running_sing_box(compiler._sing_box, runtime_dir),
     ):
-        wait_for_tcp_port(mixed_port)
         direct_response = http_get_via_mixed(
             mixed_port,
             f"http://127.0.0.1:{http_port}/private",
@@ -184,7 +182,6 @@ def test_source_derived_runtime_without_tun(
                 mode_runtime_dir,
             ),
         ):
-            wait_for_tcp_port(mode_mixed_port)
             covered_route_rules |= exercise_generated_route_rules(
                 config,
                 mode_mixed_port,
