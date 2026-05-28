@@ -20,6 +20,7 @@ dev = [
     "types-requests",
     "types-pytz",
     "types-netifaces",
+    "types-jsonschema",
 ]
 
 [tool.uv]
