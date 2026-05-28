@@ -303,19 +303,18 @@ def rule_set_compiler() -> Iterator[RuleSetCompiler]:
 
 
 @contextmanager
-def running_sing_box(sing_box: Path | None, config_dir: Path) -> Iterator[subprocess.Popen[str]]:
+def running_sing_box(sing_box: Path | None, config_dir: Path) -> Iterator[subprocess.Popen[bytes]]:
     sing_box = _require_sing_box(sing_box)
     run_sing_box_check(sing_box, config_dir)
+    with open(config_dir / "config.json", encoding="utf-8") as f:
+        inbounds = json.load(f).get("inbounds") or []
     process = subprocess.Popen(
         [sing_box, "run", "-c", config_dir / "config.json", "-D", config_dir],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        encoding="utf-8",
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
     try:
-        time.sleep(0.5)
-        if process.poll() is not None:
-            raise AssertionError(f"sing-box exited early with status {process.returncode}")
+        _wait_for_inbounds_ready(process, inbounds)
         yield process
     finally:
         process.terminate()
@@ -324,6 +323,48 @@ def running_sing_box(sing_box: Path | None, config_dir: Path) -> Iterator[subpro
         except subprocess.TimeoutExpired:
             process.kill()
             process.wait(timeout=5)
+
+
+def _wait_for_inbounds_ready(
+    process: subprocess.Popen[bytes],
+    inbounds: list[dict[str, Any]],
+) -> None:
+    pending = [inbound for inbound in inbounds if inbound.get("listen_port") is not None]
+    deadline = time.monotonic() + 10
+    while pending and time.monotonic() < deadline:
+        if process.poll() is not None:
+            raise AssertionError(f"sing-box exited early with status {process.returncode}")
+        pending = [inbound for inbound in pending if not _inbound_listening(inbound)]
+        if pending:
+            time.sleep(0.05)
+    if pending:
+        tags = [inbound.get("tag", "?") for inbound in pending]
+        raise AssertionError(f"timed out waiting for sing-box inbounds: {tags}")
+
+
+def _inbound_listening(inbound: dict[str, Any]) -> bool:
+    port = inbound["listen_port"]
+    if inbound.get("network") == "udp":
+        return _udp_port_in_use(port)
+    return _tcp_port_in_use(port)
+
+
+def _tcp_port_in_use(port: int) -> bool:
+    try:
+        with socket.create_connection(("127.0.0.1", port), timeout=0.2):
+            return True
+    except OSError:
+        return False
+
+
+def _udp_port_in_use(port: int) -> bool:
+    # If our test bind succeeds, sing-box hasn't claimed the port yet; we close immediately.
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.bind(("127.0.0.1", port))
+    except OSError:
+        return True
+    return False
 
 
 def _require_sing_box(sing_box: Path | None) -> Path:
@@ -420,19 +461,6 @@ class _DirectHandler(BaseHTTPRequestHandler):
         return
 
 
-def wait_for_tcp_port(port: int) -> None:
-    deadline = time.monotonic() + 10
-    last_error: OSError | None = None
-    while time.monotonic() < deadline:
-        try:
-            with socket.create_connection(("127.0.0.1", port), timeout=0.2):
-                return
-        except OSError as exc:
-            last_error = exc
-            time.sleep(0.1)
-    raise AssertionError(f"timed out waiting for TCP port {port}: {last_error}")
-
-
 def unused_port(socket_type: int) -> int:
     with socket.socket(socket.AF_INET, socket_type) as sock:
         sock.bind(("127.0.0.1", 0))
@@ -508,17 +536,18 @@ def fakeip_dns_answers(
             and rule.get("server") == "FakeIP"
             and {"A", "AAAA"} <= query_types
         ):
+            qname = f"fakeip-probe-{random.getrandbits(64):016x}.invalid"
             a_answer = assert_dns_rule_match(
                 log_path,
                 index,
                 rule,
-                lambda: dns_query(dns_port, "fakeip-runtime.example", _DNS_QUERY_TYPES["A"]),
+                lambda: dns_query(dns_port, qname, _DNS_QUERY_TYPES["A"]),
             )
             aaaa_answer = assert_dns_rule_match(
                 log_path,
                 index,
                 rule,
-                lambda: dns_query(dns_port, "fakeip-runtime.example", _DNS_QUERY_TYPES["AAAA"]),
+                lambda: dns_query(dns_port, qname, _DNS_QUERY_TYPES["AAAA"]),
             )
             return a_answer, aaaa_answer
     raise AssertionError("No FakeIP A/AAAA DNS rule found")
@@ -599,9 +628,11 @@ def _route_probe_url(index: int, rule: dict[str, Any], clash_mode: str | None) -
         return "http://route-sniff-runtime.example/"
     if _clash_modes(rule) and clash_mode is not None:
         return _route_probe_url_from_matchers(index, rule) or "http://route-mode-runtime.example/"
+    if url := _route_probe_url_from_matchers(index, rule):
+        return url
     if rule["action"] == "resolve":
         return "http://route-resolve-runtime.example/"
-    return _route_probe_url_from_matchers(index, rule)
+    return None
 
 
 def _route_probe_url_from_matchers(index: int, rule: dict[str, Any]) -> str | None:
