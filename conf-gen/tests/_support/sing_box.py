@@ -13,6 +13,7 @@ import time
 from contextlib import contextmanager
 from copy import deepcopy
 from dataclasses import dataclass
+from functools import partial
 from http.server import BaseHTTPRequestHandler
 from http.server import ThreadingHTTPServer
 from pathlib import Path
@@ -518,7 +519,7 @@ def exercise_generated_dns_rules(
             log_path,
             index,
             rule,
-            lambda qname=qname, qtype=qtype: dns_exchange(dns_port, qname, qtype),
+            partial(dns_exchange, dns_port, qname, qtype),
         )
         covered_rules.add(index)
     return covered_rules
