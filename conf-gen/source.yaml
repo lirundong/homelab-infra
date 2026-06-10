@@ -308,6 +308,8 @@ rules:
   img-url: https://github.com/Semporia/Quantumult-X/raw/master/Bubble/IconSet/Cloudflare.png
   proxies:
   - PROXY
+  - type: regex
+    pattern: US|United\w{0,1}States|美国|🇺🇸
   - Mainland
   - "🌏 Custom"
 # ------------------------------------------------------------------------------
@@ -391,6 +393,20 @@ rules:
   - type: regex
     pattern: US|United\w{0,1}States|美国|🇺🇸
   - "🌏 Custom"
+# ------------------------------------------------------------------------------
+# Formula 1.
+# ------------------------------------------------------------------------------
+- name: Formula 1
+  type: select
+  filters:
+  - DOMAIN-SUFFIX,formula1.com
+  # 🏎️ Racing Car on Google Noto Color Emoji 17.0.
+  img-url: https://em-content.zobj.net/source/google/439/racing-car_1f3ce-fe0f.png
+  proxies:
+  - PROXY
+  - type: regex
+    pattern: US|United\w{0,1}States|美国|🇺🇸
+  - Mainland
 # ------------------------------------------------------------------------------
 # Global.
 # ------------------------------------------------------------------------------
@@ -676,6 +692,8 @@ generates:
       - clash_mode: Direct
       - ip_is_private: true
       - protocol: bittorrent
+      - network: tcp
+        port: 22
       type: logical
     - &ROUTE_RULE_MATCH_GLOBAL_PROXY
       action: route
