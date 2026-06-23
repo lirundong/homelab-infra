@@ -6,11 +6,11 @@
 #
 # Optional env vars:
 #   CONF_DIR    — Output directory (default: /var/www/bwh-jp-01.rundong.me/html/conf)
-#   CONF_URL    — Public base URL for the conf directory, used to rewrite .srs URLs in
-#                 sing-box configs (default: https://bwh-jp-01.rundong.me/conf)
+#   CONF_URL    — Public base URL for the conf directory, used to rewrite sing-box
+#                 remote rule-set URLs (default: https://bwh-jp-01.rundong.me/conf)
 #   CONFIGS     — Space-separated list of release tags to fetch (default: all 7 configs)
 #
-# Prerequisites: gh (GitHub CLI, authenticated), gpg
+# Prerequisites: gh (GitHub CLI, authenticated), gpg, jq
 #
 # Usage:
 #   PASSWORD=xxx ./fetch_config.sh
@@ -33,6 +33,7 @@ die() { echo "ERROR: $*" >&2; exit 1; }
 [[ -z "${PASSWORD:-}" ]] && die "PASSWORD env var is required"
 command -v gh >/dev/null || die "gh CLI is required"
 command -v gpg >/dev/null || die "gpg is required"
+command -v jq >/dev/null || die "jq is required"
 
 echo "=== fetch_config.sh ==="
 echo "Configs: ${CONFIGS}"
@@ -63,11 +64,36 @@ for tag in ${CONFIGS}; do
         && rm -f "${gpg_file}"
     done < <(find "${tag_dir}" -name '*.gpg' -print0)
 
-    # Rewrite .srs download URLs in sing-box config.json to point to our server.
+    # Rewrite sing-box remote rulesets to bootstrap without proxy dependencies.
     if [[ -f "${tag_dir}/config.json" ]]; then
-        echo "  Rewriting .srs URLs -> ${CONF_URL}/${tag}/ ..."
-        sed -i.bak "s|${GITHUB_URL}/${tag}/|${CONF_URL}/${tag}/|g" "${tag_dir}/config.json"
-        rm -f "${tag_dir}/config.json.bak"
+        echo "  Rewriting .srs URLs -> ${CONF_URL}/${tag}/ and download_detour -> DIRECT ..."
+        config_file="${tag_dir}/config.json"
+        rewritten_config="${tag_dir}/config.json.rewritten"
+        jq \
+            --arg github_prefix "${GITHUB_URL}/${tag}/" \
+            --arg self_hosted_prefix "${CONF_URL}/${tag}/" \
+            '
+            def rewrite_rule_set:
+                if type == "object" then
+                    (
+                        if ((.url? | type == "string") and (.url | startswith($github_prefix))) then
+                            .url = ($self_hosted_prefix + (.url | ltrimstr($github_prefix)))
+                        else
+                            .
+                        end
+                    )
+                    | if .type == "remote" then .download_detour = "DIRECT" else . end
+                else
+                    .
+                end;
+
+            if (.route.rule_set? | type) == "array" then
+                .route.rule_set |= map(rewrite_rule_set)
+            else
+                .
+            end
+            ' "${config_file}" > "${rewritten_config}"
+        mv "${rewritten_config}" "${config_file}"
     fi
 
     # Count remaining files to decide layout.
