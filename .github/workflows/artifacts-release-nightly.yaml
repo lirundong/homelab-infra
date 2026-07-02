@@ -203,7 +203,7 @@ jobs:
           gcc: 14.3.0_musl
           allow_failure: false
         - openwrt: snapshots
-          gcc: 14.3.0_musl
+          gcc: 14.4.0_musl
           allow_failure: true
     continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
@@ -408,7 +408,7 @@ jobs:
           gcc: 14.3.0_musl
           allow_failure: false
         - openwrt: snapshots
-          gcc: 14.3.0_musl
+          gcc: 14.4.0_musl
           allow_failure: true
     continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
