@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import ipaddress
 import json
 import random
@@ -93,6 +94,24 @@ class SourceContext:
     proxies: Sequence[ProxyBase]
     per_region_proxies: Sequence[ProxyBase | ProxyGroupBase]
     proxy_groups: Sequence[ProxyGroupBase]
+
+
+@dataclass(frozen=True)
+class RouteProbe:
+    host: str
+    port: int
+    user_agent: str
+    clash_mode: str | None
+
+    @property
+    def url(self) -> str:
+        host = self.host
+        try:
+            if ipaddress.ip_address(host).version == 6:
+                host = f"[{host}]"
+        except ValueError:
+            pass
+        return f"http://{host}:{self.port}/"
 
 
 def load_sanitized_source() -> dict[str, Any]:
@@ -475,11 +494,23 @@ def exercise_generated_route_rules(
     log_path: Path,
     clash_mode: str | None,
 ) -> set[int]:
+    route_rules = config["route"]["rules"]
     covered_rules: set[int] = set()
-    for index, rule in enumerate(config["route"]["rules"]):
-        if clash_mode is not None and clash_mode not in _clash_modes(rule):
+    for index, rule in enumerate(route_rules):
+        rule_clash_modes = _clash_modes(rule)
+        if clash_mode is None and rule_clash_modes:
             continue
-        if _exercise_route_rule(index, rule, mixed_port, dns_port, log_path, clash_mode):
+        if clash_mode is not None and clash_mode not in rule_clash_modes:
+            continue
+        if _exercise_route_rule(
+            index,
+            rule,
+            route_rules[:index],
+            mixed_port,
+            dns_port,
+            log_path,
+            clash_mode,
+        ):
             covered_rules.add(index)
     return covered_rules
 
@@ -567,6 +598,7 @@ def http_get_via_mixed(
     mixed_port: int,
     url: str,
     timeout: float | tuple[float, float] = 5,
+    headers: dict[str, str] | None = None,
 ) -> requests.Response:
     session = requests.Session()
     session.trust_env = False
@@ -577,6 +609,7 @@ def http_get_via_mixed(
             "https": f"http://127.0.0.1:{mixed_port}",
         },
         timeout=timeout,
+        headers=headers,
     )
 
 
@@ -598,6 +631,7 @@ def dns_exchange(port: int, qname: str, qtype: int) -> tuple[bytes, int]:
 def _exercise_route_rule(
     index: int,
     rule: dict[str, Any],
+    previous_rules: list[dict[str, Any]],
     mixed_port: int,
     dns_port: int,
     log_path: Path,
@@ -611,12 +645,12 @@ def _exercise_route_rule(
             lambda: dns_exchange(dns_port, "route-hijack-runtime.example", 1),
         )
         return True
-    if url := _route_probe_url(index, rule, clash_mode):
+    if probe := _route_probe(rule, previous_rules, index, clash_mode):
         _assert_route_probe_match(
             log_path,
             index,
             rule,
-            lambda: _probe_http_via_mixed(mixed_port, url),
+            lambda: _probe_http_via_mixed(mixed_port, probe),
         )
         return True
     if _clash_modes(rule):
@@ -624,65 +658,192 @@ def _exercise_route_rule(
     raise AssertionError(f"No runtime probe can be derived for route rule {index}: {rule}")
 
 
-def _route_probe_url(index: int, rule: dict[str, Any], clash_mode: str | None) -> str | None:
+def _route_probe(
+    rule: dict[str, Any],
+    previous_rules: list[dict[str, Any]],
+    index: int,
+    clash_mode: str | None,
+) -> RouteProbe | None:
     if rule["action"] == "sniff":
-        return "http://route-sniff-runtime.example/"
-    if _clash_modes(rule) and clash_mode is not None:
-        return _route_probe_url_from_matchers(index, rule) or "http://route-mode-runtime.example/"
-    if url := _route_probe_url_from_matchers(index, rule):
-        return url
-    if rule["action"] == "resolve":
-        return "http://route-resolve-runtime.example/"
-    return None
+        return RouteProbe("route-sniff-runtime.example", 80, "pytest-runtime-probe", clash_mode)
+    _assert_supported_route_matchers(rule, f"route rule {index}")
+    for previous_index, previous_rule in enumerate(previous_rules):
+        if _is_terminal_route_rule(previous_rule):
+            _assert_supported_route_matchers(
+                previous_rule, f"previous route rule {previous_index}"
+            )
+
+    candidates = _route_probe_candidates(rule, index, clash_mode)
+    if not candidates:
+        raise AssertionError(f"No runtime probe candidates can be derived for route rule {index}")
+
+    randomizer = random.Random(_route_probe_seed(index, rule, clash_mode))
+    randomizer.shuffle(candidates)
+    blockers: dict[int, int] = {}
+    matching_candidates = 0
+    for candidate in candidates:
+        if not _route_rule_matches(rule, candidate):
+            continue
+        matching_candidates += 1
+        matching_previous_rules = [
+            previous_index
+            for previous_index, previous_rule in enumerate(previous_rules)
+            if _is_terminal_route_rule(previous_rule)
+            and _route_rule_matches(previous_rule, candidate)
+        ]
+        if not matching_previous_rules:
+            return candidate
+        for previous_index in matching_previous_rules:
+            blockers[previous_index] = blockers.get(previous_index, 0) + 1
+
+    if not matching_candidates:
+        raise AssertionError(f"No runtime probe candidate satisfies route rule {index}")
+    raise AssertionError(
+        f"No precedence-safe runtime probe for route rule {index}; "
+        f"all {len(candidates)} candidates were shadowed by earlier route rules "
+        f"{sorted(blockers)}"
+    )
 
 
-def _route_probe_url_from_matchers(index: int, rule: dict[str, Any]) -> str | None:
-    if cidrs := rule.get("ip_cidr"):
-        return f"http://{_host_from_cidr(cidrs)}/"
-    if rule.get("ip_is_private"):
-        return "http://127.0.0.1:9/"
-    if port := _first_port(rule):
-        return f"http://route-port-{port}.example:{port}/"
-    if host := _host_from_domain_rule(rule):
-        return f"http://{host}/"
-    if rule.get("type") == "logical":
-        for subrule in rule["rules"]:
-            if url := _route_probe_url_from_matchers(index, subrule):
-                return url
-    return None
+def _route_probe_seed(index: int, rule: dict[str, Any], clash_mode: str | None) -> int:
+    serialized = json.dumps(
+        {"index": index, "rule": rule, "clash_mode": clash_mode},
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return int.from_bytes(hashlib.sha256(serialized.encode()).digest()[:8], "big")
 
 
-def _first_port(rule: dict[str, Any]) -> int | None:
-    port = rule.get("port")
-    if isinstance(port, int):
-        return port
-    if isinstance(port, list) and port and isinstance(port[0], int):
-        return port[0]
-    return None
+def _route_probe_candidates(
+    rule: dict[str, Any], index: int, clash_mode: str | None
+) -> list[RouteProbe]:
+    hosts = _route_probe_hosts(rule, index)
+    ports = _route_probe_ports(rule)
+    user_agents = _route_probe_user_agents(rule)
+    return sorted(
+        {
+            RouteProbe(host=host, port=port, user_agent=user_agent, clash_mode=clash_mode)
+            for host in hosts
+            for port in ports
+            for user_agent in user_agents
+        },
+        key=lambda probe: (probe.host, probe.port, probe.user_agent, probe.clash_mode or ""),
+    )
 
 
-def _host_from_cidr(cidrs: list[str]) -> str:
-    for cidr in cidrs:
-        network = ipaddress.ip_network(cidr, strict=False)
-        if network.version == 4:
-            address = network.network_address
-            if network.num_addresses > 2:
-                address += 1
-            return str(address)
-    raise AssertionError(f"No IPv4 CIDR available for runtime route probe: {cidrs}")
-
-
-def _host_from_domain_rule(rule: dict[str, Any]) -> str | None:
-    for key in ("domain", "domain_suffix"):
-        for value in rule.get(key, []):
-            host = value if key == "domain" else f"probe.{value.lstrip('.')}"
+def _route_probe_hosts(rule: dict[str, Any], index: int) -> set[str]:
+    hosts: set[str] = set()
+    for value in _rule_values(rule, "domain"):
+        if _is_http_host(value):
+            hosts.add(value)
+    for value in _rule_values(rule, "domain_suffix"):
+        for label in _probe_labels(index):
+            host = f"{label}.{value.lstrip('.')}"
             if _is_http_host(host):
-                return host
-    for keyword in rule.get("domain_keyword", []):
-        host = f"probe-{sanitize_host_label(keyword)}.example"
-        if _is_http_host(host):
-            return host
-    return None
+                hosts.add(host)
+    for value in _rule_values(rule, "domain_keyword"):
+        for label in _probe_labels(index):
+            host = f"{label}-{sanitize_host_label(value)}.invalid"
+            if _is_http_host(host):
+                hosts.add(host)
+    for value in _rule_values(rule, "domain_regex"):
+        hosts.update(_hosts_from_domain_regex(value, index))
+    for value in _rule_values(rule, "ip_cidr"):
+        hosts.update(_hosts_from_cidr(value))
+    if _rule_truthy(rule, "ip_is_private"):
+        hosts.add("127.0.0.1")
+    if not hosts or _has_invert(rule) or not _has_destination_matcher(rule):
+        hosts.add(f"route-runtime-{index}.invalid")
+    return hosts
+
+
+def _probe_labels(index: int) -> tuple[str, ...]:
+    return tuple(f"runtime-{index}-{suffix}" for suffix in ("a", "b", "c"))
+
+
+def _route_probe_ports(rule: dict[str, Any]) -> set[int]:
+    ports = {80}
+    for value in _rule_values(rule, "port"):
+        if isinstance(value, int):
+            ports.add(value)
+    for value in _rule_values(rule, "port_range"):
+        ports.add(_port_from_range(value))
+    return ports
+
+
+def _route_probe_user_agents(rule: dict[str, Any]) -> set[str]:
+    user_agents = {"pytest-runtime-probe"}
+    user_agents.update(_rule_values(rule, "user_agent"))
+    return user_agents
+
+
+def _rule_values(rule: dict[str, Any], key: str) -> list[Any]:
+    values: list[Any] = []
+    value = rule.get(key)
+    if isinstance(value, list):
+        values.extend(value)
+    elif value is not None:
+        values.append(value)
+    for subrule in rule.get("rules", []):
+        values.extend(_rule_values(subrule, key))
+    return values
+
+
+def _rule_truthy(rule: dict[str, Any], key: str) -> bool:
+    if rule.get(key):
+        return True
+    return any(_rule_truthy(subrule, key) for subrule in rule.get("rules", []))
+
+
+def _has_destination_matcher(rule: dict[str, Any]) -> bool:
+    keys = {
+        "domain",
+        "domain_suffix",
+        "domain_keyword",
+        "domain_regex",
+        "ip_cidr",
+        "ip_is_private",
+    }
+    return any(key in rule for key in keys) or any(
+        _has_destination_matcher(subrule) for subrule in rule.get("rules", [])
+    )
+
+
+def _has_invert(rule: dict[str, Any]) -> bool:
+    return bool(rule.get("invert")) or any(
+        _has_invert(subrule) for subrule in rule.get("rules", [])
+    )
+
+
+def _hosts_from_domain_regex(pattern: str, index: int) -> set[str]:
+    candidate = pattern.strip("^").strip("$")
+    candidate = re.sub(r"\(\?[:=!<][^)]*\)", "", candidate)
+    candidate = re.sub(r"\([^)]*\)", f"runtime{index}", candidate)
+    candidate = re.sub(r"\[[^]]+\][*+]", f"runtime{index}", candidate)
+    candidate = candidate.replace(r"\.", ".")
+    candidate = candidate.replace(".*", f"runtime{index}")
+    candidate = candidate.replace(".+", f"runtime{index}")
+    candidate = candidate.replace("?", "")
+    candidate = candidate.replace("\\", "")
+    if _is_http_host(candidate) and _matches_domain_regex(pattern, candidate):
+        return {candidate}
+    return set()
+
+
+def _hosts_from_cidr(cidr: str) -> set[str]:
+    network = ipaddress.ip_network(cidr, strict=False)
+    offsets = {0, max(0, network.num_addresses // 2), network.num_addresses - 1}
+    return {str(network.network_address + offset) for offset in offsets}
+
+
+def _port_from_range(value: str | int) -> int:
+    if isinstance(value, int):
+        return value
+    start, _, _ = value.partition(":")
+    if not start.isdecimal():
+        raise AssertionError(f"Cannot derive a port from range {value!r}")
+    return int(start)
 
 
 def _is_http_host(host: str) -> bool:
@@ -697,6 +858,167 @@ def _is_http_host(host: str) -> bool:
     )
 
 
+def _is_terminal_route_rule(rule: dict[str, Any]) -> bool:
+    return rule.get("action") in {"reject", "route"}
+
+
+def _assert_supported_route_matchers(rule: dict[str, Any], description: str) -> None:
+    supported = {
+        "action",
+        "clash_mode",
+        "domain",
+        "domain_keyword",
+        "domain_regex",
+        "domain_suffix",
+        "inbound",
+        "invert",
+        "ip_cidr",
+        "ip_is_private",
+        "ip_version",
+        "method",
+        "mode",
+        "network",
+        "outbound",
+        "port",
+        "port_range",
+        "protocol",
+        "rules",
+        "server",
+        "strategy",
+        "client_subnet",
+        "source_ip_cidr",
+        "source_ip_is_private",
+        "type",
+        "user_agent",
+    }
+    unsupported = sorted(set(rule) - supported)
+    if unsupported:
+        raise AssertionError(f"Cannot derive a runtime probe for {description}: {unsupported}")
+    for subrule in rule.get("rules", []):
+        _assert_supported_route_matchers(subrule, description)
+
+
+def _route_rule_matches(rule: dict[str, Any], probe: RouteProbe) -> bool:
+    if rule.get("type") == "logical":
+        submatches = [_route_rule_matches(subrule, probe) for subrule in rule["rules"]]
+        match = all(submatches) if rule["mode"] == "and" else any(submatches)
+    else:
+        match = _default_route_rule_matches(rule, probe)
+    return not match if rule.get("invert") else match
+
+
+def _default_route_rule_matches(rule: dict[str, Any], probe: RouteProbe) -> bool:
+    if not _matches_destination(rule, probe):
+        return False
+    if not _matches_ports(rule, probe):
+        return False
+    if not _matches_source_ip(rule):
+        return False
+    if not _matches_value(rule, "inbound", "mixed"):
+        return False
+    if not _matches_value(rule, "network", "tcp"):
+        return False
+    if not _matches_value(rule, "protocol", "http"):
+        return False
+    if not _matches_value(rule, "user_agent", probe.user_agent):
+        return False
+    if clash_mode := rule.get("clash_mode"):
+        if clash_mode != probe.clash_mode:
+            return False
+    if ip_version := rule.get("ip_version"):
+        if _probe_ip_version(probe) != ip_version:
+            return False
+    return True
+
+
+def _matches_destination(rule: dict[str, Any], probe: RouteProbe) -> bool:
+    matchers = (
+        _rule_values(rule, "domain"),
+        _rule_values(rule, "domain_suffix"),
+        _rule_values(rule, "domain_keyword"),
+        _rule_values(rule, "domain_regex"),
+        _rule_values(rule, "ip_cidr"),
+        [True] if _rule_truthy(rule, "ip_is_private") else [],
+    )
+    if not any(matchers):
+        return True
+    host = probe.host.rstrip(".").lower()
+    return (
+        any(host == value.lower() for value in matchers[0] if isinstance(value, str))
+        or any(
+            _matches_domain_suffix(host, value) for value in matchers[1] if isinstance(value, str)
+        )
+        or any(value.lower() in host for value in matchers[2] if isinstance(value, str))
+        or any(
+            _matches_domain_regex(value, host) for value in matchers[3] if isinstance(value, str)
+        )
+        or any(_matches_cidr(host, value) for value in matchers[4] if isinstance(value, str))
+        or (bool(matchers[5]) and _is_private_ip(host))
+    )
+
+
+def _matches_ports(rule: dict[str, Any], probe: RouteProbe) -> bool:
+    ports = _rule_values(rule, "port")
+    ranges = _rule_values(rule, "port_range")
+    if not ports and not ranges:
+        return True
+    return probe.port in ports or any(_port_in_range(probe.port, value) for value in ranges)
+
+
+def _matches_source_ip(rule: dict[str, Any]) -> bool:
+    cidrs = _rule_values(rule, "source_ip_cidr")
+    if cidrs and not any(_matches_cidr("127.0.0.1", cidr) for cidr in cidrs):
+        return False
+    return not _rule_truthy(rule, "source_ip_is_private") or _is_private_ip("127.0.0.1")
+
+
+def _matches_value(rule: dict[str, Any], key: str, value: str) -> bool:
+    values = _rule_values(rule, key)
+    return not values or value in values
+
+
+def _matches_domain_suffix(host: str, suffix: str) -> bool:
+    normalized = suffix.lstrip(".").lower()
+    return host == normalized or host.endswith(f".{normalized}")
+
+
+def _matches_domain_regex(pattern: str, host: str) -> bool:
+    try:
+        return re.search(pattern, host) is not None
+    except re.error as error:
+        raise AssertionError(f"Cannot evaluate domain regex {pattern!r}: {error}") from error
+
+
+def _matches_cidr(host: str, cidr: str) -> bool:
+    try:
+        return ipaddress.ip_address(host) in ipaddress.ip_network(cidr, strict=False)
+    except ValueError:
+        return False
+
+
+def _is_private_ip(host: str) -> bool:
+    try:
+        return ipaddress.ip_address(host).is_private
+    except ValueError:
+        return False
+
+
+def _probe_ip_version(probe: RouteProbe) -> int | None:
+    try:
+        return ipaddress.ip_address(probe.host).version
+    except ValueError:
+        return None
+
+
+def _port_in_range(port: int, value: str | int) -> bool:
+    if isinstance(value, int):
+        return port == value
+    start, separator, end = value.partition(":")
+    if not separator or not start.isdecimal() or not end.isdecimal():
+        raise AssertionError(f"Cannot evaluate port range {value!r}")
+    return int(start) <= port <= int(end)
+
+
 def _clash_modes(rule: dict[str, Any]) -> set[str]:
     modes: set[str] = set()
     if clash_mode := rule.get("clash_mode"):
@@ -706,9 +1028,14 @@ def _clash_modes(rule: dict[str, Any]) -> set[str]:
     return modes
 
 
-def _probe_http_via_mixed(mixed_port: int, url: str) -> None:
+def _probe_http_via_mixed(mixed_port: int, probe: RouteProbe) -> None:
     try:
-        http_get_via_mixed(mixed_port, url, timeout=(0.25, 1))
+        http_get_via_mixed(
+            mixed_port,
+            probe.url,
+            timeout=(0.25, 1),
+            headers={"User-Agent": probe.user_agent},
+        )
     except requests.RequestException:
         pass
 
