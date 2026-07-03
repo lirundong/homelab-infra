@@ -224,6 +224,7 @@ def generate_runtime_config(
     mixed_port: int,
     dns_port: int,
     clash_mode: str | None = None,
+    ruleset_url: str | None = None,
 ) -> Path:
     from conf_gen.generator.sing_box_generator import SingBoxGenerator
 
@@ -262,12 +263,78 @@ def generate_runtime_config(
         ntp={"enabled": False, "server": "time.apple.com"},
         experimental=experimental,
         included_process_irs=deepcopy(daemon_info.get("included_process_irs")),
-        ruleset_url=None,
+        ruleset_url=ruleset_url,
         dial_fields=deepcopy(daemon_info.get("dial_fields")),
         add_resolve_action=deepcopy(daemon_info.get("add_resolve_action")),
     )
     generator.generate(output_dir)
     return output_dir
+
+
+def generate_local_ruleset_runtime_config(
+    context: SourceContext,
+    output_root: Path,
+    mixed_port: int,
+    dns_port: int,
+    clash_mode: str | None = None,
+) -> Path:
+    output_dir = generate_runtime_config(
+        context=context,
+        output_root=output_root,
+        mixed_port=mixed_port,
+        dns_port=dns_port,
+        clash_mode=clash_mode,
+        ruleset_url="https://rule-sets.invalid/",
+    )
+    _rewrite_rule_sets_to_local(output_dir)
+    return output_dir
+
+
+def _rewrite_rule_sets_to_local(config_dir: Path) -> None:
+    config_path = config_dir / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    rule_sets = config["route"]["rule_set"]
+    if not rule_sets:
+        raise AssertionError(f"No rule_set entries were extracted in {config_dir}")
+    for entry in rule_sets:
+        tag = entry["tag"]
+        if not (config_dir / f"{tag}.srs").is_file():
+            raise AssertionError(f"Missing compiled rule set {tag}.srs in {config_dir}")
+        entry.clear()
+        entry.update({"type": "local", "tag": tag, "format": "binary", "path": f"{tag}.srs"})
+    config_path.write_text(
+        json.dumps(config, ensure_ascii=False, indent=4, sort_keys=True),
+        encoding="utf-8",
+    )
+
+
+def assert_local_ruleset_rule_alignment(
+    inline_config: dict[str, Any],
+    local_config: dict[str, Any],
+) -> None:
+    # Probes are derived from the inline config but asserted against the local
+    # rule-set instance's logs, so per-index rule identity must match.
+    for section in ("dns", "route"):
+        inline_rules = inline_config[section]["rules"]
+        local_rules = local_config[section]["rules"]
+        if len(inline_rules) != len(local_rules):
+            raise AssertionError(
+                f"{section} rule count diverged: {len(inline_rules)} inline vs "
+                f"{len(local_rules)} with rule sets"
+            )
+        for index, (inline_rule, local_rule) in enumerate(zip(inline_rules, local_rules)):
+            for field in ("action", "outbound", "server", "method", "rcode"):
+                if inline_rule.get(field) != local_rule.get(field):
+                    raise AssertionError(
+                        f"{section} rule {index} field {field!r} diverged: "
+                        f"{inline_rule.get(field)!r} inline vs {local_rule.get(field)!r}"
+                    )
+            if rule_set := local_rule.get("rule_set"):
+                prefix, rule_index, _ = rule_set.split(".", 2)
+                if (prefix, rule_index) != (section, str(index)):
+                    raise AssertionError(
+                        f"{section} rule {index} references out-of-place rule set {rule_set}"
+                    )
 
 
 def get_generate_info(source: dict[str, Any], name: str) -> dict[str, Any]:
