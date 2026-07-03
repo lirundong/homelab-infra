@@ -5,8 +5,8 @@ from typing import NotRequired
 from typing import Sequence
 from typing import TypedDict
 
-import requests
 import yaml
+from conf_gen._util.fetch import fetch_url
 from conf_gen.rule._base_ir import _IR_REGISTRY
 from conf_gen.rule._base_ir import IRBase
 from conf_gen.rule.ir import IPCIDR
@@ -47,9 +47,7 @@ def _fetch_rule_set_payload(url: str, format: Literal["yaml", "text"]) -> Sequen
         raise ValueError(f"Unsupported format {format}, expect any of {CLASH_RULESET_FORMATS}")
 
     print(f"Requesting to get from {url}...")
-    r = requests.get(url, headers={"user-agent": "clash"})
-    if r.status_code != 200:
-        raise requests.HTTPError(r.reason)
+    r = fetch_url(url, headers={"user-agent": "clash"})
 
     filters = []
     if format == "yaml":

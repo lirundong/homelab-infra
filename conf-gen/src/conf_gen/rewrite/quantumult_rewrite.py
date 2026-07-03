@@ -1,4 +1,4 @@
-import requests
+from conf_gen._util.fetch import fetch_url
 from conf_gen.rewrite._base_rewrite import RewriteBase
 
 from common import COMMENT_BEGINS
@@ -8,9 +8,7 @@ class QuantumultRewrite(RewriteBase):
     def __init__(self, name: str, url: str) -> None:
         super().__init__(name, url)
 
-        r = requests.get(url)
-        if r.status_code != 200:
-            raise requests.HTTPError(r.reason)
+        r = fetch_url(url)
         for line in r.text.splitlines():
             line = line.strip()
             if (
