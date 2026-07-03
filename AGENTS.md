@@ -31,7 +31,7 @@ VERSION=25.12.3 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
 
 ## Workflow (branch → PR → merge)
 Non-trivial changes follow this pipeline:
-1. **Branch** off `master` with a descriptive name.
+1. **Branch** off `master` with <username>/<feature, fix, chore, ...>/<descriptive-name>.
 2. **Local verify**: `uv run black …` + `uv run mypy …` + run the affected CLI end-to-end.
 3. **Push**, then `gh pr create` (prefer the `gh` CLI over the raw GitHub API).
 4. **Watch CI**: `gh run watch <id>`. The `ci_gate` job is the single required check.
