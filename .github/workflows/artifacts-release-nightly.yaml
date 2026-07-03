@@ -130,7 +130,8 @@ jobs:
         needs.detect_changes.outputs.conf_gen == 'true'
       }}
     env:
-      LINUX_SING_BOX_CHECK_CONFIGS: sing-box-daemon
+      LINUX_SING_BOX_CHECK_CONFIGS: sing-box-daemon sing-box-apple
+      LINUX_SING_BOX_CHECK_ANDROID_CONFIGS: sing-box-clients
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
@@ -145,6 +146,9 @@ jobs:
           Linux)
             for config in $LINUX_SING_BOX_CHECK_CONFIGS; do
               sing_box_check_args+=(--check-config "$config")
+            done
+            for config in $LINUX_SING_BOX_CHECK_ANDROID_CONFIGS; do
+              sing_box_check_args+=(--check-config-android "$config")
             done
             ;;
         esac
@@ -323,7 +327,8 @@ jobs:
 
   release_proxy_configurations:
     name: Release ${{ matrix.conf }} Configuration
-    needs: [detect_changes, build_configuration]
+    # ci_gate in needs makes every required check (incl. conf_gen_tests) gate the release.
+    needs: [detect_changes, build_configuration, ci_gate]
     runs-on: ubuntu-latest
     if: >-
       ${{
@@ -389,7 +394,8 @@ jobs:
 
   release_openwrt_builds:
     name: Release OpenWRT ${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}
-    needs: [detect_changes, build_openwrt]
+    # ci_gate in needs makes every required check (incl. conf_gen_tests) gate the release.
+    needs: [detect_changes, build_openwrt, ci_gate]
     runs-on: ubuntu-latest
     if: >-
       ${{

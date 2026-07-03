@@ -22,6 +22,15 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=[],
         help="Generated sing-box config name to validate with local sing-box check.",
     )
+    parser.addoption(
+        "--check-config-android",
+        action="append",
+        default=[],
+        help=(
+            "Generated sing-box config name expected to fail local sing-box check on "
+            "Android-only fields and pass once those fields are stripped."
+        ),
+    )
 
 
 @pytest.fixture(scope="session")
@@ -35,6 +44,11 @@ def artifact_dir(request: pytest.FixtureRequest) -> Path:
 @pytest.fixture(scope="session")
 def check_config_names(request: pytest.FixtureRequest) -> frozenset[str]:
     return frozenset(request.config.getoption("--check-config"))
+
+
+@pytest.fixture(scope="session")
+def android_check_config_names(request: pytest.FixtureRequest) -> frozenset[str]:
+    return frozenset(request.config.getoption("--check-config-android"))
 
 
 @pytest.fixture(scope="session", autouse=True)

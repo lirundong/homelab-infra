@@ -24,7 +24,8 @@ uv run mypy common/src/common conf-gen/src/conf_gen \
     util-cookbook/tencent-cloud/src/tencent_cloud      # typecheck
 uv run pytest conf-gen/tests                           # conf-gen tests
 uv run pytest conf-gen/tests/test_generated_sing_box_artifacts.py \
-    --artifact-dir artifacts-conf --check-config sing-box-daemon
+    --artifact-dir artifacts-conf --check-config sing-box-daemon \
+    --check-config sing-box-apple --check-config-android sing-box-clients
 # OpenWRT (PASSWORD env required; read secret-handling skill before invoking):
 VERSION=25.12.3 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
 ```
@@ -54,7 +55,9 @@ Pipeline: `source.yaml -> Parser -> IR Objects -> Generator -> Config`. CLI:
 - **tests/**: pytest-only helpers stay under tests, not `src/`. Source-derived sing-box
   tests sanitize secrets and cover structure, schema/check, and no-TUN runtime behavior.
   Generated artifact validation uses `--artifact-dir`; CI passes `--check-config` for
-  configs the local runner can validate with `sing-box check`.
+  configs the local runner can validate with `sing-box check`, and
+  `--check-config-android` for Android configs that must fail only on Android-only
+  fields (`override_android_vpn`) and pass once those are stripped.
 
 ## common — Secrets Management (`common/src/common/`)
 Singleton `_SecretsManager`: Fernet (AEAD) + PBKDF2HMAC (SHA256, 100k iter). Env: `PASSWORD`
@@ -97,7 +100,8 @@ DAG: `type_check`, `conf_gen_tests`, `build_configuration` → `build_openwrt` (
 {x86/64, rockchip/armv8} × {25.12.3, snapshots}) →
 `release_{proxy_configurations,openwrt_builds}`. The `ci_gate` job fans in required jobs
 based on event type and touched paths and is the **single required check** for branch
-protection (snapshots legs `continue-on-error`, so their failures don't propagate). Pushes
+protection (snapshots legs `continue-on-error`, so their failures don't propagate); release
+jobs also `need` it, so a red required check blocks nightly/master releases. Pushes
 to non-master branches skip CI when an open PR exists for the branch, leaving the PR run as
 the authoritative check set. GCC `14.3.0_musl`; rockchip profile `friendlyarm_nanopi-r6s`.
 Workflow-artifact encryption:

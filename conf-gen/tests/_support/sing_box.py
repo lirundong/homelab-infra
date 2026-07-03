@@ -96,12 +96,34 @@ class SourceContext:
     proxy_groups: Sequence[ProxyGroupBase]
 
 
+# Probe transport kinds: (network, payload); payload determines the sniffable protocol.
+_PROTOCOL_PROBE_KINDS = {
+    "http": ("tcp", "http"),
+    "dns": ("udp", "dns"),
+    "stun": ("udp", "stun"),
+    "bittorrent": ("tcp", "bittorrent"),
+}
+_PAYLOAD_PROTOCOLS: dict[str, str | None] = {
+    "http": "http",
+    "dns": "dns",
+    "stun": "stun",
+    "bittorrent": "bittorrent",
+    "raw": None,
+}
+
+
 @dataclass(frozen=True)
 class RouteProbe:
     host: str
     port: int
     user_agent: str
     clash_mode: str | None
+    network: str = "tcp"
+    payload: str = "http"
+
+    @property
+    def protocol(self) -> str | None:
+        return _PAYLOAD_PROTOCOLS[self.payload]
 
     @property
     def url(self) -> str:
@@ -282,16 +304,22 @@ def validate_config_schema(config: dict[str, Any], schema: dict[str, Any]) -> No
 
 
 def run_sing_box_check(sing_box: Path | None, config_dir: Path) -> None:
+    result = _sing_box_check_result(sing_box, config_dir)
+    if result.returncode != 0:
+        raise AssertionError(f"sing-box check failed for {config_dir.name}")
+
+
+def _sing_box_check_result(
+    sing_box: Path | None, config_dir: Path
+) -> subprocess.CompletedProcess[str]:
     sing_box = _require_sing_box(sing_box)
-    result = subprocess.run(
+    return subprocess.run(
         [sing_box, "check", "-c", config_dir / "config.json", "-D", config_dir],
         check=False,
         capture_output=True,
         encoding="utf-8",
         timeout=120,
     )
-    if result.returncode != 0:
-        raise AssertionError(f"sing-box check failed for {config_dir.name}")
 
 
 def run_redacted_sing_box_check(
@@ -299,15 +327,50 @@ def run_redacted_sing_box_check(
     config_dir: Path,
     config: dict[str, Any],
 ) -> None:
+    with _staged_check_dir(config_dir, redact_sing_box_config(config)) as check_dir:
+        run_sing_box_check(sing_box, check_dir)
+
+
+def run_android_filtered_sing_box_check(
+    sing_box: Path | None,
+    config_dir: Path,
+    config: dict[str, Any],
+) -> None:
+    # The unfiltered config must fail on GitHub Linux runners for exactly the
+    # Android-only fields; a pass here means the filter below tests nothing.
+    redacted = redact_sing_box_config(config)
+    with _staged_check_dir(config_dir, redacted) as check_dir:
+        result = _sing_box_check_result(sing_box, check_dir)
+        if result.returncode == 0:
+            raise AssertionError(
+                f"sing-box check unexpectedly passed for unfiltered {config_dir.name}"
+            )
+        if "only supported on Android" not in result.stderr:
+            raise AssertionError(
+                f"sing-box check failed for {config_dir.name} without flagging an "
+                f"Android-only field: {result.stderr.strip()[-500:]}"
+            )
+    with _staged_check_dir(config_dir, strip_android_only_fields(redacted)) as check_dir:
+        run_sing_box_check(sing_box, check_dir)
+
+
+def strip_android_only_fields(config: dict[str, Any]) -> dict[str, Any]:
+    filtered = deepcopy(config)
+    filtered["route"].pop("override_android_vpn", None)
+    return filtered
+
+
+@contextmanager
+def _staged_check_dir(config_dir: Path, config: dict[str, Any]) -> Iterator[Path]:
     with TemporaryDirectory() as tmp_dir:
         check_dir = Path(tmp_dir)
         for rule_set in config_dir.glob("*.srs"):
             shutil.copy2(rule_set, check_dir / rule_set.name)
         (check_dir / "config.json").write_text(
-            json.dumps(redact_sing_box_config(config), ensure_ascii=False, indent=2),
+            json.dumps(config, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
-        run_sing_box_check(sing_box, check_dir)
+        yield check_dir
 
 
 def redact_sing_box_config(config: dict[str, Any]) -> dict[str, Any]:
@@ -493,16 +556,16 @@ def exercise_generated_route_rules(
     dns_port: int,
     log_path: Path,
     clash_mode: str | None,
-) -> set[int]:
+) -> tuple[set[int], set[tuple[int, int]]]:
     route_rules = config["route"]["rules"]
     covered_rules: set[int] = set()
+    covered_branches: set[tuple[int, int]] = set()
     for index, rule in enumerate(route_rules):
         rule_clash_modes = _clash_modes(rule)
-        if clash_mode is None and rule_clash_modes:
-            continue
-        if clash_mode is not None and clash_mode not in rule_clash_modes:
-            continue
-        if _exercise_route_rule(
+        rule_designated = (
+            clash_mode in rule_clash_modes if clash_mode is not None else not rule_clash_modes
+        )
+        if rule_designated and _exercise_route_rule(
             index,
             rule,
             route_rules[:index],
@@ -512,7 +575,58 @@ def exercise_generated_route_rules(
             clash_mode,
         ):
             covered_rules.add(index)
-    return covered_rules
+        covered_branches |= _exercise_route_rule_branches(
+            index,
+            rule,
+            route_rules[:index],
+            mixed_port,
+            log_path,
+            clash_mode,
+        )
+    return covered_rules, covered_branches
+
+
+def expected_route_branches(route_rules: list[dict[str, Any]]) -> set[tuple[int, int]]:
+    return {
+        (index, branch_index)
+        for index, rule in enumerate(route_rules)
+        if _has_probeable_branches(rule)
+        for branch_index in range(len(rule["rules"]))
+    }
+
+
+def _has_probeable_branches(rule: dict[str, Any]) -> bool:
+    # Branch attribution needs "exactly this branch matched"; an inverted OR breaks that.
+    return rule.get("type") == "logical" and rule.get("mode") == "or" and not rule.get("invert")
+
+
+def _exercise_route_rule_branches(
+    index: int,
+    rule: dict[str, Any],
+    previous_rules: list[dict[str, Any]],
+    mixed_port: int,
+    log_path: Path,
+    clash_mode: str | None,
+) -> set[tuple[int, int]]:
+    if not _has_probeable_branches(rule):
+        return set()
+    covered: set[tuple[int, int]] = set()
+    for branch_index, branch in enumerate(rule["rules"]):
+        branch_clash_modes = _clash_modes(branch)
+        branch_designated = (
+            clash_mode in branch_clash_modes if clash_mode is not None else not branch_clash_modes
+        )
+        if not branch_designated:
+            continue
+        probe = _route_branch_probe(rule, branch_index, previous_rules, index, clash_mode)
+        _assert_route_probe_match(
+            log_path,
+            index,
+            rule,
+            lambda: _execute_route_probe(mixed_port, probe),
+        )
+        covered.add((index, branch_index))
+    return covered
 
 
 def route_clash_modes(route_rules: list[dict[str, Any]]) -> list[str]:
@@ -554,6 +668,142 @@ def exercise_generated_dns_rules(
         )
         covered_rules.add(index)
     return covered_rules
+
+
+def exercise_generated_dns_rule_branches(
+    dns_rules: list[dict[str, Any]],
+    dns_port: int,
+    log_path: Path,
+    clash_mode: str | None,
+) -> set[tuple[int, int]]:
+    covered: set[tuple[int, int]] = set()
+    for index, rule in enumerate(dns_rules):
+        if not _has_probeable_branches(rule):
+            continue
+        for branch_index, branch in enumerate(rule["rules"]):
+            branch_clash_modes = _clash_modes(branch)
+            branch_designated = (
+                clash_mode in branch_clash_modes
+                if clash_mode is not None
+                else not branch_clash_modes
+            )
+            if not branch_designated:
+                continue
+            qname, qtype = _dns_branch_probe(dns_rules, index, branch_index, clash_mode)
+            assert_dns_rule_match(
+                log_path,
+                index,
+                rule,
+                partial(dns_exchange, dns_port, qname, qtype),
+            )
+            covered.add((index, branch_index))
+    return covered
+
+
+def expected_dns_branches(dns_rules: list[dict[str, Any]]) -> set[tuple[int, int]]:
+    return {
+        (index, branch_index)
+        for index, rule in enumerate(dns_rules)
+        if _has_probeable_branches(rule)
+        for branch_index in range(len(rule["rules"]))
+    }
+
+
+def _dns_branch_probe(
+    dns_rules: list[dict[str, Any]],
+    index: int,
+    branch_index: int,
+    clash_mode: str | None,
+) -> tuple[str, int]:
+    rule = dns_rules[index]
+    branch = rule["rules"][branch_index]
+    siblings = [
+        sibling
+        for sibling_index, sibling in enumerate(rule["rules"])
+        if sibling_index != branch_index
+    ]
+    qnames: list[str] = []
+    if qname := _dns_qname_from_rule(branch):
+        qnames.append(qname)
+    qnames.append(f"dns-branch-{index}-{branch_index}-runtime.invalid")
+    qtypes = [_dns_qtype_number(query_type) for query_type in branch.get("query_type", [])] or [
+        _DNS_QUERY_TYPES["A"],
+        _DNS_QUERY_TYPES["TXT"],
+    ]
+    for qname in qnames:
+        for qtype in qtypes:
+            if not _dns_rule_matches_query(branch, qname, qtype, clash_mode):
+                continue
+            if any(
+                _dns_rule_matches_query(sibling, qname, qtype, clash_mode) for sibling in siblings
+            ):
+                continue
+            if any(
+                _dns_rule_matches_query(previous_rule, qname, qtype, clash_mode)
+                for previous_rule in dns_rules[:index]
+            ):
+                continue
+            return qname, qtype
+    raise AssertionError(
+        f"No unambiguous runtime probe for DNS rule {index} branch {branch_index}"
+    )
+
+
+def _dns_rule_matches_query(
+    rule: dict[str, Any],
+    qname: str,
+    qtype: int,
+    clash_mode: str | None,
+) -> bool:
+    if rule.get("type") == "logical":
+        submatches = [
+            _dns_rule_matches_query(subrule, qname, qtype, clash_mode) for subrule in rule["rules"]
+        ]
+        match = all(submatches) if rule.get("mode") == "and" else any(submatches)
+    else:
+        match = _default_dns_rule_matches_query(rule, qname, qtype, clash_mode)
+    return not match if rule.get("invert") else match
+
+
+def _default_dns_rule_matches_query(
+    rule: dict[str, Any],
+    qname: str,
+    qtype: int,
+    clash_mode: str | None,
+) -> bool:
+    supported = {
+        "action",
+        "clash_mode",
+        "domain",
+        "domain_keyword",
+        "domain_suffix",
+        "invert",
+        "mode",
+        "query_type",
+        "rcode",
+        "rules",
+        "server",
+        "type",
+    }
+    if unsupported := sorted(set(rule) - supported):
+        raise AssertionError(f"Cannot model DNS rule matchers {unsupported}: {rule}")
+    host = qname.rstrip(".").lower()
+    if domains := rule.get("domain", []):
+        if not any(host == value.lower() for value in domains):
+            return False
+    if suffixes := rule.get("domain_suffix", []):
+        if not any(_matches_domain_suffix(host, value) for value in suffixes):
+            return False
+    if keywords := rule.get("domain_keyword", []):
+        if not any(value.lower() in host for value in keywords):
+            return False
+    if query_types := rule.get("query_type", []):
+        if qtype not in [_dns_qtype_number(query_type) for query_type in query_types]:
+            return False
+    if rule_clash_mode := rule.get("clash_mode"):
+        if rule_clash_mode != clash_mode:
+            return False
+    return True
 
 
 def fakeip_dns_answers(
@@ -650,7 +900,7 @@ def _exercise_route_rule(
             log_path,
             index,
             rule,
-            lambda: _probe_http_via_mixed(mixed_port, probe),
+            lambda: _execute_route_probe(mixed_port, probe),
         )
         return True
     if _clash_modes(rule):
@@ -666,48 +916,95 @@ def _route_probe(
 ) -> RouteProbe | None:
     if rule["action"] == "sniff":
         return RouteProbe("route-sniff-runtime.example", 80, "pytest-runtime-probe", clash_mode)
-    _assert_supported_route_matchers(rule, f"route rule {index}")
-    for previous_index, previous_rule in enumerate(previous_rules):
-        if _is_terminal_route_rule(previous_rule):
-            _assert_supported_route_matchers(
-                previous_rule, f"previous route rule {previous_index}"
-            )
+    return _select_route_probe(
+        target=rule,
+        blocking_rules=_terminal_rules(previous_rules),
+        index=index,
+        clash_mode=clash_mode,
+        description=f"route rule {index}",
+        seed_context={"index": index, "rule": rule, "clash_mode": clash_mode},
+    )
 
-    candidates = _route_probe_candidates(rule, index, clash_mode)
+
+def _route_branch_probe(
+    rule: dict[str, Any],
+    branch_index: int,
+    previous_rules: list[dict[str, Any]],
+    index: int,
+    clash_mode: str | None,
+) -> RouteProbe:
+    branch = rule["rules"][branch_index]
+    # Sibling branches block: the log line only names the rule, so the probe must
+    # match exactly one branch for branch-level attribution to hold.
+    siblings = [
+        sibling
+        for sibling_index, sibling in enumerate(rule["rules"])
+        if sibling_index != branch_index
+    ]
+    return _select_route_probe(
+        target=branch,
+        blocking_rules=_terminal_rules(previous_rules) + siblings,
+        index=index,
+        clash_mode=clash_mode,
+        description=f"route rule {index} branch {branch_index}",
+        seed_context={
+            "index": index,
+            "branch": branch_index,
+            "rule": rule,
+            "clash_mode": clash_mode,
+        },
+    )
+
+
+def _terminal_rules(rules: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [rule for rule in rules if _is_terminal_route_rule(rule)]
+
+
+def _select_route_probe(
+    target: dict[str, Any],
+    blocking_rules: list[dict[str, Any]],
+    index: int,
+    clash_mode: str | None,
+    description: str,
+    seed_context: dict[str, Any],
+) -> RouteProbe:
+    _assert_supported_route_matchers(target, description)
+    for blocking_index, blocking_rule in enumerate(blocking_rules):
+        _assert_supported_route_matchers(blocking_rule, f"{description} blocker {blocking_index}")
+
+    candidates = _route_probe_candidates(target, index, clash_mode)
     if not candidates:
-        raise AssertionError(f"No runtime probe candidates can be derived for route rule {index}")
+        raise AssertionError(f"No runtime probe candidates can be derived for {description}")
 
-    randomizer = random.Random(_route_probe_seed(index, rule, clash_mode))
+    randomizer = random.Random(_route_probe_seed(seed_context))
     randomizer.shuffle(candidates)
     blockers: dict[int, int] = {}
     matching_candidates = 0
     for candidate in candidates:
-        if not _route_rule_matches(rule, candidate):
+        if not _route_rule_matches(target, candidate):
             continue
         matching_candidates += 1
-        matching_previous_rules = [
-            previous_index
-            for previous_index, previous_rule in enumerate(previous_rules)
-            if _is_terminal_route_rule(previous_rule)
-            and _route_rule_matches(previous_rule, candidate)
+        matching_blocking_rules = [
+            blocking_index
+            for blocking_index, blocking_rule in enumerate(blocking_rules)
+            if _route_rule_matches(blocking_rule, candidate)
         ]
-        if not matching_previous_rules:
+        if not matching_blocking_rules:
             return candidate
-        for previous_index in matching_previous_rules:
-            blockers[previous_index] = blockers.get(previous_index, 0) + 1
+        for blocking_index in matching_blocking_rules:
+            blockers[blocking_index] = blockers.get(blocking_index, 0) + 1
 
     if not matching_candidates:
-        raise AssertionError(f"No runtime probe candidate satisfies route rule {index}")
+        raise AssertionError(f"No runtime probe candidate satisfies {description}")
     raise AssertionError(
-        f"No precedence-safe runtime probe for route rule {index}; "
-        f"all {len(candidates)} candidates were shadowed by earlier route rules "
-        f"{sorted(blockers)}"
+        f"No precedence-safe runtime probe for {description}; "
+        f"all {len(candidates)} candidates were blocked by rules {sorted(blockers)}"
     )
 
 
-def _route_probe_seed(index: int, rule: dict[str, Any], clash_mode: str | None) -> int:
+def _route_probe_seed(seed_context: dict[str, Any]) -> int:
     serialized = json.dumps(
-        {"index": index, "rule": rule, "clash_mode": clash_mode},
+        seed_context,
         ensure_ascii=False,
         sort_keys=True,
         separators=(",", ":"),
@@ -721,15 +1018,44 @@ def _route_probe_candidates(
     hosts = _route_probe_hosts(rule, index)
     ports = _route_probe_ports(rule)
     user_agents = _route_probe_user_agents(rule)
+    kinds = _route_probe_kinds(rule)
     return sorted(
         {
-            RouteProbe(host=host, port=port, user_agent=user_agent, clash_mode=clash_mode)
+            RouteProbe(
+                host=host,
+                port=port,
+                user_agent=user_agent,
+                clash_mode=clash_mode,
+                network=network,
+                payload=payload,
+            )
             for host in hosts
             for port in ports
             for user_agent in user_agents
+            for network, payload in kinds
         },
-        key=lambda probe: (probe.host, probe.port, probe.user_agent, probe.clash_mode or ""),
+        key=lambda probe: (
+            probe.host,
+            probe.port,
+            probe.user_agent,
+            probe.clash_mode or "",
+            probe.network,
+            probe.payload,
+        ),
     )
+
+
+def _route_probe_kinds(rule: dict[str, Any]) -> set[tuple[str, str]]:
+    # Generate generously; _route_rule_matches decides which candidates qualify.
+    kinds = {("tcp", "http")}
+    if "udp" in _rule_values(rule, "network"):
+        kinds.add(("udp", "raw"))
+    kinds.update(
+        _PROTOCOL_PROBE_KINDS[protocol]
+        for protocol in _rule_values(rule, "protocol")
+        if protocol in _PROTOCOL_PROBE_KINDS
+    )
+    return kinds
 
 
 def _route_probe_hosts(rule: dict[str, Any], index: int) -> set[str]:
@@ -859,7 +1185,8 @@ def _is_http_host(host: str) -> bool:
 
 
 def _is_terminal_route_rule(rule: dict[str, Any]) -> bool:
-    return rule.get("action") in {"reject", "route"}
+    # hijack-dns terminates matching for the traffic it captures, just like reject/route.
+    return rule.get("action") in {"hijack-dns", "reject", "route"}
 
 
 def _assert_supported_route_matchers(rule: dict[str, Any], description: str) -> None:
@@ -916,12 +1243,15 @@ def _default_route_rule_matches(rule: dict[str, Any], probe: RouteProbe) -> bool
         return False
     if not _matches_value(rule, "inbound", "mixed"):
         return False
-    if not _matches_value(rule, "network", "tcp"):
+    if not _matches_value(rule, "network", probe.network):
         return False
-    if not _matches_value(rule, "protocol", "http"):
-        return False
-    if not _matches_value(rule, "user_agent", probe.user_agent):
-        return False
+    if protocols := _rule_values(rule, "protocol"):
+        if probe.protocol not in protocols:
+            return False
+    if user_agents := _rule_values(rule, "user_agent"):
+        # The user_agent matcher applies to sniffed HTTP metadata only.
+        if probe.protocol != "http" or probe.user_agent not in user_agents:
+            return False
     if clash_mode := rule.get("clash_mode"):
         if clash_mode != probe.clash_mode:
             return False
@@ -1028,6 +1358,29 @@ def _clash_modes(rule: dict[str, Any]) -> set[str]:
     return modes
 
 
+def _execute_route_probe(mixed_port: int, probe: RouteProbe) -> None:
+    if probe.payload == "http":
+        _probe_http_via_mixed(mixed_port, probe)
+    elif probe.network == "udp":
+        _probe_udp_via_mixed(mixed_port, probe.host, probe.port, _probe_payload_bytes(probe))
+    else:
+        _probe_tcp_via_mixed(mixed_port, probe.host, probe.port, _probe_payload_bytes(probe))
+
+
+def _probe_payload_bytes(probe: RouteProbe) -> bytes:
+    if probe.payload == "dns":
+        return _build_dns_query(random.randrange(0, 65536), "route-probe-runtime.example", 1)
+    if probe.payload == "stun":
+        # RFC 5389 binding request: type, length, magic cookie, transaction ID.
+        return struct.pack("!HHI12s", 0x0001, 0, 0x2112A442, random.randbytes(12))
+    if probe.payload == "bittorrent":
+        return b"\x13BitTorrent protocol" + bytes(8) + random.randbytes(20) + random.randbytes(20)
+    if probe.payload == "raw":
+        # Short printable payload that no sing-box sniffer recognizes.
+        return b"pytest-raw-probe"
+    raise AssertionError(f"No payload builder for probe payload {probe.payload!r}")
+
+
 def _probe_http_via_mixed(mixed_port: int, probe: RouteProbe) -> None:
     try:
         http_get_via_mixed(
@@ -1037,6 +1390,87 @@ def _probe_http_via_mixed(mixed_port: int, probe: RouteProbe) -> None:
             headers={"User-Agent": probe.user_agent},
         )
     except requests.RequestException:
+        pass
+
+
+def _socks5_handshake(sock: socket.socket, command: int, host: str, port: int) -> tuple[str, int]:
+    sock.sendall(b"\x05\x01\x00")
+    method_selection = _recv_exact(sock, 2)
+    if method_selection != b"\x05\x00":
+        raise AssertionError(f"SOCKS5 method selection failed: {method_selection!r}")
+    sock.sendall(struct.pack("!BBB", 5, command, 0) + _socks5_address(host, port))
+    version, reply, _ = struct.unpack("!BBB", _recv_exact(sock, 3))
+    if version != 5 or reply != 0:
+        raise AssertionError(f"SOCKS5 command {command} failed with reply {reply}")
+    return _read_socks5_address(sock)
+
+
+def _socks5_address(host: str, port: int) -> bytes:
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        encoded_host = host.encode("ascii")
+        return b"\x03" + bytes([len(encoded_host)]) + encoded_host + struct.pack("!H", port)
+    if address.version == 4:
+        return b"\x01" + address.packed + struct.pack("!H", port)
+    return b"\x04" + address.packed + struct.pack("!H", port)
+
+
+def _read_socks5_address(sock: socket.socket) -> tuple[str, int]:
+    address_type = _recv_exact(sock, 1)[0]
+    if address_type == 1:
+        host = str(ipaddress.IPv4Address(_recv_exact(sock, 4)))
+    elif address_type == 4:
+        host = str(ipaddress.IPv6Address(_recv_exact(sock, 16)))
+    elif address_type == 3:
+        length = _recv_exact(sock, 1)[0]
+        host = _recv_exact(sock, length).decode("ascii")
+    else:
+        raise AssertionError(f"Unsupported SOCKS5 address type {address_type}")
+    (port,) = struct.unpack("!H", _recv_exact(sock, 2))
+    return host, port
+
+
+def _recv_exact(sock: socket.socket, size: int) -> bytes:
+    data = b""
+    while len(data) < size:
+        chunk = sock.recv(size - len(data))
+        if not chunk:
+            raise AssertionError("SOCKS5 peer closed the connection prematurely")
+        data += chunk
+    return data
+
+
+def _probe_tcp_via_mixed(mixed_port: int, host: str, port: int, payload: bytes) -> None:
+    try:
+        with socket.create_connection(("127.0.0.1", mixed_port), timeout=2) as sock:
+            _socks5_handshake(sock, 1, host, port)
+            sock.sendall(payload)
+            sock.settimeout(1)
+            try:
+                sock.recv(4096)
+            except OSError:
+                pass
+    except OSError:
+        pass
+
+
+def _probe_udp_via_mixed(mixed_port: int, host: str, port: int, payload: bytes) -> None:
+    try:
+        with socket.create_connection(("127.0.0.1", mixed_port), timeout=2) as sock:
+            # ASSOCIATE announces the client UDP endpoint; 0.0.0.0:0 means "unknown".
+            relay_host, relay_port = _socks5_handshake(sock, 3, "0.0.0.0", 0)
+            if relay_host in ("0.0.0.0", "::"):
+                relay_host = "127.0.0.1"
+            datagram = b"\x00\x00\x00" + _socks5_address(host, port) + payload
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_sock:
+                udp_sock.sendto(datagram, (relay_host, relay_port))
+                udp_sock.settimeout(1)
+                try:
+                    udp_sock.recvfrom(4096)
+                except OSError:
+                    pass
+    except OSError:
         pass
 
 
@@ -1158,24 +1592,18 @@ def _unmatched_dns_qtype(previous_rules: list[dict[str, Any]]) -> int:
     raise AssertionError("No unused DNS qtype available for predefined-rule probe")
 
 
+def _dns_rule_log_index(index: int) -> int:
+    # sing-box dns/router.go logs displayRuleIndex = 2 * rule_index + 1 (v1.13).
+    return 2 * index + 1
+
+
 def _dns_rule_log_pattern(index: int, rule: dict[str, Any]) -> str:
+    match_prefix = rf"dns: match\[{_dns_rule_log_index(index)}\] "
     if rule["action"] == "predefined":
-        return rf"dns: match\[\d+\] => predefined\({re.escape(rule['rcode'])}\)"
+        return match_prefix + rf".*=> predefined\({re.escape(rule['rcode'])}\)"
     if rule["action"] != "route":
         raise AssertionError(f"No runtime coverage pattern for DNS rule {index}: {rule}")
-
-    server = re.escape(rule["server"])
-    if query_types := rule.get("query_type"):
-        if len(query_types) == 1:
-            query_pattern = re.escape(query_types[0])
-        else:
-            query_pattern = (
-                r"\[" + " ".join(re.escape(query_type) for query_type in query_types) + r"\]"
-            )
-        return rf"dns: match\[\d+\].*query_type={query_pattern}.*=> route\({server}\)"
-    if rule.get("type") == "logical":
-        return rf"dns: match\[\d+\].*domain_suffix=.*=> route\({server}\)"
-    raise AssertionError(f"No runtime coverage pattern for DNS rule {index}: {rule}")
+    return match_prefix + rf".*=> route\({re.escape(rule['server'])}\)"
 
 
 def _build_dns_query(transaction_id: int, qname: str, qtype: int) -> bytes:

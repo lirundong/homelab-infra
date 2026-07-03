@@ -6,8 +6,11 @@ from pathlib import Path
 
 from _support.sing_box import SourceContext
 from _support.sing_box import collect_rule_set_references
+from _support.sing_box import exercise_generated_dns_rule_branches
 from _support.sing_box import exercise_generated_dns_rules
 from _support.sing_box import exercise_generated_route_rules
+from _support.sing_box import expected_dns_branches
+from _support.sing_box import expected_route_branches
 from _support.sing_box import fakeip_dns_answers
 from _support.sing_box import fetch_live_schema
 from _support.sing_box import file_contains
@@ -18,6 +21,7 @@ from _support.sing_box import http_server
 from _support.sing_box import load_config
 from _support.sing_box import route_clash_modes
 from _support.sing_box import rule_set_compiler
+from _support.sing_box import run_android_filtered_sing_box_check
 from _support.sing_box import run_sing_box_check
 from _support.sing_box import running_sing_box
 from _support.sing_box import sanitize_host_label
@@ -93,6 +97,33 @@ def test_source_derived_client_omits_disabled_clash_api(
     assert config["experimental"]["cache_file"]["path"] == "cache.db"
 
 
+def test_source_derived_client_configs_pass_platform_aware_check(
+    source_context: SourceContext,
+    tmp_path: Path,
+) -> None:
+    """Checks client configs with `sing-box check` on a Linux runner.
+
+    The Android client config legitimately fails a Linux `sing-box check` on
+    Android-only fields (`override_android_vpn`). This test asserts that the
+    failure is exactly that — and that the config passes once those fields are
+    stripped — so any other check regression in the Android config still
+    surfaces. The Apple client config carries no platform-gated fields and must
+    pass `sing-box check` unmodified.
+    """
+    generate_selected_artifacts(
+        context=source_context,
+        output_root=tmp_path,
+        names=["sing-box-daemon", "sing-box-clients", "sing-box-apple"],
+    )
+
+    with rule_set_compiler() as compiler:
+        clients_dir = tmp_path / "sing-box-clients"
+        run_android_filtered_sing_box_check(
+            compiler._sing_box, clients_dir, load_config(clients_dir)
+        )
+        run_sing_box_check(compiler._sing_box, tmp_path / "sing-box-apple")
+
+
 def test_source_derived_runtime_without_tun(
     source_context: SourceContext,
     tmp_path: Path,
@@ -105,9 +136,12 @@ def test_source_derived_runtime_without_tun(
     route and DNS probe checks only the log segment written after that specific
     probe, so the test proves the intended rule/action handled the matching
     request instead of only proving that every expected outbound appeared
-    somewhere in the aggregate log. The test also verifies representative
-    user-visible behavior: private HTTP traffic reaches `DIRECT`, secured DNS is
-    rejected, and A/AAAA DNS answers are generated from FakeIP ranges.
+    somewhere in the aggregate log. Logical `or` rules are additionally covered
+    branch by branch with probes crafted to match exactly one branch (raw
+    BitTorrent/STUN/DNS payloads ride a hand-rolled SOCKS5 client through the
+    mixed inbound). The test also verifies representative user-visible behavior:
+    private HTTP traffic reaches `DIRECT`, secured DNS is rejected, and A/AAAA
+    DNS answers are generated from FakeIP ranges.
     """
     mixed_port = unused_port(socket.SOCK_STREAM)
     dns_port = unused_port(socket.SOCK_DGRAM)
@@ -120,6 +154,9 @@ def test_source_derived_runtime_without_tun(
     config = load_config(runtime_dir)
 
     covered_route_rules: set[int] = set()
+    covered_route_branches: set[tuple[int, int]] = set()
+    covered_dns_branches: set[tuple[int, int]] = set()
+    dns_rules = config["dns"]["rules"]
     with (
         rule_set_compiler() as compiler,
         http_server() as http_port,
@@ -142,19 +179,26 @@ def test_source_derived_runtime_without_tun(
         assert reject_response.status_code == 502
         assert file_contains(runtime_dir / "sing-box.log", "reject(drop)")
 
-        covered_route_rules |= exercise_generated_route_rules(
+        covered_rules, covered_branches = exercise_generated_route_rules(
             config,
             mixed_port,
             dns_port,
             runtime_dir / "sing-box.log",
             clash_mode=None,
         )
-        dns_rules = config["dns"]["rules"]
+        covered_route_rules |= covered_rules
+        covered_route_branches |= covered_branches
         dns_log_path = runtime_dir / "sing-box.log"
         covered_dns_rules = exercise_generated_dns_rules(
             dns_rules,
             dns_port,
             dns_log_path,
+        )
+        covered_dns_branches |= exercise_generated_dns_rule_branches(
+            dns_rules,
+            dns_port,
+            dns_log_path,
+            clash_mode=None,
         )
         a_answer, aaaa_answer = fakeip_dns_answers(
             dns_rules,
@@ -182,12 +226,22 @@ def test_source_derived_runtime_without_tun(
                 mode_runtime_dir,
             ),
         ):
-            covered_route_rules |= exercise_generated_route_rules(
+            covered_rules, covered_branches = exercise_generated_route_rules(
                 config,
                 mode_mixed_port,
                 mode_dns_port,
                 mode_runtime_dir / "sing-box.log",
                 clash_mode=clash_mode,
             )
+            covered_route_rules |= covered_rules
+            covered_route_branches |= covered_branches
+            covered_dns_branches |= exercise_generated_dns_rule_branches(
+                dns_rules,
+                mode_dns_port,
+                mode_runtime_dir / "sing-box.log",
+                clash_mode=clash_mode,
+            )
 
     assert covered_route_rules == set(range(len(config["route"]["rules"])))
+    assert covered_route_branches == expected_route_branches(config["route"]["rules"])
+    assert covered_dns_branches == expected_dns_branches(dns_rules)
