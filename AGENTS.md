@@ -27,7 +27,7 @@ uv run pytest conf-gen/tests/test_generated_sing_box_artifacts.py \
     --artifact-dir artifacts-conf --check-config sing-box-daemon \
     --check-config sing-box-apple --check-config-android sing-box-clients
 # OpenWRT (PASSWORD env required; read secret-handling skill before invoking):
-VERSION=25.12.3 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
+VERSION=25.12.5 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
 ```
 
 ## Workflow (branch → PR → merge)
@@ -87,7 +87,7 @@ Steps: SDK download -> decrypt files (`common-secret-decoder -r`) -> cross-compi
 into rootfs `usr/lib/python$TARGET_PY/site-packages` (rewrite shebangs to `#!/usr/bin/env
 python3`, expose via relative `usr/bin` symlinks) -> imagebuilder. Custom files:
 `files/etc/{init.d,uci-defaults,nftables.d,dropbear,crontabs,apk}/`. Packages:
-`packages/{25.12.3,snapshots}.txt` (25.12+ uses apk). Required apks: `coreutils-env`,
+`packages/{25.12.5,snapshots}.txt` (25.12+ uses apk). Required apks: `coreutils-env`,
 `python3-cryptography`. Env: `PASSWORD`, `VERSION` (default stale), `TARGET_ARCH` (`x86/64`),
 `GCC_VERSION`, `PROFILE`, `PACKAGE_ARCH`, `REPOSITORY` (default Tsinghua mirror), `WORK_DIR`,
 `SING_BOX_*`, `TOOLCHAIN_ARCH`, `HOST_ARCH`, `TAR_EXT`. `TARGET_PY` auto-detected from apk
@@ -97,7 +97,7 @@ into the image, or use `hotplug.d/iface` with a default-route guard.
 
 ## CI (`.github/workflows/artifacts-release-nightly.yaml`)
 DAG: `type_check`, `conf_gen_tests`, `build_configuration` → `build_openwrt` (matrix
-{x86/64, rockchip/armv8} × {25.12.3, snapshots}) →
+{x86/64, rockchip/armv8} × {25.12.5, snapshots}) →
 `release_{proxy_configurations,openwrt_builds}`. The `ci_gate` job fans in required jobs
 based on event type and touched paths and is the **single required check** for branch
 protection (snapshots legs `continue-on-error`, so their failures don't propagate); release
