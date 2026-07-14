@@ -32,6 +32,7 @@ from conf_gen.proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.fallback_proxy_group import FallbackProxyGroup
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 from conf_gen.rule.parser import parse_filter
+from conf_gen.rule.utils import deduplicate_rule_irs
 from conf_gen.rule.utils import group_sing_box_filters
 from conf_gen.rule.utils import split_sing_box_dst_ip_filters
 from packaging.version import Version
@@ -74,6 +75,7 @@ def expand_filters_inplace(
         filter_irs: list[Any] = []
         for f in rule.pop(filters_key):
             filter_irs += parse_filter(f, match_with_dns=rule.get("match_with_dns"))
+        filter_irs = deduplicate_rule_irs([filter_irs])[0]
         grouped_filters = group_sing_box_filters(
             filter_irs, included_process_irs=included_process_irs
         )

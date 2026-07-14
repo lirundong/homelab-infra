@@ -60,21 +60,6 @@ class ClashGenerator(GeneratorBase):
             resolve_rules += resolve_r
         conf["rules"] = no_resolve_rules + resolve_rules
 
-        # Deduplicate rules. Clash performs rule traversal in O(N) thus this could improve perf.
-        num_duplicates = 0
-        existing_matchers = set()
-        deduplicated_rules = []
-        for rule in conf["rules"]:
-            matcher = ",".join(rule.split(",")[:2])
-            if matcher not in existing_matchers:
-                existing_matchers.add(matcher)
-                deduplicated_rules.append(rule)
-            else:
-                num_duplicates += 1
-        if 0 < num_duplicates:
-            print(f"Filtered out {num_duplicates} duplications in Clash rules.")
-            conf["rules"] = deduplicated_rules
-
         base, _ = os.path.split(file)
         os.makedirs(base, exist_ok=True)
         with open(file, "w", encoding="utf-8") as f:

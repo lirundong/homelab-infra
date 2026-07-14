@@ -6,6 +6,7 @@ from typing import Sequence
 
 from conf_gen.proxy._base_proxy import ProxyBase
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
+from conf_gen.rule import deduplicate_rule_irs
 from pytz import timezone
 
 
@@ -25,13 +26,21 @@ class GeneratorBase:
         self._proxy_groups: list[ProxyGroupBase] = []
         proxy_names = set(pg.name for pg in proxy_groups).union(self._DEFAULT_PROXY_NAMES)
         for proxy in proxies:
-            if self._SUPPORTED_PROXY_TYPE is not None and type(proxy) in self._SUPPORTED_PROXY_TYPE:
+            if (
+                self._SUPPORTED_PROXY_TYPE is not None
+                and type(proxy) in self._SUPPORTED_PROXY_TYPE
+            ):
                 self._proxies.append(proxy)
                 proxy_names.add(proxy.name)
         for proxy_group in proxy_groups:
             proxy_group = copy(proxy_group)
             proxy_group._proxies = [p for p in proxy_group._proxies if p in proxy_names]
             self._proxy_groups.append(proxy_group)
+        deduplicated_filters = deduplicate_rule_irs(
+            [proxy_group._filters for proxy_group in self._proxy_groups]
+        )
+        for proxy_group, filters in zip(self._proxy_groups, deduplicated_filters):
+            proxy_group._filters = filters
 
     @property
     def header(self) -> str:

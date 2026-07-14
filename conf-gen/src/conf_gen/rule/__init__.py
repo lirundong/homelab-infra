@@ -1,12 +1,14 @@
 from conf_gen.rule.parser import FilterT
 from conf_gen.rule.parser import parse_filter
 from conf_gen.rule.utils import SplittedSingBoxFilters
+from conf_gen.rule.utils import deduplicate_rule_irs
 from conf_gen.rule.utils import group_sing_box_filters
 from conf_gen.rule.utils import split_sing_box_dst_ip_filters
 
 __all__ = (
     "FilterT",
     "SplittedSingBoxFilters",
+    "deduplicate_rule_irs",
     "parse_filter",
     "group_sing_box_filters",
     "split_sing_box_dst_ip_filters",

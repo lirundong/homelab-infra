@@ -119,21 +119,11 @@ class QuantumultGenerator(GeneratorBase):
             missing_sections.remove("filter_local")
             no_resolve_filters: list[str] = []
             resolve_filters: list[str] = []
-            existing_matchers: set[str] = set()
-            num_duplications = 0
             for g in self._proxy_groups:
                 for filters, filters_in_g in zip(
                     [no_resolve_filters, resolve_filters], g.quantumult_filters
                 ):
-                    for filter in filters_in_g:
-                        matcher = ",".join(filter.split(",")[:2])
-                        if matcher not in existing_matchers:
-                            existing_matchers.add(matcher)
-                            filters.append(filter)
-                        else:
-                            num_duplications += 1
-            if 0 < num_duplications:
-                print(f"Filtered out {num_duplications} duplications in Quantumult-x filters.")
+                    filters += filters_in_g
             f.write("\n".join(no_resolve_filters) + "\n")
             f.write("\n".join(resolve_filters) + "\n")
             # Rewrite.
