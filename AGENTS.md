@@ -52,10 +52,6 @@ identity, append this visual signature after a blank line:
 ```
 
 Do not use `@codex` as a passive signature because GitHub mentions trigger Codex cloud tasks.
-The signature distinguishes agent-authored prose but does not change GitHub's authenticated
-author or add a separate account to the PR participant list.
-Other agents and non-OpenAI models must not use this signature; they should use their own
-project-approved attribution, if any.
 
 ## conf-gen (`conf-gen/src/conf_gen/`, note underscore)
 Pipeline: `source.yaml -> Parser -> IR Objects -> Generator -> Config`. CLI:
