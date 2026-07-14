@@ -7,6 +7,7 @@ from typing import Sequence
 from conf_gen.proxy._base_proxy import ProxyBase
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
 from conf_gen.rule import deduplicate_rule_irs
+from conf_gen.rule._base_ir import IRBase
 from pytz import timezone
 
 
@@ -14,6 +15,10 @@ class GeneratorBase:
 
     _SUPPORTED_PROXY_TYPE: ClassVar[tuple[type[ProxyBase], ...] | None] = None
     _DEFAULT_PROXY_NAMES: ClassVar[set[str]] = {"PROXY", "DIRECT", "REJECT"}
+
+    @staticmethod
+    def _rule_ir_priority(group_index: int, rule_ir: IRBase) -> tuple[int, ...]:
+        return (group_index,)
 
     def __init__(
         self,
@@ -37,7 +42,8 @@ class GeneratorBase:
             proxy_group._proxies = [p for p in proxy_group._proxies if p in proxy_names]
             self._proxy_groups.append(proxy_group)
         deduplicated_filters = deduplicate_rule_irs(
-            [proxy_group._filters for proxy_group in self._proxy_groups]
+            [proxy_group._filters for proxy_group in self._proxy_groups],
+            priority=self._rule_ir_priority,
         )
         for proxy_group, filters in zip(self._proxy_groups, deduplicated_filters):
             proxy_group._filters = filters

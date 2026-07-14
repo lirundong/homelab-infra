@@ -14,9 +14,14 @@ from conf_gen.proxy import VMessProxy
 from conf_gen.proxy import VMessWebSocketProxy
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
+from conf_gen.rule._base_ir import IRBase
 
 
 class ClashGenerator(GeneratorBase):
+
+    @staticmethod
+    def _rule_ir_priority(group_index: int, rule_ir: IRBase) -> tuple[int, ...]:
+        return (int(rule_ir._might_resolvable and bool(rule_ir._resolve)),)
 
     _SUPPORTED_PROXY_TYPE = (
         Socks5Proxy,

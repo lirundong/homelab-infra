@@ -13,9 +13,14 @@ from conf_gen.proxy import VMessWebSocketProxy
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 from conf_gen.rewrite._base_rewrite import RewriteBase
+from conf_gen.rule._base_ir import IRBase
 
 
 class QuantumultGenerator(GeneratorBase):
+    @staticmethod
+    def _rule_ir_priority(group_index: int, rule_ir: IRBase) -> tuple[int, ...]:
+        return (group_index, int(rule_ir._might_resolvable and bool(rule_ir._resolve)))
+
     _MANDATORY_SECTIONS: ClassVar[tuple[str, ...]] = (
         "dns",
         "general",

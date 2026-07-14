@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
-from typing import Hashable
+from typing import Callable
 from typing import Literal
 from typing import Sequence
 
@@ -16,20 +16,30 @@ _DST_IP_IRS = (IPCIDR, IPCIDR6)
 _PROCESS_IRS = (PackageName, ProcessName)
 
 
-def deduplicate_rule_irs(rule_groups: Sequence[Sequence[IRBase]]) -> list[list[IRBase]]:
-    """Remove later equivalent IRs while preserving proxy-group and rule order."""
-    seen: defaultdict[Hashable, list[IRBase]] = defaultdict(list)
-    deduplicated_groups: list[list[IRBase]] = []
-    for filters in rule_groups:
-        deduplicated_filters: list[IRBase] = []
-        for filter_ir in filters:
-            candidates = seen[filter_ir.deduplication_key()]
-            if any(filter_ir.is_equivalent_to(candidate) for candidate in candidates):
-                continue
-            candidates.append(filter_ir)
-            deduplicated_filters.append(filter_ir)
-        deduplicated_groups.append(deduplicated_filters)
-    return deduplicated_groups
+def deduplicate_rule_irs(
+    rule_groups: Sequence[Sequence[IRBase]],
+    priority: Callable[[int, IRBase], tuple[int, ...]] | None = None,
+) -> list[list[IRBase]]:
+    """Keep the highest-priority occurrence of each IR without changing output order."""
+    indexed_irs = [
+        (group_index, rule_index, rule_ir)
+        for group_index, rules in enumerate(rule_groups)
+        for rule_index, rule_ir in enumerate(rules)
+    ]
+    if priority is not None:
+        indexed_irs.sort(key=lambda indexed_ir: priority(indexed_ir[0], indexed_ir[2]))
+
+    seen: set[IRBase] = set()
+    retained = [[False] * len(rules) for rules in rule_groups]
+    for group_index, rule_index, rule_ir in indexed_irs:
+        if rule_ir not in seen:
+            seen.add(rule_ir)
+            retained[group_index][rule_index] = True
+
+    return [
+        [rule_ir for rule_ir, keep in zip(rules, retained_group) if keep]
+        for rules, retained_group in zip(rule_groups, retained)
+    ]
 
 
 def group_sing_box_filters(
