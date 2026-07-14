@@ -29,6 +29,9 @@ class Domain(_IRBase):
     _sing_box_prefix = "domain"
     _val_is_domain = True
 
+    def _comparison_key(self) -> tuple[str, str]:
+        return "domain", self._val
+
 
 @_IR_REGISTRY.register()
 class DomainSuffix(_IRBase):
@@ -37,6 +40,9 @@ class DomainSuffix(_IRBase):
     _quantumult_prefix = "host-suffix"
     _sing_box_prefix = "domain_suffix"
     _val_is_domain = True
+
+    def _comparison_key(self) -> tuple[str, str]:
+        return "domain_suffix", self._val
 
 
 @_IR_REGISTRY.register()
@@ -65,10 +71,20 @@ class DomainWildcard(_IRBase):
 @_IR_REGISTRY.register()
 class DomainListItem(_IRBase):
     """A special IR class that only be used in domain-list parsing."""
+
     _clash_prefix = None
     _quantumult_prefix = None
     _sing_box_prefix = None
     _val_is_domain = True
+
+    def _comparison_key(self) -> tuple[object, str]:
+        if self._val.startswith("+") and self._val.count("+") == 1:
+            if suffix := self._val[1:].removeprefix("."):
+                return "domain_suffix", suffix
+        if "+" not in self._val and "*" not in self._val:
+            if domain := self._val.removeprefix("."):
+                return "domain", domain
+        return type(self), self._val
 
     @property
     def clash_rule(self) -> str:
@@ -88,7 +104,7 @@ class DomainListItem(_IRBase):
             return f"DOMAIN-SUFFIX,{domain}"
         else:
             return f"DOMAIN,{domain}"
-    
+
     @property
     def quantumult_rule(self) -> str:
         domain = self._val
@@ -164,7 +180,7 @@ class IPCIDR6(_IRBase):
     _clash_prefix = "IP-CIDR6"
     _quantumult_prefix = "ip6-cidr"
     _might_resolvable = True
-    
+
     @property
     def sing_box_rule(self) -> tuple[str, str]:
         return "ip_cidr", self._val
