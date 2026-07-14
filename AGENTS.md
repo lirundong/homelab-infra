@@ -40,6 +40,23 @@ Non-trivial changes follow this pipeline:
 
 Commit messages: `[scope] imperative summary` (e.g. `[conf-gen] drop HTTPS DNS queries`).
 
+### Agent attribution on GitHub
+
+Apply this convention only when both conditions hold: the acting agent is Codex, and its
+underlying model is an OpenAI model. When that Codex agent authors or substantially edits PR
+bodies, review-thread replies, reviews, or issue/PR comments through the user's GitHub
+identity, append this visual signature after a blank line:
+
+```markdown
+— [OpenAI Codex](https://github.com/openai/codex)
+```
+
+Do not use `@codex` as a passive signature because GitHub mentions trigger Codex cloud tasks.
+The signature distinguishes agent-authored prose but does not change GitHub's authenticated
+author or add a separate account to the PR participant list.
+Other agents and non-OpenAI models must not use this signature; they should use their own
+project-approved attribution, if any.
+
 ## conf-gen (`conf-gen/src/conf_gen/`, note underscore)
 Pipeline: `source.yaml -> Parser -> IR Objects -> Generator -> Config`. CLI:
 `conf-gen -s/--src <source.yaml> -o/--dst <output-dir>`.
