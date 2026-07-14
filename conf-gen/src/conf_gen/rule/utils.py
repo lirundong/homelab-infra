@@ -1,7 +1,9 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
+from typing import Hashable
 from typing import Literal
+from typing import Sequence
 
 from conf_gen.rule._base_ir import _IR_REGISTRY
 from conf_gen.rule._base_ir import IRBase
@@ -14,6 +16,22 @@ _DST_IP_IRS = (IPCIDR, IPCIDR6)
 _PROCESS_IRS = (PackageName, ProcessName)
 
 
+def deduplicate_rule_irs(rule_groups: Sequence[Sequence[IRBase]]) -> list[list[IRBase]]:
+    """Remove later equivalent IRs while preserving proxy-group and rule order."""
+    seen: defaultdict[Hashable, list[IRBase]] = defaultdict(list)
+    deduplicated_groups: list[list[IRBase]] = []
+    for filters in rule_groups:
+        deduplicated_filters: list[IRBase] = []
+        for filter_ir in filters:
+            candidates = seen[filter_ir.deduplication_key()]
+            if any(filter_ir.is_equivalent_to(candidate) for candidate in candidates):
+                continue
+            candidates.append(filter_ir)
+            deduplicated_filters.append(filter_ir)
+        deduplicated_groups.append(deduplicated_filters)
+    return deduplicated_groups
+
+
 def group_sing_box_filters(
     filters: list[IRBase],
     included_process_irs: list[str] | None = None,
@@ -22,8 +40,12 @@ def group_sing_box_filters(
     normal_filters: defaultdict[str, list[str]] = defaultdict(list)
     process_filters: defaultdict[str, list[str]] = defaultdict(list)
     if included_process_irs is not None:
-        included_process_ir_types = tuple[type[IRBase], ...](_IR_REGISTRY[t] for t in included_process_irs)
-        excluded_process_ir_types = tuple[type[IRBase], ...](set(_PROCESS_IRS) - set(included_process_ir_types))
+        included_process_ir_types = tuple[type[IRBase], ...](
+            _IR_REGISTRY[t] for t in included_process_irs
+        )
+        excluded_process_ir_types = tuple[type[IRBase], ...](
+            set(_PROCESS_IRS) - set(included_process_ir_types)
+        )
     else:
         included_process_ir_types = None
         excluded_process_ir_types = _PROCESS_IRS
@@ -50,7 +72,7 @@ def group_sing_box_filters(
             "rules": [
                 dict(process_filters),
                 dict(normal_filters),
-            ]
+            ],
         }
     else:
         grouped_filters = dict(normal_filters)

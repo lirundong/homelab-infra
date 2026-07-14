@@ -28,18 +28,31 @@ class IRBase:
         self._resolve = resolve
 
     def __hash__(self) -> int:
-        return hash((
-            self._clash_prefix,
-            self._quantumult_prefix,
-            self._sing_box_prefix,
-            self._might_resolvable,
-            self._val_is_domain,
-            self._val,
-            self._resolve,
-        ))
+        return hash(
+            (
+                self._clash_prefix,
+                self._quantumult_prefix,
+                self._sing_box_prefix,
+                self._might_resolvable,
+                self._val_is_domain,
+                self._val,
+                self._resolve,
+            )
+        )
 
     def __eq__(self, rhs: Any) -> bool:
-        return type(rhs) == type(self) and hash(rhs) == hash(self)
+        return type(rhs) is type(self) and self._val == rhs._val and self._resolve == rhs._resolve
+
+    def deduplication_key(self) -> tuple[type["IRBase"], str, bool | None]:
+        """Return a hashable candidate bucket for IR-level deduplication.
+
+        Overrides must place every IR accepted by ``is_equivalent_to`` in the same bucket.
+        """
+        return type(self), self._val, self._resolve
+
+    def is_equivalent_to(self, rhs: "IRBase") -> bool:
+        """Return whether this IR has the same matcher semantics as ``rhs``."""
+        return self == rhs
 
     @property
     def clash_rule(self) -> str:
