@@ -72,6 +72,10 @@ class IRBase:
             return f"{self._quantumult_prefix},{self._val}"
 
     @property
+    def quantumult_rules(self) -> tuple[str, ...]:
+        return (self.quantumult_rule,)
+
+    @property
     def sing_box_rule(self) -> tuple[str, str]:
         if self._sing_box_prefix is None:
             raise ValueError(f"{self.__class__.__name__} is not supported by sing-box.")
