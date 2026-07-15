@@ -38,7 +38,7 @@ class IRBase:
         return type(self), self._val
 
     @property
-    def clash_rule(self) -> str:
+    def clash_rules(self) -> tuple[str, ...]:
         if self._clash_prefix is None:
             raise ValueError(f"{self.__class__.__name__} is not supported by clash.")
         if self._might_resolvable:
@@ -48,14 +48,15 @@ class IRBase:
                     f"requires hostname resolution, but got resolve={self._resolve}"
                 )
             elif self._resolve:
-                return f"{self._clash_prefix},{self._val}"
+                rule = f"{self._clash_prefix},{self._val}"
             else:
-                return f"{self._clash_prefix},{self._val},no-resolve"
+                rule = f"{self._clash_prefix},{self._val},no-resolve"
         else:
-            return f"{self._clash_prefix},{self._val}"
+            rule = f"{self._clash_prefix},{self._val}"
+        return (rule,)
 
     @property
-    def quantumult_rule(self) -> str:
+    def quantumult_rules(self) -> tuple[str, ...]:
         if self._quantumult_prefix is None:
             raise ValueError(f"{self.__class__.__name__} is not supported by quantumult x.")
         if self._might_resolvable:
@@ -65,21 +66,18 @@ class IRBase:
                     f"requires hostname resolution, but got resolve={self._resolve}"
                 )
             elif self._resolve:
-                return f"{self._quantumult_prefix},{self._val}"
+                rule = f"{self._quantumult_prefix},{self._val}"
             else:
-                return f"{self._quantumult_prefix},{self._val},no-resolve"
+                rule = f"{self._quantumult_prefix},{self._val},no-resolve"
         else:
-            return f"{self._quantumult_prefix},{self._val}"
+            rule = f"{self._quantumult_prefix},{self._val}"
+        return (rule,)
 
     @property
-    def quantumult_rules(self) -> tuple[str, ...]:
-        return (self.quantumult_rule,)
-
-    @property
-    def sing_box_rule(self) -> tuple[str, str]:
+    def sing_box_rules(self) -> tuple[tuple[str, str], ...]:
         if self._sing_box_prefix is None:
             raise ValueError(f"{self.__class__.__name__} is not supported by sing-box.")
-        return self._sing_box_prefix, self._val
+        return ((self._sing_box_prefix, self._val),)
 
 
 class IRRegistry:

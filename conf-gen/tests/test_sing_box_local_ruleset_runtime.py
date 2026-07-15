@@ -66,8 +66,8 @@ def _deduplicated_sing_box_matchers(
                 continue
             retained_group_index = seen[key]
             try:
-                matcher, value = filter_ir.sing_box_rule
-                duplicate_matchers.append((retained_group_index, matcher, value))
+                for matcher, value in filter_ir.sing_box_rules:
+                    duplicate_matchers.append((retained_group_index, matcher, value))
             except ValueError as error:
                 if not str(error).endswith("is not supported by sing-box."):
                     raise

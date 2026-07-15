@@ -61,7 +61,7 @@ def group_sing_box_filters(
         excluded_process_ir_types = _PROCESS_IRS
     for f in filters:
         try:
-            k, v = f.sing_box_rule
+            sing_box_rules = f.sing_box_rules
         except ValueError as e:
             if str(e).endswith("is not supported by sing-box."):
                 continue
@@ -69,10 +69,11 @@ def group_sing_box_filters(
                 raise e
         if excluded_process_ir_types and isinstance(f, excluded_process_ir_types):
             continue
-        elif included_process_ir_types and isinstance(f, included_process_ir_types):
-            process_filters[k].append(v)
-        else:
-            normal_filters[k].append(v)
+        for k, v in sing_box_rules:
+            if included_process_ir_types and isinstance(f, included_process_ir_types):
+                process_filters[k].append(v)
+            else:
+                normal_filters[k].append(v)
     # NOTE: We enforce process-related IRs to take precedence over others if applicable.
     grouped_filters: dict[str, Any]
     if process_filters:

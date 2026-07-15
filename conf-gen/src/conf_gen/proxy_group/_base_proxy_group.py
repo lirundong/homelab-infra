@@ -110,17 +110,19 @@ class ProxyGroupBase:
             else:
                 rules = no_resolve_rules
             try:
-                clash_rule = ir_filter.clash_rule.split(",")
+                clash_rules = ir_filter.clash_rules
             except ValueError as e:
                 if str(e).endswith("is not supported by clash."):
                     continue
                 else:
                     raise e
-            if clash_rule[-1] == "no-resolve":
-                clash_rule.insert(-1, self.name)
-            else:
-                clash_rule.append(self.name)
-            rules.append(",".join(clash_rule))
+            for clash_rule in clash_rules:
+                rule_parts = clash_rule.split(",")
+                if rule_parts[-1] == "no-resolve":
+                    rule_parts.insert(-1, self.name)
+                else:
+                    rule_parts.append(self.name)
+                rules.append(",".join(rule_parts))
         return no_resolve_rules, resolve_rules
 
     @property
