@@ -40,7 +40,7 @@ the uv-scoped checks.
 
 ## Workflow (branch → PR → merge)
 Non-trivial changes follow this pipeline:
-1. **Branch** off `master` with <username>/<feature, fix, chore, ...>/<descriptive-name>.
+1. **Branch** off `master` with `<username>/<feature, fix, chore, ...>/<descriptive-name>`.
 2. **Local verify**: `uv run --extra dev pre-commit run --all-files` + run the affected CLI
    end-to-end.
 3. **Push**, then `gh pr create` (prefer the `gh` CLI over the raw GitHub API).
