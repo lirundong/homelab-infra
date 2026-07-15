@@ -58,15 +58,17 @@ class TrojanProxy(ProxyBase):
 
     @property
     def clash_proxy(self) -> ClashTrojanProxyT:
-        info = ClashTrojanProxyT({
-            "name": self.name,
-            "password": self.password,
-            "port": self.port,
-            "server": self.server,
-            "skip-cert-verify": self.skip_cert_verify,
-            "type": "trojan",
-            "udp": self.udp,
-        })
+        info = ClashTrojanProxyT(
+            {
+                "name": self.name,
+                "password": self.password,
+                "port": self.port,
+                "server": self.server,
+                "skip-cert-verify": self.skip_cert_verify,
+                "type": "trojan",
+                "udp": self.udp,
+            }
+        )
         if self.sni is not None:
             info["sni"] = self.sni
         if self.alpn is not None:
@@ -89,10 +91,12 @@ class TrojanProxy(ProxyBase):
     @property
     def sing_box_proxy(self) -> SingBoxTrojanProxyT:
         base_cfg = super().sing_box_proxy
-        tls_cfg = SingBoxTlsT({
-            "enabled": True,
-            "insecure": self.skip_cert_verify,
-        })
+        tls_cfg = SingBoxTlsT(
+            {
+                "enabled": True,
+                "insecure": self.skip_cert_verify,
+            }
+        )
         if self.sni:
             tls_cfg["server_name"] = self.sni
         if self.alpn:

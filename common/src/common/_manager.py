@@ -23,7 +23,9 @@ class _SecretsManager:
     # Insert secrets by literal: @secret:<SECRET_KEY>[!<SECRET_TYPE>]
     _secret_prompt = r"@secret:(?P<key>\w+)(:?\!(?P<type>[\w\.]+))?"
     # Insert file content by literal: @include:<FILE_PATH>[!<JOIN_BY>][><INDENT_BY>]
-    _include_prompt = r"@include:(?P<file>[\w\-\/\.\\]+)(:?\!(?P<join_by>[\\\w\s]+))?(:?\>(?P<indent_by>\d+))?"
+    _include_prompt = (
+        r"@include:(?P<file>[\w\-\/\.\\]+)(:?\!(?P<join_by>[\\\w\s]+))?(:?\>(?P<indent_by>\d+))?"
+    )
     _comment_begins = ("#", "//", "<!--", "/*")
 
     @classmethod

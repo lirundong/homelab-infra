@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 from typing import Sequence
 
 import yaml
 
 if TYPE_CHECKING:
     from _support.sing_box import SourceContext
+
     from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 
 
@@ -159,10 +160,10 @@ def test_sing_box_expansion_deduplicates_rule_irs() -> None:
 
 
 def test_ir_equality_uses_concrete_matcher_identity() -> None:
+    from conf_gen.rule.ir import IPCIDR
     from conf_gen.rule.ir import Domain
     from conf_gen.rule.ir import DomainListItem
     from conf_gen.rule.ir import DomainSuffix
-    from conf_gen.rule.ir import IPCIDR
     from conf_gen.rule.utils import deduplicate_rule_irs
 
     no_resolve = IPCIDR("192.0.2.0/24", resolve=False)
@@ -177,9 +178,9 @@ def test_ir_equality_uses_concrete_matcher_identity() -> None:
 
 
 def test_deduplication_keeps_distinct_classes_and_honors_priority() -> None:
+    from conf_gen.rule.ir import IPCIDR
     from conf_gen.rule.ir import Domain
     from conf_gen.rule.ir import DomainListItem
-    from conf_gen.rule.ir import IPCIDR
     from conf_gen.rule.utils import deduplicate_rule_irs
 
     resolve = IPCIDR("192.0.2.0/24", resolve=True)
