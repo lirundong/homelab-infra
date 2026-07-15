@@ -1,4 +1,5 @@
 import re
+from warnings import warn
 
 from conf_gen.rule._base_ir import _IR_REGISTRY
 from conf_gen.rule._base_ir import IRBase as _IRBase
@@ -64,10 +65,10 @@ class DomainWildcard(_IRBase):
     _val_is_domain = True
 
     @property
-    def sing_box_rule(self) -> tuple[str, str]:
+    def sing_box_rules(self) -> tuple[tuple[str, str], ...]:
         key = "domain_regex"
         val = self._val.replace("*", r"([\w\-]*)")
-        return key, val
+        return ((key, val),)
 
 
 @_IR_REGISTRY.register()
@@ -122,13 +123,44 @@ class DomainListItem(_IRBase):
             return "domain", self._domain
         return "domain_regex", self._domain_regex
 
+    def _warn_lossy_translation(self, backend: str, rules: tuple[object, ...]) -> None:
+        approximation = ", ".join(str(rule) for rule in rules)
+        warn(
+            f"Clash domain-list item {self._val!r} cannot be translated losslessly to "
+            f"{backend}; using best-effort rules: {approximation}",
+            stacklevel=2,
+        )
+
+    def _literal_runs(self) -> tuple[str, ...]:
+        runs: list[str] = []
+        current: list[str] = []
+        for index, part in enumerate(self._parts):
+            if part == "*" or index == 0 and part in ("", "+"):
+                if current:
+                    runs.append(".".join(current))
+                    current = []
+            else:
+                current.append(part)
+        if current:
+            runs.append(".".join(current))
+        return tuple(runs)
+
     @property
-    def clash_rule(self) -> str:
+    def clash_rules(self) -> tuple[str, ...]:
         if self._is_suffix:
-            return f"DOMAIN-SUFFIX,{self._domain}"
+            return (f"DOMAIN-SUFFIX,{self._domain}",)
         if self._is_exact:
-            return f"DOMAIN,{self._domain}"
-        return f"DOMAIN-REGEX,{self._domain_regex}"
+            return (f"DOMAIN,{self._domain}",)
+
+        literal_runs = self._literal_runs()
+        if self._parts[-1] != "*" and literal_runs:
+            rules = (f"DOMAIN-SUFFIX,{literal_runs[-1]}",)
+        elif literal_runs:
+            rules = (f"DOMAIN-KEYWORD,{max(literal_runs, key=len)}",)
+        else:
+            rules = ("MATCH",)
+        self._warn_lossy_translation("Dreamacro Clash", rules)
+        return rules
 
     @property
     def quantumult_rules(self) -> tuple[str, ...]:
@@ -136,24 +168,33 @@ class DomainListItem(_IRBase):
             return (f"host-suffix,{self._domain}",)
         if self._is_exact:
             return (f"host,{self._domain}",)
+        rules: tuple[str, ...]
         if self._parts[0] == "+":
             if len(self._parts) == 1:
-                return ("host-wildcard,*",)
-            wildcard = ".".join(self._parts[1:])
-            if wildcard == "*":
-                return ("host-wildcard,*",)
-            return f"host-wildcard,{wildcard}", f"host-wildcard,*.{wildcard}"
-        if self._parts[0] == "":
-            return (f"host-wildcard,*{self._val}",)
-        return (f"host-wildcard,{self._val}",)
+                rules = ("host-wildcard,*",)
+            else:
+                wildcard = ".".join(self._parts[1:])
+                if wildcard == "*":
+                    rules = ("host-wildcard,*",)
+                else:
+                    rules = (
+                        f"host-wildcard,{wildcard}",
+                        f"host-wildcard,*.{wildcard}",
+                    )
+        elif self._parts[0] == "":
+            rules = (f"host-wildcard,*{self._val}",)
+        else:
+            rules = (f"host-wildcard,{self._val}",)
+        self._warn_lossy_translation("Quantumult-X", rules)
+        return rules
 
     @property
-    def sing_box_rule(self) -> tuple[str, str]:
+    def sing_box_rules(self) -> tuple[tuple[str, str], ...]:
         if self._is_suffix:
-            return "domain_suffix", self._domain
+            return (("domain_suffix", self._domain),)
         if self._is_exact:
-            return "domain", self._domain
-        return "domain_regex", self._domain_regex
+            return (("domain", self._domain),)
+        return (("domain_regex", self._domain_regex),)
 
 
 @_IR_REGISTRY.register()
@@ -189,8 +230,8 @@ class IPCIDR6(_IRBase):
     _might_resolvable = True
 
     @property
-    def sing_box_rule(self) -> tuple[str, str]:
-        return "ip_cidr", self._val
+    def sing_box_rules(self) -> tuple[tuple[str, str], ...]:
+        return (("ip_cidr", self._val),)
 
 
 @_IR_REGISTRY.register()
@@ -227,9 +268,9 @@ class Match(_IRBase):
         super().__init__(val=val, resolve=resolve)
 
     @property
-    def clash_rule(self) -> str:
-        return self._clash_prefix
+    def clash_rules(self) -> tuple[str, ...]:
+        return (self._clash_prefix,)
 
     @property
-    def quantumult_rule(self) -> str:
-        return self._quantumult_prefix
+    def quantumult_rules(self) -> tuple[str, ...]:
+        return (self._quantumult_prefix,)
