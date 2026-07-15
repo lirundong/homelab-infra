@@ -70,83 +70,53 @@ class DomainWildcard(_IRBase):
 
 @_IR_REGISTRY.register()
 class DomainListItem(_IRBase):
-    """A special IR class that only be used in domain-list parsing."""
+    """A domain-provider item supported losslessly by every output backend."""
 
     _clash_prefix = None
     _quantumult_prefix = None
     _sing_box_prefix = None
     _val_is_domain = True
 
+    def __init__(self, val: str, resolve: bool | None = None) -> None:
+        super().__init__(val=val, resolve=resolve)
+        if self._val.startswith("+."):
+            self._domain = self._val[2:]
+            self._is_suffix = True
+        else:
+            self._domain = self._val
+            self._is_suffix = False
+        if (
+            not self._domain
+            or self._domain.startswith(".")
+            or "+" in self._domain
+            or "*" in self._domain
+        ):
+            raise ValueError(
+                f"Domain-list item {self._val} is not an exact domain or +. domain suffix"
+            )
+
     def _comparison_key(self) -> tuple[object, str]:
-        if self._val.startswith("+") and self._val.count("+") == 1:
-            if suffix := self._val[1:].removeprefix("."):
-                return "domain_suffix", suffix
-        if "+" not in self._val and "*" not in self._val:
-            if domain := self._val.removeprefix("."):
-                return "domain", domain
-        return type(self), self._val
+        if self._is_suffix:
+            return "domain_suffix", self._domain
+        return "domain", self._domain
 
     @property
     def clash_rule(self) -> str:
-        domain = self._val
-        is_domain_suffix = False
-        if "+" in domain:
-            domain = domain.split("+")[-1]
-            is_domain_suffix = True
-        if "*" in domain:
-            domain = domain.split("*")[-1]
-            is_domain_suffix = True
-        if domain.startswith("."):
-            domain = domain[1:]
-        if not domain:
-            raise ValueError(f"Domain-list item {self._val} cannot be parsed to a Clash rule")
-        if is_domain_suffix:
-            return f"DOMAIN-SUFFIX,{domain}"
-        else:
-            return f"DOMAIN,{domain}"
+        if self._is_suffix:
+            return f"DOMAIN-SUFFIX,{self._domain}"
+        return f"DOMAIN,{self._domain}"
 
     @property
     def quantumult_rule(self) -> str:
-        domain = self._val
-        if "+" in domain:
-            domain = domain.split("+")[-1]
-            if domain.startswith("."):
-                domain = domain[1:]
-            return f"host-suffix,{domain}"
-        elif "*" in domain:
-            if domain.startswith("."):
-                domain = domain[1:]
-            return f"host-wildcard,{domain}"
-        else:
-            if domain.startswith("."):
-                domain = domain[1:]
-            return f"host,{domain}"
+        if self._is_suffix:
+            return f"host-suffix,{self._domain}"
+        return f"host,{self._domain}"
 
     @property
     def sing_box_rule(self) -> tuple[str, str]:
-        domain = self._val
-        if "+" in domain:
-            if domain.startswith("+") and domain.count("+") == 1:
-                domain = domain.split("+")[-1]
-                if domain.startswith("."):
-                    domain = domain[1:]
-                return "domain_suffix", domain
-            else:
-                domain = domain.replace("+", r"([\w\-\.]*)")
-                return "domain_regex", domain
-        elif "*" in domain:
-            if domain.startswith("*") and domain.count("*") == 1:
-                domain = domain.split("*")[-1]
-                if domain.startswith("."):
-                    domain = domain[1:]
-                return "domain_suffix", domain
-            else:
-                domain = domain.replace("*", r"([\w\-]*)")
-                return "domain_regex", domain
-        else:
-            if domain.startswith("."):
-                domain = domain[1:]
-            return "domain", domain
+        if self._is_suffix:
+            return "domain_suffix", self._domain
+        return "domain", self._domain
 
 
 @_IR_REGISTRY.register()
