@@ -38,6 +38,17 @@ This is a monorepo containing all software infrastructures of Rundong's home-lab
 * [openwrt-builder](./openwrt-builder): Build OpenWRT image with custom configurations and packages, include scripts to archive transparent proxy
 * [util-cookbook](./util-cookbook): Handy utilities for daily home-lab maintaining, e.g., DDNS, router LED scheduling etc.
 
+## Development
+
+Install the development tools and enable the repository hooks after cloning:
+
+```bash
+uv sync --extra dev
+uv run pre-commit install
+```
+
+Run every hook before submitting a change with `uv run pre-commit run --all-files`.
+
 ## How to handle confidential information
 
 Confidential information such as API keys, subscription URLs, and user ids is mandatory for services such as Clash config generation. To safely include such information in this monorepo, we symmetrically encrypt them via the [Fernet](https://cryptography.io/en/latest/fernet/) construction (a time-tested AEAD cipher) and write the corresponding ciphertext to boilerplate code and configurations. Specifically, the encryption process comprises:

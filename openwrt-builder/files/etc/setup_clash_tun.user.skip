@@ -90,7 +90,7 @@ iptables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${LAN_DEV} -j ACCEPT
 # Mangle table.
 #
 # 1. Do not touch direct-to-wan packets.
-iptables -t mangle -A PREROUTING -i ${LAN_DEV} -m set --match-set ${local_mac} src -j RETURN 
+iptables -t mangle -A PREROUTING -i ${LAN_DEV} -m set --match-set ${local_mac} src -j RETURN
 # 2. Mark and accept DNS packets, they will be redirted to Clash DNS port by NAT rules later.
 iptables -t mangle -A PREROUTING -p udp --dport 53 -j MARK --set-mark ${DNS_MARK}
 iptables -t mangle -A PREROUTING -p udp --dport 53 -j RETURN
@@ -112,7 +112,7 @@ ip6tables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -m conntrack 
 ip6tables -t filter -A forwarding_rule -i ${LAN_DEV} -o ${TUN_DEV} -j ACCEPT
 ip6tables -t filter -A forwarding_rule -i ${TUN_DEV} -o ${LAN_DEV} -j ACCEPT
 # Mangle table rules.
-ip6tables -t mangle -A PREROUTING -i ${LAN_DEV} -m set --match-set ${local_mac} src -j RETURN 
+ip6tables -t mangle -A PREROUTING -i ${LAN_DEV} -m set --match-set ${local_mac} src -j RETURN
 ip6tables -t mangle -A PREROUTING -p udp --dport 53 -j MARK --set-mark ${DNS_MARK}
 ip6tables -t mangle -A PREROUTING -p udp --dport 53 -j RETURN
 ip6tables -t mangle -A PREROUTING -m set --match-set ${local_ipv6} dst -j RETURN

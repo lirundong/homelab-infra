@@ -1,7 +1,7 @@
+from common import COMMENT_BEGINS
+
 from conf_gen._util.fetch import fetch_url
 from conf_gen.rewrite._base_rewrite import RewriteBase
-
-from common import COMMENT_BEGINS
 
 
 class QuantumultRewrite(RewriteBase):

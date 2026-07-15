@@ -9,8 +9,8 @@ from typing import Any
 from typing import Sequence
 
 import pytest
-from _support.sing_box import SourceContext
 from _support.sing_box import RouteProbe
+from _support.sing_box import SourceContext
 from _support.sing_box import _execute_route_probe
 from _support.sing_box import _route_rule_matches
 from _support.sing_box import assert_local_ruleset_rule_alignment

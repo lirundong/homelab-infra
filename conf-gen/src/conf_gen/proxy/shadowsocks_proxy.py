@@ -92,12 +92,12 @@ class ShadowSocksProxy(ProxyBase):
     def sing_box_proxy(self) -> SingBoxShadowSocksProxyT:
         base_cfg = super().sing_box_proxy
         cfg = SingBoxShadowSocksProxyT(
-            type = "shadowsocks",
-            method = self.cipher,
-            password = self.password,
-            tag = base_cfg["tag"],
-            server = base_cfg["server"],
-            server_port = base_cfg["server_port"],
+            type="shadowsocks",
+            method=self.cipher,
+            password=self.password,
+            tag=base_cfg["tag"],
+            server=base_cfg["server"],
+            server_port=base_cfg["server_port"],
         )
         if not self.udp:
             cfg["network"] = "tcp"

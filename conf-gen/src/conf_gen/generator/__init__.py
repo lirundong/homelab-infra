@@ -57,7 +57,9 @@ def generate_conf(
             if gen_info.get("base"):
                 base_gen = generators[gen_info["base"]]
                 if not isinstance(base_gen, SingBoxGenerator):
-                    raise ValueError(f"Base generator {gen_info['base']} is not a SingBoxGenerator")
+                    raise ValueError(
+                        f"Base generator {gen_info['base']} is not a SingBoxGenerator"
+                    )
                 if gen_info.get("included_process_irs"):
                     if gen_info["included_process_irs"] == "!clear":
                         included_process_irs = None

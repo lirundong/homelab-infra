@@ -14,6 +14,7 @@ dev = [
     "mypy>=1.11",
     "black>=24.0",
     "isort>=5.13",
+    "pre-commit>=4.0",
     "jsonschema>=4.0",
     "pytest>=8.0",
     "types-PyYAML",
@@ -22,6 +23,14 @@ dev = [
     "types-netifaces",
     "types-jsonschema",
 ]
+
+[tool.black]
+line-length = 99
+
+[tool.isort]
+profile = "black"
+line_length = 99
+force_single_line = true
 
 [tool.uv]
 package = false

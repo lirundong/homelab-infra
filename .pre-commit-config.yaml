@@ -1,0 +1,33 @@
+minimum_pre_commit_version: "4.0.0"
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+  - id: check-toml
+  - id: check-json
+  - id: check-merge-conflict
+  - id: debug-statements
+  - id: check-added-large-files
+
+- repo: local
+  hooks:
+  - id: black
+    name: black
+    entry: uv run --extra dev black
+    language: system
+    types_or: [python, pyi]
+  - id: isort
+    name: isort
+    entry: uv run --extra dev isort
+    language: system
+    types_or: [python, pyi]
+  - id: mypy
+    name: mypy
+    entry: uv run --extra dev mypy common/src/common conf-gen/src/conf_gen util-cookbook/tencent-cloud/src/tencent_cloud
+    language: system
+    pass_filenames: false
+    always_run: true

@@ -23,6 +23,9 @@ from urllib.parse import urlparse
 from warnings import warn
 
 import requests
+from packaging.version import Version
+from packaging.version import parse
+
 from conf_gen.generator._base_generator import GeneratorBase
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy import ShadowSocks2022Proxy
@@ -35,8 +38,6 @@ from conf_gen.rule.parser import parse_filter
 from conf_gen.rule.utils import deduplicate_rule_irs
 from conf_gen.rule.utils import group_sing_box_filters
 from conf_gen.rule.utils import split_sing_box_dst_ip_filters
-from packaging.version import Version
-from packaging.version import parse
 
 # TODO: Make this an attribute of rule IR.
 # https://sing-box.sagernet.org/configuration/rule-set/headless-rule/

@@ -9,7 +9,7 @@ warnings.warn(
     "generate.py is deprecated. Please use 'conf-gen' command instead. "
     "Install with: pip install -e .",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 from conf_gen._cli import main
