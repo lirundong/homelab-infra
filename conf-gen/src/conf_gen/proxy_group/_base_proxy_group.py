@@ -81,17 +81,19 @@ class ProxyGroupBase:
             else:
                 target_filters = no_resolve_filters
             try:
-                filter_parts = ir_filter.quantumult_rule.split(",")
+                quantumult_rules = ir_filter.quantumult_rules
             except ValueError as e:
                 if str(e).endswith("is not supported by quantumult x."):
                     continue
                 else:
                     raise e
-            if filter_parts[-1] == "no-resolve":
-                filter_parts.insert(-1, self.name)
-            else:
-                filter_parts.append(self.name)
-            target_filters.append(",".join(filter_parts))
+            for quantumult_rule in quantumult_rules:
+                filter_parts = quantumult_rule.split(",")
+                if filter_parts[-1] == "no-resolve":
+                    filter_parts.insert(-1, self.name)
+                else:
+                    filter_parts.append(self.name)
+                target_filters.append(",".join(filter_parts))
         return no_resolve_filters, resolve_filters
 
     @property

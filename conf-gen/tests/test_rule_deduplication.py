@@ -170,6 +170,8 @@ def test_ir_equality_uses_concrete_matcher_identity() -> None:
     resolve = IPCIDR("192.0.2.0/24", resolve=True)
     assert Domain("example.test") == DomainListItem("example.test")
     assert DomainListItem("+.example.test") == DomainSuffix("example.test")
+    assert DomainListItem("*.example.test") != DomainSuffix("example.test")
+    assert DomainListItem(".example.test") != Domain("example.test")
     assert no_resolve == resolve
     assert hash(no_resolve) == hash(resolve)
 
