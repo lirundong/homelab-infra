@@ -21,21 +21,28 @@ uv sync --extra dev                                    # + mypy/black/isort/pre-
 uv run --extra dev pre-commit install                  # activate repository hooks
 uv run --extra dev pre-commit run --all-files           # validate the whole repository
 uv run conf-gen -s conf-gen/source.yaml -o output/     # gen configs
-uv run black <file>                                    # format (99 cols)
-uv run mypy common/src/common conf-gen/src/conf_gen \
+uv run --extra dev black <file>                        # format (99 cols)
+uv run --extra dev mypy common/src/common conf-gen/src/conf_gen \
     util-cookbook/tencent-cloud/src/tencent_cloud      # typecheck
-uv run pytest conf-gen/tests                           # conf-gen tests
-uv run pytest conf-gen/tests/test_generated_sing_box_artifacts.py \
+uv run --extra dev pytest conf-gen/tests               # conf-gen tests
+uv run --extra dev pytest conf-gen/tests/test_generated_sing_box_artifacts.py \
     --artifact-dir artifacts-conf --check-config sing-box-daemon \
     --check-config sing-box-apple --check-config-android sing-box-clients
 # OpenWRT (PASSWORD env required; read secret-handling skill before invoking):
 VERSION=25.12.5 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
 ```
 
+### Pre-commit
+`pre-commit` is a `dev`-extra dependency, not a global command: always invoke it as
+`uv run --extra dev pre-commit …`. Run `uv sync --extra dev` and install the hook in each
+fresh checkout. Keep `git commit` as a normal Git command; its installed hook already runs
+the uv-scoped checks.
+
 ## Workflow (branch → PR → merge)
 Non-trivial changes follow this pipeline:
 1. **Branch** off `master` with <username>/<feature, fix, chore, ...>/<descriptive-name>.
-2. **Local verify**: `uv run black …` + `uv run mypy …` + run the affected CLI end-to-end.
+2. **Local verify**: `uv run --extra dev pre-commit run --all-files` + run the affected CLI
+   end-to-end.
 3. **Push**, then `gh pr create` (prefer the `gh` CLI over the raw GitHub API).
 4. **Watch CI**: `gh run watch <id>`. The `ci_gate` job is the single required check.
 5. **Rebase-merge** after `ci_gate` is green (linear history; no merge commits).
