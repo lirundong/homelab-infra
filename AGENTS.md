@@ -17,7 +17,9 @@ uv workspace monorepo. `uv sync` installs `common`, `conf-gen`, `tencent-cloud` 
 ## Commands
 ```bash
 uv sync                                                # runtime setup
-uv sync --extra dev                                    # + mypy/black/isort
+uv sync --extra dev                                    # + mypy/black/isort/pre-commit
+uv run --extra dev pre-commit install                  # activate repository hooks
+uv run --extra dev pre-commit run --all-files           # validate the whole repository
 uv run conf-gen -s conf-gen/source.yaml -o output/     # gen configs
 uv run black <file>                                    # format (99 cols)
 uv run mypy common/src/common conf-gen/src/conf_gen \
