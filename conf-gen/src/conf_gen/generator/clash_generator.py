@@ -4,6 +4,7 @@ from typing import Any
 from typing import Sequence
 
 import yaml
+
 from conf_gen.generator._base_generator import GeneratorBase
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy import ShadowSocksProxy

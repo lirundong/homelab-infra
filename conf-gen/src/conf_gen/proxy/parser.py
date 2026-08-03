@@ -3,6 +3,7 @@ from typing import get_args
 
 import requests
 import yaml
+
 from conf_gen._util.fetch import fetch_url
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022CiphersT

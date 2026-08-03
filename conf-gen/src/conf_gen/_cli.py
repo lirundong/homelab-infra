@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from typing import Any
 
 import yaml
+
 from conf_gen.generator import generate_conf
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy import parse_clash_proxies
