@@ -1,153 +1,82 @@
 # AGENTS.md — Homelab Infrastructure Monorepo
 
-Canonical entry point for every coding agent (Claude Code, Codex, Cursor, …). The repo also
-exposes `CLAUDE.md` and `.claude/` as symlinks to `AGENTS.md` and `.agents/` so older tools
-find the same content.
+Canonical instructions for every coding agent. `CLAUDE.md` links here; agent-specific
+directories remain separate for sandbox settings, while skills are shared from `.ai/skills`.
 
-## Project Structure
-uv workspace monorepo. `uv sync` installs `common`, `conf-gen`, `tencent-cloud` editably into
-`.venv` (via `__editable__.<pkg>.pth`); `uv.lock` pinned. Dev tools in root `dev` extra.
+## Instruction Map
 
-- **conf-gen**: Proxy config generator (Clash, Quantumult-X, sing-box)
-- **openwrt-builder**: Custom OpenWRT firmware with integrated proxy
-- **conf-cookbook**: Reference configs (Docker, Nginx, SS-Rust, V2Ray)
-- **util-cookbook**: Utility scripts. Workspace pkg `tencent-cloud` → `register-dns` CLI
-  (DDNS via Tencent DNSPod, invoked by OpenWRT on-device cron)
+Before changing a scoped path, read its closest `AGENTS.md` in addition to this file:
 
-## Commands
+- `.github/` → `.github/AGENTS.md`
+- `common/` → `common/AGENTS.md`
+- `conf-gen/` → `conf-gen/AGENTS.md`
+- `conf-cookbook/` → `conf-cookbook/AGENTS.md`
+- `openwrt-builder/` → `openwrt-builder/AGENTS.md`
+- `util-cookbook/` → `util-cookbook/AGENTS.md`
+- `util-cookbook/tencent-cloud/` → also read its local `AGENTS.md`
+- root `Dockerfile` → `util-cookbook/tencent-cloud/AGENTS.md`
+
+This explicit routing matters for agents started at the repository root: nested instructions
+are not necessarily loaded later merely because a file is touched.
+
+## Repository Structure
+
+Python >=3.12 uv workspace; `uv.lock` is pinned. `uv sync` installs `common`, `conf-gen`, and
+`tencent-cloud` editably.
+
+- `conf-gen`: generate Clash, Quantumult-X, and sing-box configurations
+- `common`: encrypted secrets and template expansion
+- `openwrt-builder`: build custom OpenWRT images
+- `conf-cookbook`: reference service configurations
+- `util-cookbook`: standalone utilities, including the `tencent-cloud` DDNS package
+
+## Shared Commands
+
 ```bash
-uv sync                                                # runtime setup
-uv sync --extra dev                                    # + mypy/black/isort/pre-commit
-uv run --extra dev pre-commit install                  # activate repository hooks
-uv run --extra dev pre-commit run --all-files           # validate the whole repository
-uv run conf-gen -s conf-gen/source.yaml -o output/     # gen configs
-uv run --extra dev black <file>                        # format (99 cols)
+uv sync
+uv sync --extra dev
+uv run --extra dev pre-commit install
+uv run --extra dev pre-commit run --all-files
 uv run --extra dev mypy common/src/common conf-gen/src/conf_gen \
-    util-cookbook/tencent-cloud/src/tencent_cloud      # typecheck
-uv run --extra dev pytest conf-gen/tests               # conf-gen tests
-uv run --extra dev pytest conf-gen/tests/test_generated_sing_box_artifacts.py \
-    --artifact-dir artifacts-conf --check-config sing-box-daemon \
-    --check-config sing-box-apple --check-config-android sing-box-clients
-# OpenWRT (PASSWORD env required; read secret-handling skill before invoking):
-VERSION=25.12.5 GCC_VERSION=14.3.0_musl openwrt-builder/build.sh
+    util-cookbook/tencent-cloud/src/tencent_cloud
 ```
 
-### Pre-commit
-`pre-commit` is a `dev`-extra dependency, not a global command: always invoke it as
-`uv run --extra dev pre-commit …`. Run `uv sync --extra dev` and install the hook in each
-fresh checkout. Keep `git commit` as a normal Git command; its installed hook already runs
-the uv-scoped checks.
+`pre-commit` is a root `dev`-extra dependency; always invoke it through
+`uv run --extra dev`. Install the hook in each checkout and use ordinary `git commit`.
 
-## Workflow (branch → PR → merge)
-Non-trivial changes follow this pipeline:
-1. **Branch** off `master` with `<username>/<feature, fix, chore, ...>/<descriptive-name>`.
-2. **Local verify**: `uv run --extra dev pre-commit run --all-files` + run the affected CLI
-   end-to-end.
-3. **Push**, then `gh pr create` (prefer the `gh` CLI over the raw GitHub API).
-4. **Watch CI**: `gh run watch <id>`. The `ci_gate` job is the single required check.
-5. **Rebase-merge** after `ci_gate` is green (linear history; no merge commits).
+The configured hooks run whitespace/EOF, YAML/TOML/JSON, merge-conflict, debug-statement,
+large-file, Black, isort, and mypy checks. They do not run pytest, builds, ShellCheck, or
+shfmt; use each component's `AGENTS.md` for additional validation.
 
-Commit messages: `[scope] imperative summary` (e.g. `[conf-gen] drop HTTPS DNS queries`).
+## Workflow
+
+For non-trivial changes:
+
+1. Branch from `master` as `<username>/<feature, fix, chore, ...>/<description>`.
+2. Run all pre-commit hooks and the affected component's tests or end-to-end command.
+3. Push and create a PR with `gh pr create`.
+4. Watch CI with `gh run watch <id>`; `ci_gate` is the single required check.
+5. Rebase-merge only after `ci_gate` passes.
+
+Commit messages use `[scope] imperative summary`, for example
+`[conf-gen] drop HTTPS DNS queries`.
 
 ### Agent attribution on GitHub
 
-Apply this convention only when both conditions hold: the acting agent is Codex, and its
-underlying model is an OpenAI model. When that Codex agent authors or substantially edits PR
-bodies, review-thread replies, reviews, or issue/PR comments through the user's GitHub
-identity, append this visual signature after a blank line:
+When Codex running an OpenAI model authors or substantially edits GitHub prose through the
+user's identity, append this after a blank line:
 
 ```markdown
 — [OpenAI Codex](https://github.com/openai/codex)
 ```
 
-Do not use `@codex` as a passive signature because GitHub mentions trigger Codex cloud tasks.
+Do not use `@codex` as a passive signature; GitHub mentions trigger Codex cloud tasks.
 
-## conf-gen (`conf-gen/src/conf_gen/`, note underscore)
-Pipeline: `source.yaml -> Parser -> IR Objects -> Generator -> Config`. CLI:
-`conf-gen -s/--src <source.yaml> -o/--dst <output-dir>`.
-- **proxy/**: `ProxyBase` (SS, SS2022, Trojan, VMess, SOCKS5) implements
-  `{clash,quantumult,sing_box}_proxy()`. Parsers: `parse_clash_proxies`, `parse_subscriptions`.
-- **proxy_group/**: `SelectProxyGroup`, `FallbackProxyGroup`, `merge_proxy_by_region()`.
-- **rule/**: `IRBase` + `@_IR_REGISTRY.register`, impls `{clash,quantumult,sing_box}_rule()`;
-  types domain/IP CIDR/process/port. Utils: `group_sing_box_filters`,
-  `split_sing_box_dst_ip_filters`, `parse_dnsmasq_conf`.
-- **generator/**: `GeneratorBase` -> Clash YAML, Quantumult `.conf` + rewrites, SingBox
-  (.srs via `RuleSetCompiler` ctx mgr; auto-downloads sing-box; DNS/route split).
-- **rewrite/**: `QuantumultRewrite` for Quantumult-X URL rewriting.
-- **tests/**: pytest-only helpers stay under tests, not `src/`. Source-derived sing-box
-  tests sanitize secrets and cover structure, schema/check, and no-TUN runtime behavior.
-  Generated artifact validation uses `--artifact-dir`; CI passes `--check-config` for
-  configs the local runner can validate with `sing-box check`, and
-  `--check-config-android` for Android configs that must fail only on Android-only
-  fields (`override_android_vpn`) and pass once those are stripped.
+## Shared Conventions
 
-## common — Secrets Management (`common/src/common/`)
-Singleton `_SecretsManager`: Fernet (AEAD) + PBKDF2HMAC (SHA256, 100k iter). Env: `PASSWORD`
-(master), `SALT` (default `"19260817"`). secrets.yaml lookup: `SECRETS_FILE` -> package dir
--> package root -> `/root/common/secrets.yaml`. Expansion (in any file processed by
-`common-secret-decoder` or `expand_secret`): `@secret:KEY[!TYPE]` decrypts (optional cast);
-`@include:FILE[:!JOIN][:>INDENT]` includes with comment stripping (project root: `PROJECT_
-ROOT` -> git root -> cwd).
-
-```python
-from common import secrets
-secrets.update("KEY", "value"); secrets.commit(); secrets.status()
-secrets.rotate_password(new_password)  # crash-safe atomic write (fsync + dir-fsync)
-```
-CLIs: `common-secret-decoder -r <src> <dst> [-e <regex>]` expands markers; `common-rotate-
-password < <pw-file>` re-encrypts all entries (stdin-only, rejects TTY, strips one `\n`).
-
-**CRITICAL — never surface plaintext secrets in any recorded interaction.** Daily-use rules
-and footguns: `.agents/skills/secret-handling/SKILL.md` (the only file you need to read for
-ordinary work). Rotation procedure (rare):
-`.agents/skills/secret-handling/references/rotation.md`. Workflow-artifact encryption:
-`.agents/skills/secret-handling/references/artifact-encryption.md`.
-
-## OpenWRT Builder (`openwrt-builder/build.sh`)
-Steps: SDK download -> decrypt files (`common-secret-decoder -r`) -> cross-compile sing-box
-(CGO) + vlmcsd -> fetch Yacd-meta -> `uv pip install --target` `common` + `tencent-cloud`
-into rootfs `usr/lib/python$TARGET_PY/site-packages` (rewrite shebangs to `#!/usr/bin/env
-python3`, expose via relative `usr/bin` symlinks) -> imagebuilder. Custom files:
-`files/etc/{init.d,uci-defaults,nftables.d,dropbear,crontabs,apk}/`. Packages:
-`packages/{25.12.5,snapshots}.txt` (25.12+ uses apk). Required apks: `coreutils-env`,
-`python3-cryptography`. Env: `PASSWORD`, `VERSION` (default stale), `TARGET_ARCH` (`x86/64`),
-`GCC_VERSION`, `PROFILE`, `PACKAGE_ARCH`, `REPOSITORY` (default Tsinghua mirror), `WORK_DIR`,
-`SING_BOX_*`, `TOOLCHAIN_ARCH`, `HOST_ARCH`, `TAR_EXT`. `TARGET_PY` auto-detected from apk
-feed (3.13 stable / 3.14 snapshots). **`uci-defaults/*` runs before networking** (during
-`/etc/init.d/boot`, before WAN); network-dependent first-boot work fails closed — bake state
-into the image, or use `hotplug.d/iface` with a default-route guard.
-
-## CI (`.github/workflows/artifacts-release-nightly.yaml`)
-DAG: `type_check`, `conf_gen_tests`, `build_configuration` → `build_openwrt` (matrix
-{x86/64, rockchip/armv8} × {25.12.5, snapshots}) →
-`release_{proxy_configurations,openwrt_builds}`. The `ci_gate` job fans in required jobs
-based on event type and touched paths and is the **single required check** for branch
-protection (snapshots legs `continue-on-error`, so their failures don't propagate); release
-jobs also `need` it, so a red required check blocks nightly/master releases. Pushes
-to non-master branches skip CI when an open PR exists for the branch, leaving the PR run as
-the authoritative check set. GCC `14.3.0_musl`; rockchip profile `friendlyarm_nanopi-r6s`.
-Workflow-artifact encryption:
-`.agents/skills/secret-handling/references/artifact-encryption.md`.
-`verify-master-password.yaml` (workflow_dispatch only, repo-owner gated, `permissions: {}`)
-emits a 16-hex sha256 prefix of `MASTER_PASSWORD` for rotation fingerprint comparison.
-
-## Code Style & Conventions
-Python >=3.12 (PEP 604 unions, PEP 695 generics). Strict mypy + PEP 561 `py.typed` (flags in
-root `pyproject.toml`). Black `line-length=99`, isort `profile=black`.
-
-- **Fail fast on invariants:** no `|| true` / `2>/dev/null` / try-except-pass to mask cases
-  that "should never happen". Prefer in-place edits (`sed -i`, `Edit`) over reconstruction;
-  prefer symlinks over moves when relocating tool-produced files.
-- **Pithy comments:** one-line comments only; save rationale for the PR description and
-  commit body, not the source. Don't restate what the code already says.
-- **Adding types:** new proxy → subclass `ProxyBase` (3 platform methods) + register in
-  `parser.py`; new rule → subclass `IRBase` (`@_IR_REGISTRY.register`, 3 `*_rule()` methods);
-  new generator → subclass `GeneratorBase` + wire into `generate_conf()`.
-
-## Key Files
-- `conf-gen/source.yaml` — single source of truth for all configs
-- `common/src/common/secrets.yaml` — encrypted secrets (in git)
-- `openwrt-builder/build.sh` — build orchestration
-- `.skip` suffix files in `openwrt-builder/` — excluded, templates only
-- `.agents/skills/secret-handling/` — secret-handling skill (SKILL.md + rotation.md +
-  artifact-encryption.md)
+- Python uses Black (`line-length=99`), isort (`profile=black`, single imports), package-local
+  mypy settings, and PEP 561 `py.typed` markers.
+- Fail fast on invariants: do not hide unexpected failures with `|| true`, `2>/dev/null`, or
+  `try`/`except`/`pass`.
+- Prefer in-place edits over file reconstruction and symlinks over moving tool-owned files.
+- Keep source comments pithy; put extended rationale in the PR description or commit body.
