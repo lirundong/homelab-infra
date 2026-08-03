@@ -4,11 +4,12 @@ from typing import Any
 from typing import ClassVar
 from typing import Sequence
 
+from pytz import timezone
+
 from conf_gen.proxy._base_proxy import ProxyBase
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
 from conf_gen.rule import deduplicate_rule_irs
 from conf_gen.rule._base_ir import IRBase
-from pytz import timezone
 
 
 class GeneratorBase:
