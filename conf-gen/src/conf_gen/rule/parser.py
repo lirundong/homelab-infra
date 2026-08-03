@@ -7,6 +7,8 @@ from typing import TypedDict
 
 import yaml
 
+from common import CLASH_RULESET_FORMATS
+from common import COMMENT_BEGINS
 from conf_gen._util.fetch import fetch_url
 from conf_gen.rule._base_ir import _IR_REGISTRY
 from conf_gen.rule._base_ir import IRBase
@@ -19,9 +21,6 @@ from conf_gen.rule.ir import DomainSuffix
 from conf_gen.rule.ir import DomainWildcard
 from conf_gen.rule.ir import PackageName
 from conf_gen.rule.ir import ProcessName
-
-from common import CLASH_RULESET_FORMATS
-from common import COMMENT_BEGINS
 
 DNS_REQUEST_MATCHERS = (
     Domain,
