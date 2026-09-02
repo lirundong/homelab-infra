@@ -5,6 +5,7 @@ import socket
 from pathlib import Path
 
 from _support.sing_box import SourceContext
+from _support.sing_box import _staged_check_dir
 from _support.sing_box import collect_rule_set_references
 from _support.sing_box import exercise_generated_dns_rule_branches
 from _support.sing_box import exercise_generated_dns_rules
@@ -72,7 +73,11 @@ def test_source_derived_daemon_schema_and_sing_box_check(
     validate_config_schema(config, fetch_live_schema())
 
     with rule_set_compiler() as compiler:
-        run_sing_box_check(compiler._sing_box, daemon_artifacts)
+        # The raw daemon config points `clash_api.external_ui` at /root, which
+        # sing-box >= 1.14 refuses to `check` as a non-root user, so the check
+        # runs on a staged copy with only that path redirected.
+        with _staged_check_dir(daemon_artifacts, config) as check_dir:
+            run_sing_box_check(compiler._sing_box, check_dir)
 
 
 def test_source_derived_client_omits_disabled_clash_api(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ipaddress
+import re
 from typing import Any
 
 import pytest
@@ -225,4 +226,6 @@ def test_dns_branch_probe_avoids_earlier_rule_shadowing() -> None:
 def test_dns_rule_log_pattern_pins_sing_box_display_index() -> None:
     pattern = _dns_rule_log_pattern(3, {"action": "predefined", "rcode": "NOERROR"})
 
-    assert r"match\[7\]" in pattern
+    # sing-box <= 1.13 logs displayRuleIndex 2i+1; 1.14 logs the plain index.
+    assert re.search(pattern, "dns: match[3] some => predefined(NOERROR)")
+    assert re.search(pattern, "dns: match[7] some => predefined(NOERROR)")
