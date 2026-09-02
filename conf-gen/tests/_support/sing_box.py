@@ -433,6 +433,15 @@ def _staged_check_dir(config_dir: Path, config: dict[str, Any]) -> Iterator[Path
         check_dir = Path(tmp_dir)
         for rule_set in config_dir.glob("*.srs"):
             shutil.copy2(rule_set, check_dir / rule_set.name)
+        config = deepcopy(config)
+        # sing-box >= 1.14 FATALs in check when the clash API external UI
+        # directory is unreadable; production points it at /root, unavailable
+        # to the CI runner user. Redirect to a readable empty directory so only
+        # the config shape is validated, not the runner's filesystem.
+        clash_api = (config.get("experimental") or {}).get("clash_api") or {}
+        if clash_api.get("external_ui"):
+            (check_dir / "ui").mkdir()
+            config["experimental"]["clash_api"]["external_ui"] = str(check_dir / "ui")
         (check_dir / "config.json").write_text(
             json.dumps(config, ensure_ascii=False, indent=2),
             encoding="utf-8",
@@ -455,6 +464,16 @@ def rule_set_compiler() -> Iterator[RuleSetCompiler]:
 @contextmanager
 def running_sing_box(sing_box: Path | None, config_dir: Path) -> Iterator[subprocess.Popen[bytes]]:
     sing_box = _require_sing_box(sing_box)
+    # The LAN DNS server points at the router's dnsmasq in production; redirect
+    # it to a local responder so LAN-zone probes get answers on test machines.
+    with lan_dns_responder() as lan_dns_port:
+        _redirect_lan_dns_server(config_dir, lan_dns_port)
+        with _launch_sing_box(sing_box, config_dir) as process:
+            yield process
+
+
+@contextmanager
+def _launch_sing_box(sing_box: Path, config_dir: Path) -> Iterator[subprocess.Popen[bytes]]:
     run_sing_box_check(sing_box, config_dir)
     with open(config_dir / "config.json", encoding="utf-8") as f:
         inbounds = json.load(f).get("inbounds") or []
@@ -473,6 +492,60 @@ def running_sing_box(sing_box: Path | None, config_dir: Path) -> Iterator[subpro
         except subprocess.TimeoutExpired:
             process.kill()
             process.wait(timeout=5)
+
+
+@contextmanager
+def lan_dns_responder() -> Iterator[int]:
+    """Stands in for the router's dnsmasq: echoes every query back as NOERROR."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(("127.0.0.1", 0))
+    sock.settimeout(0.2)
+
+    def respond() -> None:
+        while True:
+            try:
+                query, client = sock.recvfrom(4096)
+            except socket.timeout:
+                continue
+            except OSError:
+                return
+            if len(query) < 12:
+                continue
+            transaction_id, _, question_count, *_ = struct.unpack("!HHHHHH", query[:12])
+            if question_count != 1:
+                continue
+            response = struct.pack("!HHHHHH", transaction_id, 0x8180, 1, 0, 0, 0) + query[12:]
+            try:
+                sock.sendto(response, client)
+            except OSError:
+                return
+
+    thread = threading.Thread(target=respond, daemon=True)
+    thread.start()
+    try:
+        yield int(sock.getsockname()[1])
+    finally:
+        sock.close()
+        thread.join(timeout=5)
+
+
+def _redirect_lan_dns_server(config_dir: Path, port: int) -> None:
+    config_path = config_dir / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    redirected = False
+    for server in config.get("dns", {}).get("servers", []):
+        if server.get("tag") != "LAN":
+            continue
+        if server.get("type") != "udp":
+            raise AssertionError(f"Cannot redirect non-UDP LAN DNS server: {server}")
+        server["server"] = "127.0.0.1"
+        server["server_port"] = port
+        redirected = True
+    if redirected:
+        config_path.write_text(
+            json.dumps(config, ensure_ascii=False, indent=4, sort_keys=True),
+            encoding="utf-8",
+        )
 
 
 def _wait_for_inbounds_ready(
@@ -1660,12 +1733,13 @@ def _unmatched_dns_qtype(previous_rules: list[dict[str, Any]]) -> int:
 
 
 def _dns_rule_log_index(index: int) -> int:
-    # sing-box dns/router.go logs displayRuleIndex = 2 * rule_index + 1 (v1.13).
+    # sing-box <= 1.13 logged displayRuleIndex = 2 * rule_index + 1 in
+    # dns/router.go; 1.14 logs the plain rule index.
     return 2 * index + 1
 
 
 def _dns_rule_log_pattern(index: int, rule: dict[str, Any]) -> str:
-    match_prefix = rf"dns: match\[{_dns_rule_log_index(index)}\] "
+    match_prefix = rf"dns: match\[(?:{index}|{_dns_rule_log_index(index)})\] "
     if rule["action"] == "predefined":
         return match_prefix + rf".*=> predefined\({re.escape(rule['rcode'])}\)"
     if rule["action"] != "route":

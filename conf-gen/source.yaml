@@ -611,11 +611,22 @@ generates:
     - tag: DIRECT
       type: local
       detour: DIRECT
+    # sing-box >= 1.14 resolves *.local on the `local` server via mDNS instead
+    # of the system resolver, so the dnsmasq-served LAN zone needs an explicit
+    # unicast server; see issue #36.
+    - tag: LAN
+      type: udp
+      server: 127.0.0.1
+      detour: DIRECT
     - tag: FakeIP
       type: fakeip
       inet4_range: 198.18.0.0/15
       inet6_range: fc00::/18
     rules:
+    - action: route
+      server: LAN
+      filters:
+      - DOMAIN-SUFFIX,rundong.local
     - action: route
       server: DIRECT
       type: logical
@@ -623,7 +634,6 @@ generates:
       rules:
       - clash_mode: Direct
       - filters:
-        - DOMAIN-SUFFIX,rundong.local
         - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
         - DOMAIN-SUFFIX,dns.msftncsi.com
         - DOMAIN-SUFFIX,www.msftncsi.com
@@ -641,8 +651,8 @@ generates:
     # NODATA on everything else: instant A/AAAA fallback, no resolver timeout.
     - action: predefined
       rcode: NOERROR
+    # `independent_cache` dropped per the 1.14 migration guide (removed in 1.16).
     final: PROXY
-    independent_cache: true
   dial_fields:
     direct:
       domain_resolver:
@@ -761,6 +771,12 @@ generates:
       type: logical
   dns:
     servers:
+    # Clients inherit the daemon's LAN-zone DNS rule; override the server to
+    # the home router's LAN address instead of the daemon's 127.0.0.1.
+    - tag: LAN
+      type: udp
+      server: 192.168.50.1
+      detour: DIRECT
     - tag: DIRECT
       type: https
       server: '@secret:DOT_PUB'
