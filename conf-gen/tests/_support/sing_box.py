@@ -464,10 +464,10 @@ def rule_set_compiler() -> Iterator[RuleSetCompiler]:
 @contextmanager
 def running_sing_box(sing_box: Path | None, config_dir: Path) -> Iterator[subprocess.Popen[bytes]]:
     sing_box = _require_sing_box(sing_box)
-    # The LAN DNS server points at the router's dnsmasq in production; redirect
-    # it to a local responder so LAN-zone probes get answers on test machines.
+    # Production loopback DNS servers point at the router's dnsmasq; redirect
+    # them to a local responder so LAN-zone probes get answers on test machines.
     with lan_dns_responder() as lan_dns_port:
-        _redirect_lan_dns_server(config_dir, lan_dns_port)
+        _redirect_loopback_dns_servers(config_dir, lan_dns_port)
         with _launch_sing_box(sing_box, config_dir) as process:
             yield process
 
@@ -529,15 +529,19 @@ def lan_dns_responder() -> Iterator[int]:
         thread.join(timeout=5)
 
 
-def _redirect_lan_dns_server(config_dir: Path, port: int) -> None:
+def _redirect_loopback_dns_servers(config_dir: Path, port: int) -> None:
     config_path = config_dir / "config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
     redirected = False
     for server in config.get("dns", {}).get("servers", []):
-        if server.get("tag") != "LAN":
-            continue
         if server.get("type") != "udp":
-            raise AssertionError(f"Cannot redirect non-UDP LAN DNS server: {server}")
+            continue
+        try:
+            loopback = ipaddress.ip_address(server.get("server", "")).is_loopback
+        except ValueError:
+            loopback = False
+        if not loopback:
+            continue
         server["server"] = "127.0.0.1"
         server["server_port"] = port
         redirected = True

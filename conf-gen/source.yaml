@@ -608,13 +608,12 @@ generates:
       type: udp
       server: 8.8.8.8
       detour: PROXY
+    # Unicast dnsmasq on loopback, not `type: local`: sing-box >= 1.14 routes
+    # *.local (and link-local reverse zones) from the `local` server to mDNS
+    # multicast, which would break the dnsmasq-served LAN zone; on this router
+    # dnsmasq at 127.0.0.1:53 is the resolver behind /etc/resolv.conf anyway.
+    # Clients override this tag with a public DoT server; see issue #36.
     - tag: DIRECT
-      type: local
-      detour: DIRECT
-    # sing-box >= 1.14 resolves *.local on the `local` server via mDNS instead
-    # of the system resolver, so the dnsmasq-served LAN zone needs an explicit
-    # unicast server; see issue #36.
-    - tag: LAN
       type: udp
       server: 127.0.0.1
       detour: DIRECT
@@ -624,16 +623,13 @@ generates:
       inet6_range: fc00::/18
     rules:
     - action: route
-      server: LAN
-      filters:
-      - DOMAIN-SUFFIX,rundong.local
-    - action: route
       server: DIRECT
       type: logical
       mode: or
       rules:
       - clash_mode: Direct
       - filters:
+        - DOMAIN-SUFFIX,rundong.local
         - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
         - DOMAIN-SUFFIX,dns.msftncsi.com
         - DOMAIN-SUFFIX,www.msftncsi.com
@@ -771,12 +767,6 @@ generates:
       type: logical
   dns:
     servers:
-    # Clients inherit the daemon's LAN-zone DNS rule; override the server to
-    # the home router's LAN address instead of the daemon's 127.0.0.1.
-    - tag: LAN
-      type: udp
-      server: 192.168.50.1
-      detour: DIRECT
     - tag: DIRECT
       type: https
       server: '@secret:DOT_PUB'
