@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
   schedule:
-  - cron: '1 0 * * *'  # Nightly build.
+  - cron: '0 8 * * *'  # Nightly build, after upstream snapshot feeds are complete.
 jobs:
   detect_changes:
     name: Detect Changes
