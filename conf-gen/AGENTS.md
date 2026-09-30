@@ -12,9 +12,8 @@ Pipeline: `source.yaml → parsers → IR objects → generators → configurati
 - `proxy_group/`: select/fallback groups and regional merging
 - `rule/`: registered IR for user agent, process/package, domain variants, GeoIP/IP CIDR,
   source/destination ports, and match rules
-- `generator/`: Clash YAML, Quantumult-X config/rewrites, and sing-box JSON plus compiled
-  `.srs` rule sets
-- `rewrite/`: Quantumult-X URL rewrites
+- `generator/`: Clash YAML, Quantumult-X config, and sing-box JSON plus compiled `.srs` rule
+  sets; Quantumult-X `rewrites` are inlined with their MITM hostnames merged into `[mitm]`
 
 The CLI is `conf-gen -s/--src <source.yaml> -o/--dst <directory>`. `source.yaml` is the
 single source of truth.

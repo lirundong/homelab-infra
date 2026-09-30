@@ -102,7 +102,6 @@ def test_generators_deduplicate_irs_using_backend_rule_precedence(tmp_path: Path
         proxies=[],
         per_region_proxies=[],
         proxy_groups=_proxy_groups(),
-        rewrites=[],
     )
     quantumult.generate(str(quantumult_path))
 
@@ -137,7 +136,6 @@ def test_source_generated_routing_matches_legacy_post_codegen_deduplication(
         proxies=source_context.proxies,
         per_region_proxies=source_context.per_region_proxies,
         proxy_groups=source_context.proxy_groups,
-        rewrites=[],
     ).generate(str(quantumult_path))
     quantumult_rules = _quantumult_filter_lines(quantumult_path.read_text(encoding="utf-8"))
     legacy_quantumult_rules = _legacy_quantumult_rules(source_context.proxy_groups)

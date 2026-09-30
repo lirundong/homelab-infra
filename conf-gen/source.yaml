@@ -482,10 +482,6 @@ rules:
   proxies:
   - PROXY
   - DIRECT
-rewrites:
-- name: General
-  type: quantumult
-  url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Rewrite/Rewrite.list
 generates:
 # ------------------------------------------------------------------------------
 # Clash in general.
@@ -597,6 +593,13 @@ generates:
     type: event-interaction
     url: https://github.com/KOP-XIAO/QuantumultX/raw/master/Scripts/geo_location.js
     img-url: location.fill.viewfinder.system
+  # Empty placeholders keep [mitm] complete; MITM is not enabled on-device.
+  mitm:
+    passphrase: ""
+    p12: ""
+  rewrites:
+  - name: General
+    url: https://github.com/GeQ1an/Rules/raw/master/QuantumultX/Rewrite/Rewrite.list
 # ------------------------------------------------------------------------------
 # Sing-Box daemon.
 # ------------------------------------------------------------------------------

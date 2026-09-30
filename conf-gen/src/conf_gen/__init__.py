@@ -13,7 +13,6 @@ from conf_gen.proxy import parse_subscriptions
 from conf_gen.proxy_group import ProxyGroupBase
 from conf_gen.proxy_group import merge_proxy_by_region
 from conf_gen.proxy_group import parse_proxy_groups
-from conf_gen.rewrite import parse_rewrites
 from conf_gen.rule import parse_filter
 
 __version__ = "0.1.0"
@@ -33,6 +32,5 @@ __all__ = [
     "ProxyGroupBase",
     "parse_proxy_groups",
     "merge_proxy_by_region",
-    "parse_rewrites",
     "parse_filter",
 ]

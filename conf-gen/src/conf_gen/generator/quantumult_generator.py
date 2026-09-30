@@ -4,6 +4,8 @@ from typing import Any
 from typing import ClassVar
 from typing import Sequence
 
+from common import COMMENT_BEGINS
+from conf_gen._util.fetch import fetch_url
 from conf_gen.generator._base_generator import GeneratorBase
 from conf_gen.proxy import HttpProxy
 from conf_gen.proxy import ProxyBase
@@ -13,7 +15,6 @@ from conf_gen.proxy import VMessProxy
 from conf_gen.proxy import VMessWebSocketProxy
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
-from conf_gen.rewrite._base_rewrite import RewriteBase
 from conf_gen.rule._base_ir import IRBase
 
 
@@ -36,6 +37,13 @@ class QuantumultGenerator(GeneratorBase):
         "mitm",
     )
 
+    _GENERATED_SECTIONS: ClassVar[tuple[str, ...]] = (
+        "filter_local",
+        "policy",
+        "rewrite_local",
+        "server_local",
+    )
+
     _SUPPORTED_PROXY_TYPE = (
         HttpProxy,
         ShadowSocksProxy,
@@ -50,9 +58,10 @@ class QuantumultGenerator(GeneratorBase):
         proxies: Sequence[ProxyBase],
         per_region_proxies: Sequence[ProxyBase | ProxyGroupBase],
         proxy_groups: Sequence[ProxyGroupBase],
-        rewrites: Sequence[RewriteBase],
         **additional_sections: Any,
     ) -> None:
+        if generated := set(self._GENERATED_SECTIONS).intersection(additional_sections):
+            raise ValueError(f"Sections {sorted(generated)} are generated, not configurable.")
         # Quantumult-X has a built-in "PROXY" selective group that contains all servers, thus we
         # have to create another selective proxy group to contain per-region auto-fallback servers,
         # then rewrite "PROXY" in rules with this group's name.
@@ -64,7 +73,16 @@ class QuantumultGenerator(GeneratorBase):
         proxy_groups_list.insert(0, the_per_region_proxy_group)
 
         super().__init__(src_file, proxies, proxy_groups_list)
-        self._rewrites = rewrites
+        self._rewrites, rewrite_hostnames = self.parse_rewrites(
+            additional_sections.pop("rewrites", None) or []
+        )
+        if rewrite_hostnames:
+            mitm = dict(additional_sections.get("mitm") or {})
+            hostnames = mitm.get("hostname", [])
+            if not isinstance(hostnames, list):
+                raise ValueError("`mitm.hostname` must be a list.")
+            mitm["hostname"] = list(dict.fromkeys([*hostnames, *rewrite_hostnames]))
+            additional_sections["mitm"] = mitm
         self._additional_sections = additional_sections
         for group in self._proxy_groups:
             # Replace the default "PROXY" name. The `group` has been copied in __init__.
@@ -89,6 +107,25 @@ class QuantumultGenerator(GeneratorBase):
                 raise ValueError(f"Unsupported task type: {t['type']}.")
 
         return ret
+
+    @staticmethod
+    def parse_rewrites(rewrites_info: list[dict[str, Any]]) -> tuple[list[str], list[str]]:
+        """Fetch rewrite lists; return rewrite lines and MITM hostnames."""
+        rewrites: list[str] = []
+        hostnames: list[str] = []
+        for r in rewrites_info:
+            rewrites.append(f"# {r['name']}")
+            for line in fetch_url(r["url"]).text.splitlines():
+                line = line.strip()
+                if not line or line.startswith(COMMENT_BEGINS):
+                    continue
+                key, sep, value = line.partition("=")
+                if sep and key.strip() == "hostname":
+                    hostnames += [h.strip() for h in value.split(",") if h.strip()]
+                else:
+                    rewrites.append(line)
+
+        return rewrites, list(dict.fromkeys(hostnames))
 
     def generate(self, file: str) -> None:
         base, _ = os.path.split(file)
@@ -136,8 +173,8 @@ class QuantumultGenerator(GeneratorBase):
             # Rewrite.
             f.write("[rewrite_local]\n")
             missing_sections.remove("rewrite_local")
-            for r in self._rewrites:
-                f.write("\n".join(r.quantumult_rewrite) + "\n")
+            for rewrite in self._rewrites:
+                f.write(f"{rewrite}\n")
             # Other missing sections.
             for section in missing_sections:
                 f.write(f"[{section}]\n")

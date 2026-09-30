@@ -15,7 +15,6 @@ from conf_gen.proxy import parse_clash_proxies
 from conf_gen.proxy import parse_subscriptions
 from conf_gen.proxy_group import merge_proxy_by_region
 from conf_gen.proxy_group import parse_proxy_groups
-from conf_gen.rewrite import parse_rewrites
 
 
 def main() -> None:
@@ -38,7 +37,6 @@ def main() -> None:
         region_proxy_type=src_conf["global"]["region_proxy_type"],
     )
     proxy_groups = parse_proxy_groups(src_conf["rules"], available_proxies=per_region_proxies)
-    rewrites = parse_rewrites(src_conf.get("rewrites", []))
 
     generate_conf(
         generate_info=src_conf["generates"],
@@ -47,7 +45,6 @@ def main() -> None:
         proxies=proxies,
         per_region_proxies=per_region_proxies,
         proxy_groups=proxy_groups,
-        rewrites=rewrites,
     )
 
 
