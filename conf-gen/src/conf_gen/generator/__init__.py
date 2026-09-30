@@ -76,6 +76,7 @@ def generate_conf(
                     included_process_irs=included_process_irs,
                     ruleset_url=gen_info.get("ruleset_url"),
                     add_resolve_action=gen_info.get("add_resolve_action"),
+                    ruleset_download_detour=gen_info.get("ruleset_download_detour"),
                 )
             else:
                 args = copy(gen_info)
@@ -94,6 +95,8 @@ def generate_conf(
                     ruleset_url=args.get("ruleset_url"),
                     dial_fields=args.get("dial_fields"),
                     add_resolve_action=args.get("add_resolve_action"),
+                    outbounds=args.get("outbounds"),
+                    ruleset_download_detour=args.get("ruleset_download_detour"),
                 )
             dst_dir = os.path.join(dst, gen_info["name"])
             gen.generate(dst_dir)

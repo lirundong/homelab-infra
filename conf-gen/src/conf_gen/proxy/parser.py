@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Sequence
 from typing import get_args
 
 import requests
@@ -6,6 +7,7 @@ import yaml
 
 from conf_gen._util.fetch import fetch_url
 from conf_gen.proxy import ProxyBase
+from conf_gen.proxy.http_proxy import HttpProxy
 from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022CiphersT
 from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022Proxy
 from conf_gen.proxy.shadowsocks_proxy import ShadowSocksProxy
@@ -14,15 +16,16 @@ from conf_gen.proxy.trojan_proxy import TrojanProxy
 from conf_gen.proxy.v2ray_proxy import VMessGRPCProxy
 from conf_gen.proxy.v2ray_proxy import VMessProxy
 from conf_gen.proxy.v2ray_proxy import VMessWebSocketProxy
+from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 
 
 def parse_clash_proxies(
     proxies_info: list[dict[str, Any]],
-) -> list[ProxyBase]:
-    ret: list[ProxyBase] = []
+) -> list[ProxyBase | SelectProxyGroup]:
+    ret: list[ProxyBase | SelectProxyGroup] = []
     for proxy_info in proxies_info:
-        proxy: ProxyBase
+        proxy: ProxyBase | SelectProxyGroup
         if proxy_info["type"] == "ss":
             if proxy_info["cipher"] in get_args(ShadowSocks2022CiphersT):
                 proxy = ShadowSocks2022Proxy(
@@ -114,10 +117,43 @@ def parse_clash_proxies(
                 skip_cert_verify=proxy_info.get("skip_cert_verify", False),
                 udp=proxy_info.get("udp", False),
             )
+        elif proxy_info["type"] == "http":
+            if "udp" in proxy_info:
+                raise ValueError(f"HTTP proxy {proxy_info['name']} cannot relay UDP")
+            proxy = HttpProxy(
+                name=proxy_info["name"],
+                server=proxy_info["server"],
+                port=proxy_info["port"],
+                username=proxy_info.get("username", None),
+                password=proxy_info.get("password", None),
+                tls=proxy_info.get("tls", False),
+                skip_cert_verify=proxy_info.get("skip-cert-verify", False),
+                sni=proxy_info.get("sni", None),
+            )
+        elif proxy_info["type"] == "select":
+            members = parse_clash_proxies(proxy_info["proxies"])
+            leaf_members: list[ProxyBase] = []
+            for member in members:
+                if not isinstance(member, ProxyBase):
+                    raise ValueError(f"Proxy group {proxy_info['name']} cannot nest groups")
+                leaf_members.append(member)
+            if not leaf_members:
+                raise ValueError(f"Proxy group {proxy_info['name']} has no proxies")
+            proxy = SelectProxyGroup(name=proxy_info["name"], filters=None, proxies=leaf_members)
         else:
             raise RuntimeError(f"Get unsupported proxy type: {proxy_info['type']}")
         ret.append(proxy)
 
+    return ret
+
+
+def flatten_proxies(proxies: Sequence[ProxyBase | ProxyGroupBase]) -> list[ProxyBase]:
+    ret: list[ProxyBase] = []
+    for proxy in proxies:
+        if isinstance(proxy, ProxyGroupBase):
+            ret += proxy._members
+        else:
+            ret.append(proxy)
     return ret
 
 
@@ -135,7 +171,7 @@ def parse_clash_subscription(
         r = fetch_url(backup_url)
     if not (proxies := yaml.safe_load(r.text)["proxies"]):
         raise ValueError("No proxies found in subscription")
-    return parse_clash_proxies(proxies)
+    return flatten_proxies(parse_clash_proxies(proxies))
 
 
 def parse_subscriptions(

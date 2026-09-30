@@ -1,4 +1,5 @@
 from conf_gen.generator import generate_conf
+from conf_gen.proxy import HttpProxy
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy import ShadowSocks2022Proxy
 from conf_gen.proxy import ShadowSocksProxy
@@ -19,6 +20,7 @@ __version__ = "0.1.0"
 __all__ = [
     "generate_conf",
     "ProxyBase",
+    "HttpProxy",
     "parse_clash_proxies",
     "parse_subscriptions",
     "ShadowSocksProxy",

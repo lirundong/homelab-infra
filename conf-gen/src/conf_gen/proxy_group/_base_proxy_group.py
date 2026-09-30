@@ -32,6 +32,8 @@ class ProxyGroupBase:
         self.included_process_irs: list[str] | None = None
         self._filters: list[IRBase] = []
         self._proxies: list[str] = []
+        # Leaf proxy objects given directly, so their outbounds can still be generated.
+        self._members: list[ProxyBase] = [p for p in proxies if isinstance(p, ProxyBase)]
 
         if filters:  # `filters` could be None, e.g., clash's special PROXY group.
             for f in filters:
