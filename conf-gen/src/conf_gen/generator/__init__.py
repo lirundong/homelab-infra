@@ -9,7 +9,6 @@ from conf_gen.generator.quantumult_generator import QuantumultGenerator
 from conf_gen.generator.sing_box_generator import SingBoxGenerator
 from conf_gen.proxy._base_proxy import ProxyBase
 from conf_gen.proxy_group._base_proxy_group import ProxyGroupBase
-from conf_gen.rewrite._base_rewrite import RewriteBase
 
 
 def generate_conf(
@@ -19,7 +18,6 @@ def generate_conf(
     proxies: Sequence[ProxyBase],
     per_region_proxies: Sequence[ProxyBase | ProxyGroupBase],
     proxy_groups: Sequence[ProxyGroupBase],
-    rewrites: Sequence[RewriteBase] | None = None,
 ) -> None:
     generators: dict[str, GeneratorBase] = {}
     for gen_info in generate_info:
@@ -38,8 +36,6 @@ def generate_conf(
             dst_dir = os.path.join(dst, f"{gen_info['name']}.yaml")
             gen.generate(dst_dir)
         elif gen_info["type"] == "quantumult":
-            if rewrites is None:
-                raise ValueError("`rewrites` arg is required for generating Quantumult configs.")
             additional_sections = copy(gen_info)
             additional_sections.pop("name")
             additional_sections.pop("type")
@@ -48,7 +44,6 @@ def generate_conf(
                 proxies=proxies,
                 per_region_proxies=per_region_proxies,
                 proxy_groups=proxy_groups,
-                rewrites=rewrites,
                 **additional_sections,
             )
             dst_dir = os.path.join(dst, f"{gen_info['name']}.conf")
