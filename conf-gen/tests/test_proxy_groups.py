@@ -149,6 +149,29 @@ def test_http_proxy_backends() -> None:
     )
 
 
+def test_http_proxy_path_and_headers() -> None:
+    from conf_gen.proxy import parse_clash_proxies
+
+    headers = {"X-Token": "synthetic"}
+    with_headers, with_path = parse_clash_proxies(
+        [
+            _http_info("with-headers", headers=headers),
+            _http_info("with-path", path="/connect", headers=headers),
+        ]
+    )
+    assert with_headers.sing_box_proxy["headers"] == headers
+    assert "path" not in with_headers.sing_box_proxy
+    assert with_headers.clash_proxy["headers"] == headers
+    assert with_path.sing_box_proxy["path"] == "/connect"
+    assert with_path.sing_box_proxy["headers"] == headers
+    # Clash has no HTTP proxy path, and Quantumult X has neither option.
+    with pytest.raises(ValueError, match="not supported by clash"):
+        with_path.clash_proxy
+    for proxy in (with_headers, with_path):
+        with pytest.raises(ValueError, match="not supported by quantumult x"):
+            proxy.quantumult_proxy
+
+
 def test_static_outbounds_replace_default_direct() -> None:
     generator = _sing_box_generator(
         proxies_info=[{"name": "Pool", "type": "select", "proxies": [_http_info("p1")]}],
