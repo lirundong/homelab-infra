@@ -146,23 +146,22 @@ def load_sanitized_source() -> dict[str, Any]:
 
 
 def build_source_context() -> SourceContext:
+    from conf_gen.proxy import flatten_proxies
     from conf_gen.proxy import parse_clash_proxies
     from conf_gen.proxy_group import merge_proxy_by_region
     from conf_gen.proxy_group import parse_proxy_groups
-    from conf_gen.proxy_group.selective_proxy_group import SelectProxyGroup
 
     source = load_sanitized_source()
     source["subscriptions"] = []
     source["proxies"] = _synthetic_custom_proxy_infos()
 
     custom_proxies = parse_clash_proxies(source["proxies"])
-    subscription_proxies = parse_clash_proxies(_synthetic_subscription_proxy_infos())
-    proxies = custom_proxies + subscription_proxies
-    grouped_proxy: list[ProxyBase | ProxyGroupBase] = [
-        SelectProxyGroup(name=CUSTOM_GROUP_NAME, filters=None, proxies=custom_proxies)
-    ]
+    subscription_proxies = flatten_proxies(
+        parse_clash_proxies(_synthetic_subscription_proxy_infos())
+    )
+    proxies = flatten_proxies(custom_proxies) + subscription_proxies
     per_region_proxies = merge_proxy_by_region(
-        proxies=grouped_proxy + list(subscription_proxies),
+        proxies=[*custom_proxies, *subscription_proxies],
         proxy_check_url=source["global"]["proxy_check_url"],
         proxy_check_interval=source["global"]["proxy_check_interval"],
         region_proxy_type=source["global"]["region_proxy_type"],
@@ -193,6 +192,7 @@ def generate_daemon_artifacts(context: SourceContext, output_root: Path) -> Path
         experimental=deepcopy(daemon_info.get("experimental")),
         included_process_irs=deepcopy(daemon_info.get("included_process_irs")),
         ruleset_url=daemon_info["ruleset_url"],
+        ruleset_download_detour=deepcopy(daemon_info["ruleset_download_detour"]),
         dial_fields=deepcopy(daemon_info.get("dial_fields")),
         add_resolve_action=deepcopy(daemon_info.get("add_resolve_action")),
     )
@@ -264,6 +264,7 @@ def generate_runtime_config(
         experimental=experimental,
         included_process_irs=deepcopy(daemon_info.get("included_process_irs")),
         ruleset_url=ruleset_url,
+        ruleset_download_detour=deepcopy(daemon_info["ruleset_download_detour"]),
         dial_fields=deepcopy(daemon_info.get("dial_fields")),
         add_resolve_action=deepcopy(daemon_info.get("add_resolve_action")),
     )
@@ -1831,7 +1832,11 @@ def _safe_secret_value(match: re.Match[str]) -> str | int:
 
 def _synthetic_custom_proxy_infos() -> list[dict[str, Any]]:
     return [
-        _ss_proxy_info("Custom-Japan-01", "127.0.0.1", 20010),
+        {
+            "name": CUSTOM_GROUP_NAME,
+            "type": "select",
+            "proxies": [_ss_proxy_info("Custom-Japan-01", "127.0.0.1", 20010)],
+        },
     ]
 
 

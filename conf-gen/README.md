@@ -40,7 +40,18 @@ See source.yaml for full schema. Basic example:
 ```yaml
 proxies:
   - name: "My Proxy"
-    type: shadowsocks
+    type: ss
     server: example.com
     password: "@secret:PROXY_PASSWORD"
+  - name: "My Group"  # A selector over inline proxies; the first one is the default.
+    type: select
+    proxies:
+      - name: "HTTP Proxy"
+        type: http
+        server: 192.0.2.1
+        port: 8080
 ```
+
+For sing-box targets, `outbounds` replaces the default `DIRECT` outbound, and
+`ruleset_download_detour` names an outbound or gives a `type: regex` pattern that picks a
+random matching proxy.

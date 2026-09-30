@@ -91,7 +91,7 @@ def parse_proxy_groups(
                 name=g_info["name"],
                 filters=g_info["filters"],
                 proxies=g_info["proxies"],
-                img_url=g_info["img-url"],
+                img_url=g_info.get("img-url"),
                 available_proxies=available_proxies,
             )
         else:

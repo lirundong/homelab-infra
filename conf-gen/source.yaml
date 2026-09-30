@@ -17,34 +17,37 @@ subscriptions:
     url: '@secret:SUBSCRIPTION_URL'
   backup_url: '@secret:SUBSCRIPTION_BACKUP_URL'
 proxies:
-- name: 🇯🇵「SS2022-AES」bwh-jp-01
-  type: ss
-  server: '@secret:JP_NODE_HOSTNAME'
-  port: '@secret:JP_NODE_SS2022_AES_256_PORT!int'
-  cipher: 2022-blake3-aes-256-gcm
-  password: '@secret:JP_NODE_SS2022_AES_256_PASSWORD'
-  udp: true
-- name: 🇯🇵「SS2022-ChaCha」bwh-jp-01
-  type: ss
-  server: '@secret:JP_NODE_HOSTNAME'
-  port: '@secret:JP_NODE_SS2022_CHACHA_PORT!int'
-  cipher: 2022-blake3-chacha20-poly1305
-  password: '@secret:JP_NODE_SS2022_CHACHA_PASSWORD'
-  udp: true
-- name: 🇯🇵「SS-AES」bwh-jp-01
-  type: ss
-  server: '@secret:JP_NODE_HOSTNAME'
-  port: '@secret:JP_NODE_AES_128_PORT!int'
-  cipher: aes-128-gcm
-  password: '@secret:JP_NODE_AES_128_PASSWORD'
-  udp: true
-- name: 🇯🇵「ChaCha」bwh-jp-01
-  type: ss
-  server: '@secret:JP_NODE_HOSTNAME'
-  port: '@secret:JP_NODE_CHACHA_PORT!int'
-  cipher: chacha20-ietf-poly1305
-  password: '@secret:JP_NODE_CHACHA_PASSWORD'
-  udp: true
+- name: 🌏 Custom
+  type: select
+  proxies:
+  - name: 🇯🇵「SS2022-AES」bwh-jp-01
+    type: ss
+    server: '@secret:JP_NODE_HOSTNAME'
+    port: '@secret:JP_NODE_SS2022_AES_256_PORT!int'
+    cipher: 2022-blake3-aes-256-gcm
+    password: '@secret:JP_NODE_SS2022_AES_256_PASSWORD'
+    udp: true
+  - name: 🇯🇵「SS2022-ChaCha」bwh-jp-01
+    type: ss
+    server: '@secret:JP_NODE_HOSTNAME'
+    port: '@secret:JP_NODE_SS2022_CHACHA_PORT!int'
+    cipher: 2022-blake3-chacha20-poly1305
+    password: '@secret:JP_NODE_SS2022_CHACHA_PASSWORD'
+    udp: true
+  - name: 🇯🇵「SS-AES」bwh-jp-01
+    type: ss
+    server: '@secret:JP_NODE_HOSTNAME'
+    port: '@secret:JP_NODE_AES_128_PORT!int'
+    cipher: aes-128-gcm
+    password: '@secret:JP_NODE_AES_128_PASSWORD'
+    udp: true
+  - name: 🇯🇵「ChaCha」bwh-jp-01
+    type: ss
+    server: '@secret:JP_NODE_HOSTNAME'
+    port: '@secret:JP_NODE_CHACHA_PORT!int'
+    cipher: chacha20-ietf-poly1305
+    password: '@secret:JP_NODE_CHACHA_PASSWORD'
+    udp: true
 rules:
 # ------------------------------------------------------------------------------
 # Guard.
@@ -659,6 +662,9 @@ generates:
         server: DIRECT
         strategy: prefer_ipv4  # Prefer to solve proxy hostnames to IPv4.
   ruleset_url: https://github.com/lirundong/homelab-infra/releases/download/sing-box-daemon/
+  ruleset_download_detour:  # Randomly pick a HK proxy to download rule-sets.
+    type: regex
+    pattern: HK|Hong\s{0,1}Kong|香港|🇭🇰
   add_resolve_action:
     server: PROXY
     strategy: prefer_ipv4  # Easier to match with IP rules.

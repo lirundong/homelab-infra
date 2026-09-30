@@ -6,6 +6,7 @@ from typing import Sequence
 import yaml
 
 from conf_gen.generator._base_generator import GeneratorBase
+from conf_gen.proxy import HttpProxy
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy import ShadowSocksProxy
 from conf_gen.proxy import Socks5Proxy
@@ -27,6 +28,7 @@ class ClashGenerator(GeneratorBase):
     _SUPPORTED_PROXY_TYPE = (
         Socks5Proxy,
         ShadowSocksProxy,
+        HttpProxy,
         TrojanProxy,
         VMessProxy,
         VMessGRPCProxy,

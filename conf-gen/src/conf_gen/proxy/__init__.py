@@ -1,4 +1,6 @@
 from conf_gen.proxy._base_proxy import ProxyBase
+from conf_gen.proxy.http_proxy import HttpProxy
+from conf_gen.proxy.parser import flatten_proxies
 from conf_gen.proxy.parser import parse_clash_proxies
 from conf_gen.proxy.parser import parse_clash_subscription
 from conf_gen.proxy.parser import parse_subscriptions
@@ -13,6 +15,7 @@ from conf_gen.proxy.v2ray_proxy import VMessWebSocketProxy
 
 __all__ = (
     "ProxyBase",
+    "HttpProxy",
     "ShadowSocks2022CiphersT",
     "ShadowSocksProxy",
     "ShadowSocks2022Proxy",
@@ -21,6 +24,7 @@ __all__ = (
     "VMessGRPCProxy",
     "VMessProxy",
     "VMessWebSocketProxy",
+    "flatten_proxies",
     "parse_clash_proxies",
     "parse_clash_subscription",
     "parse_subscriptions",

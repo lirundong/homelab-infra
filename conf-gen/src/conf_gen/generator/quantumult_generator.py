@@ -5,6 +5,7 @@ from typing import ClassVar
 from typing import Sequence
 
 from conf_gen.generator._base_generator import GeneratorBase
+from conf_gen.proxy import HttpProxy
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy import ShadowSocksProxy
 from conf_gen.proxy import TrojanProxy
@@ -36,6 +37,7 @@ class QuantumultGenerator(GeneratorBase):
     )
 
     _SUPPORTED_PROXY_TYPE = (
+        HttpProxy,
         ShadowSocksProxy,
         TrojanProxy,
         VMessProxy,

@@ -27,6 +27,7 @@ from packaging.version import Version
 from packaging.version import parse
 
 from conf_gen.generator._base_generator import GeneratorBase
+from conf_gen.proxy import HttpProxy
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy import ShadowSocks2022Proxy
 from conf_gen.proxy import ShadowSocksProxy
@@ -306,6 +307,7 @@ class RuleSetCompiler:
 
 class SingBoxGenerator(GeneratorBase):
     _SUPPORTED_PROXY_TYPE = (
+        HttpProxy,
         ShadowSocksProxy,
         ShadowSocks2022Proxy,
         TrojanProxy,
@@ -325,19 +327,31 @@ class SingBoxGenerator(GeneratorBase):
         experimental: dict[str, Any] | None = None,
         included_process_irs: list[str] | None = None,
         ruleset_url: str | None = None,
-        dial_fields: dict[Literal["direct", "proxy"], dict[str, str]] | None = None,
+        dial_fields: dict[Literal["direct", "proxy"], dict[str, Any]] | None = None,
         add_resolve_action: dict[str, Any] | None = None,
+        outbounds: list[dict[str, Any]] | None = None,
+        ruleset_download_detour: str | dict[str, str] | None = None,
     ) -> None:
-        # Construct the special group `PROXY` for sing-box.
+        # Construct the special group `PROXY` for sing-box; one choice needs no selector.
         proxy_groups = copy(proxy_groups)
-        the_per_region_proxy_group = SelectProxyGroup(
-            name="PROXY", filters=None, proxies=list(per_region_proxies)
-        )
-        the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
-        proxy_groups.insert(0, the_per_region_proxy_group)
+        if 1 < len(per_region_proxies):
+            the_per_region_proxy_group = SelectProxyGroup(
+                name="PROXY", filters=None, proxies=list(per_region_proxies)
+            )
+            the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
+            proxy_groups.insert(0, the_per_region_proxy_group)
+
+        if dial_fields is None:
+            dial_fields = {"direct": dict(), "proxy": dict()}
+        if outbounds is None:
+            outbounds = [{"tag": "DIRECT", "type": "direct", **dial_fields.get("direct", {})}]
+        elif dial_fields.get("direct"):
+            raise ValueError("dial_fields.direct only applies to the default DIRECT outbound")
 
         base_proxies = [p for p in proxies if isinstance(p, ProxyBase)]
-        super().__init__(src_file, base_proxies, proxy_groups)
+        super().__init__(
+            src_file, base_proxies, proxy_groups, extra_proxy_names=[o["tag"] for o in outbounds]
+        )
         self.included_process_irs = included_process_irs
         self.ruleset_url: str | None
         if ruleset_url:
@@ -346,6 +360,7 @@ class SingBoxGenerator(GeneratorBase):
             self.ruleset_url = ruleset_url
         else:
             self.ruleset_url = None
+        self.ruleset_download_detour = ruleset_download_detour
 
         # Parse DNS rules using the same infra as in parsing route rules.
         if "rules" not in dns:
@@ -373,8 +388,6 @@ class SingBoxGenerator(GeneratorBase):
             route = {"rules": []}
         if experimental is None:
             experimental = {}
-        if dial_fields is None:
-            dial_fields = {"direct": dict(), "proxy": dict()}
 
         self.log = log
         self.dns = dns
@@ -385,8 +398,8 @@ class SingBoxGenerator(GeneratorBase):
         self.experimental = experimental
         self.add_resolve_action = add_resolve_action
         self._initial_route_rules = copy(self.route["rules"])
-        self._direct_dial_fields = dial_fields["direct"]
-        self._proxy_dial_fields = dial_fields["proxy"]
+        self._static_outbounds = outbounds
+        self._proxy_dial_fields = dial_fields.get("proxy", {})
 
         self._build_outbounds()
         self._build_route()
@@ -406,6 +419,7 @@ class SingBoxGenerator(GeneratorBase):
         included_process_irs: list[str] | None = None,
         ruleset_url: str | None = None,
         add_resolve_action: dict[str, Any] | None = None,
+        ruleset_download_detour: str | dict[str, str] | None = None,
     ) -> Self:
         new_object = copy(base_object)
         # `dns` only overwrites or appends DNS servers.
@@ -449,6 +463,8 @@ class SingBoxGenerator(GeneratorBase):
             new_object.ruleset_url = ruleset_url
         if add_resolve_action is not None:
             new_object.add_resolve_action = add_resolve_action
+        if ruleset_download_detour is not None:
+            new_object.ruleset_download_detour = ruleset_download_detour
 
         # Rebuild outbounds and route rules.
         new_object._build_outbounds()
@@ -459,10 +475,8 @@ class SingBoxGenerator(GeneratorBase):
         return new_object
 
     def _build_outbounds(self):
-        # 1. Build the mandatory DIRECT outbound.
-        mandatory_outbounds = [
-            {"tag": "DIRECT", "type": "direct", **self._direct_dial_fields},
-        ]
+        # 1. Static outbounds are either the default DIRECT or given by the source.
+        static_outbounds = deepcopy(self._static_outbounds)
         # 2. Build outbounds for each of the proxy servers.
         proxy_server_outbounds = []
         for p in self._proxies:
@@ -475,8 +489,11 @@ class SingBoxGenerator(GeneratorBase):
             if outbound := g.sing_box_outbound:
                 proxy_group_outbounds.append(outbound)
         # ...and finally we merge them together!
-        self.outbounds = proxy_group_outbounds + proxy_server_outbounds + mandatory_outbounds
+        self.outbounds = proxy_group_outbounds + proxy_server_outbounds + static_outbounds
         self._valid_outbound_tags = set(o["tag"] for o in self.outbounds)
+        for o in proxy_group_outbounds:
+            if missing := set(o["outbounds"]) - self._valid_outbound_tags:
+                raise ValueError(f"Outbound {o['tag']} refers to undefined {sorted(missing)}")
 
     def _build_route(self):
         for i, r in enumerate(self.route["rules"]):
@@ -496,11 +513,25 @@ class SingBoxGenerator(GeneratorBase):
         if self.add_resolve_action and dst_ip_filters:
             self.route["rules"].append({"action": "resolve", **self.add_resolve_action})
             self.route["rules"] += dst_ip_filters
-        if self.route.get("final") and self.route["final"] not in self._valid_outbound_tags:
-            raise ValueError(f"Given final outbound {self.route['final']} is invalid")
         if "final" not in self.route:
             warn(f"The final outbound was not set in route, fallback to the default `PROXY`")
             self.route.setdefault("final", "PROXY")
+        if self.route["final"] not in self._valid_outbound_tags:
+            raise ValueError(f"Given final outbound {self.route['final']} is invalid")
+
+    def _resolve_ruleset_download_detour(self) -> str:
+        detour = self.ruleset_download_detour
+        if isinstance(detour, str):
+            if detour not in self._valid_outbound_tags:
+                raise ValueError(f"Rule-set download detour {detour} is not an outbound")
+            return detour
+        if isinstance(detour, dict) and detour.get("type") == "regex":
+            # Randomly pick a matching proxy server to spread rule-set downloads.
+            candidates = [p.name for p in self._proxies if re.search(detour["pattern"], p.name)]
+            if not candidates:
+                raise ValueError(f"No proxy matches rule-set download detour {detour}")
+            return random.choice(candidates)
+        raise ValueError(f"Expect an outbound tag or regex download detour, but got {detour=}")
 
     def generate(self, dst_dir):
         os.makedirs(dst_dir, exist_ok=True)
@@ -515,10 +546,7 @@ class SingBoxGenerator(GeneratorBase):
             "experimental": deepcopy(self.experimental),
         }
         if self.ruleset_url:
-            # Randomly pick a HK proxy to download rulesets.
-            # TODO: Enable specify the download detour from config file.
-            assert (hk_group := next(g for g in self._proxy_groups if "🇭🇰" in g.name))
-            download_detour = random.choice(hk_group._proxies)
+            download_detour = self._resolve_ruleset_download_detour()
             with RuleSetCompiler() as compiler:
                 dns_ruleset, dns_ruleset_binaries = compiler.build_rule_set(
                     rules=conf["dns"]["rules"],

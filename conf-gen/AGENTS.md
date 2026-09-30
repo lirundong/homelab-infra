@@ -7,7 +7,8 @@ repository-root instructions.
 
 Pipeline: `source.yaml → parsers → IR objects → generators → configurations`.
 
-- `proxy/`: Shadowsocks/2022, Trojan, VMess (plain/WebSocket/gRPC), and SOCKS5 adapters
+- `proxy/`: Shadowsocks/2022, Trojan, VMess (plain/WebSocket/gRPC), SOCKS5, and HTTP adapters;
+  top-level `proxies` may also hold one-level `type: select` groups of inline proxies
 - `proxy_group/`: select/fallback groups and regional merging
 - `rule/`: registered IR for user agent, process/package, domain variants, GeoIP/IP CIDR,
   source/destination ports, and match rules
