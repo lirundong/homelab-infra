@@ -349,10 +349,10 @@ class SingBoxGenerator(GeneratorBase):
         elif dial_fields.get("direct"):
             raise ValueError("dial_fields.direct only applies to the default DIRECT outbound")
 
+        # Static outbounds replace DIRECT as the non-proxy names that groups may refer to.
+        self._DEFAULT_PROXY_NAMES = frozenset({"PROXY", "REJECT", *(o["tag"] for o in outbounds)})
         base_proxies = [p for p in proxies if isinstance(p, ProxyBase)]
-        super().__init__(
-            src_file, base_proxies, proxy_groups, extra_proxy_names=[o["tag"] for o in outbounds]
-        )
+        super().__init__(src_file, base_proxies, proxy_groups)
         self.included_process_irs = included_process_irs
         self.ruleset_url: str | None
         if ruleset_url:
@@ -493,6 +493,9 @@ class SingBoxGenerator(GeneratorBase):
         self.outbounds = proxy_group_outbounds + proxy_server_outbounds + static_outbounds
         self._valid_outbound_tags = set(o["tag"] for o in self.outbounds)
         for o in proxy_group_outbounds:
+            # Members unknown to this generator were dropped, which may leave a group empty.
+            if not o["outbounds"]:
+                raise ValueError(f"Outbound {o['tag']} has no available members")
             if missing := set(o["outbounds"]) - self._valid_outbound_tags:
                 raise ValueError(f"Outbound {o['tag']} refers to undefined {sorted(missing)}")
 

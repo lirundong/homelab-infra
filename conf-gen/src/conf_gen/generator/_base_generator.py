@@ -15,7 +15,8 @@ from conf_gen.rule._base_ir import IRBase
 class GeneratorBase:
 
     _SUPPORTED_PROXY_TYPE: ClassVar[tuple[type[ProxyBase], ...] | None] = None
-    _DEFAULT_PROXY_NAMES: ClassVar[set[str]] = {"PROXY", "DIRECT", "REJECT"}
+    # Subclasses may replace this per instance, but must not mutate the shared set.
+    _DEFAULT_PROXY_NAMES: frozenset[str] = frozenset({"PROXY", "DIRECT", "REJECT"})
 
     @staticmethod
     def _rule_ir_priority(group_index: int, rule_ir: IRBase) -> tuple[int, ...]:
@@ -26,13 +27,11 @@ class GeneratorBase:
         src_file: str,
         proxies: Sequence[ProxyBase],
         proxy_groups: Sequence[ProxyGroupBase],
-        extra_proxy_names: Sequence[str] = (),
     ) -> None:
         self.src_file = src_file
         self._proxies: list[ProxyBase] = []
         self._proxy_groups: list[ProxyGroupBase] = []
         proxy_names = set(pg.name for pg in proxy_groups).union(self._DEFAULT_PROXY_NAMES)
-        proxy_names.update(extra_proxy_names)
         for proxy in proxies:
             if (
                 self._SUPPORTED_PROXY_TYPE is not None

@@ -202,10 +202,10 @@ def test_direct_dial_fields_conflict_with_static_outbounds() -> None:
 
 @pytest.mark.parametrize(
     ("proxies", "final"),
-    [(["DIRECT"], "Direct"), (["Direct"], "PROXY")],
+    [(["DIRECT"], "Direct"), (["Direct", "PROXY"], "Direct"), (["Direct"], "PROXY")],
 )
 def test_undefined_outbound_references_are_rejected(proxies: list[str], final: str) -> None:
-    with pytest.raises(ValueError, match="undefined|final"):
+    with pytest.raises(ValueError, match="no available members|undefined|final"):
         _sing_box_generator(
             proxies_info=[{"name": "Pool", "type": "select", "proxies": [_http_info("p1")]}],
             rules_info=[{"name": "Group", "type": "select", "filters": [], "proxies": proxies}],
