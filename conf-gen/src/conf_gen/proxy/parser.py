@@ -151,7 +151,7 @@ def flatten_proxies(proxies: Sequence[ProxyBase | ProxyGroupBase]) -> list[Proxy
     ret: list[ProxyBase] = []
     for proxy in proxies:
         if isinstance(proxy, ProxyGroupBase):
-            ret += proxy._members
+            ret += proxy.members
         else:
             ret.append(proxy)
     return ret

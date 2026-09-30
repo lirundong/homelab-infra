@@ -58,6 +58,10 @@ class ProxyGroupBase:
                         self._proxies.append(available_proxy)
 
     @property
+    def members(self) -> list[ProxyBase]:
+        return self._members
+
+    @property
     def prefer_reject(self) -> bool:
         return 0 < len(self._proxies) and self._proxies[0] == "REJECT"
 
