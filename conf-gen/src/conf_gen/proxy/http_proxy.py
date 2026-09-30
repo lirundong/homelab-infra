@@ -16,6 +16,7 @@ _ClashHttpMixinT = TypedDict(
         "tls": NotRequired[bool],
         "skip-cert-verify": NotRequired[bool],
         "sni": NotRequired[str],
+        "headers": NotRequired[dict[str, str]],
     },
 )
 
@@ -28,6 +29,8 @@ class SingBoxHttpProxyT(SingBoxProxyT):
     type: Literal["http"]
     username: NotRequired[str]
     password: NotRequired[str]
+    path: NotRequired[str]
+    headers: NotRequired[dict[str, str]]
     tls: NotRequired[SingBoxTlsT]
 
 
@@ -43,6 +46,8 @@ class HttpProxy(ProxyBase):
         tls: bool = False,
         skip_cert_verify: bool = False,
         sni: str | None = None,
+        path: str | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         super().__init__(name, server, port)
         if (username is None) != (password is None):
@@ -52,9 +57,13 @@ class HttpProxy(ProxyBase):
         self.tls = tls
         self.skip_cert_verify = skip_cert_verify
         self.sni = sni
+        self.path = path
+        self.headers = headers
 
     @property
     def clash_proxy(self) -> ClashHttpProxyT:
+        if self.path is not None:
+            raise ValueError(f"HTTP proxy {self.name}: path is not supported by clash.")
         info = ClashHttpProxyT(
             name=self.name,
             type="http",
@@ -69,10 +78,16 @@ class HttpProxy(ProxyBase):
             info["skip-cert-verify"] = self.skip_cert_verify
             if self.sni is not None:
                 info["sni"] = self.sni
+        if self.headers:
+            info["headers"] = self.headers
         return info
 
     @property
     def quantumult_proxy(self) -> str:
+        if self.path is not None or self.headers:
+            raise ValueError(
+                f"HTTP proxy {self.name}: path and headers are not supported by quantumult x."
+            )
         proxy = super().quantumult_proxy.format(type="http")
         info: list[tuple[str, str]] = []
         if self.username is not None and self.password is not None:
@@ -100,6 +115,10 @@ class HttpProxy(ProxyBase):
         if self.username is not None and self.password is not None:
             cfg["username"] = self.username
             cfg["password"] = self.password
+        if self.path is not None:
+            cfg["path"] = self.path
+        if self.headers:
+            cfg["headers"] = self.headers
         if self.tls:
             tls_cfg = SingBoxTlsT(enabled=True, insecure=self.skip_cert_verify)
             if self.sni is not None:

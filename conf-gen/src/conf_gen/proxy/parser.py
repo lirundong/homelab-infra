@@ -129,6 +129,8 @@ def parse_clash_proxies(
                 tls=proxy_info.get("tls", False),
                 skip_cert_verify=proxy_info.get("skip-cert-verify", False),
                 sni=proxy_info.get("sni", None),
+                path=proxy_info.get("path", None),
+                headers=proxy_info.get("headers", None),
             )
         elif proxy_info["type"] == "select":
             members = parse_clash_proxies(proxy_info["proxies"])
