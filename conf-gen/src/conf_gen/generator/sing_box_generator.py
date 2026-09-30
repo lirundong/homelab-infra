@@ -299,7 +299,8 @@ class RuleSetCompiler:
                     "type": "remote",
                     "format": "binary",
                     "url": urljoin(ruleset_url, f"{tag}.srs"),
-                    "download_detour": download_detour,
+                    # `download_detour` is deprecated since sing-box 1.14.
+                    "http_client": {"detour": download_detour},
                 }
             )
         return ruleset, ruleset_binaries
