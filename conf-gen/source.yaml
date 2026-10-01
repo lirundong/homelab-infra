@@ -614,11 +614,12 @@ generates:
       type: udp
       server: 8.8.8.8
       detour: PROXY
-    # Unicast dnsmasq on loopback, not `type: local`: sing-box >= 1.14 routes
-    # *.local (and link-local reverse zones) from the `local` server to mDNS
-    # multicast, which would break the dnsmasq-served LAN zone; on this router
-    # dnsmasq at 127.0.0.1:53 is the resolver behind /etc/resolv.conf anyway.
-    # Clients override this tag with a public DoT server; see issue #36.
+    # Unicast dnsmasq on loopback, not `type: local`: on Linux sing-box >= 1.14
+    # routes *.local (and link-local reverse zones) from the `local` server to
+    # mDNS multicast, which would break the dnsmasq-served LAN zone; on this
+    # router dnsmasq at 127.0.0.1:53 is the resolver behind /etc/resolv.conf.
+    # Clients override this tag with `type: local`, whose platform resolvers
+    # keep *.rundong.local on unicast DNS.
     - tag: DIRECT
       type: udp
       server: 127.0.0.1
@@ -776,17 +777,10 @@ generates:
       type: logical
   dns:
     servers:
+    # System DNS of the physical network: Android via DnsResolver.rawQuery,
+    # Apple via scoped system resolvers; works where only intranet DNS is open.
     - tag: DIRECT
-      type: https
-      server: '@secret:DOT_PUB'
-      detour: DIRECT
-      domain_resolver:
-        server: Bootstrap
-        strategy: prefer_ipv4
-    - tag: Bootstrap
-      type: https
-      server: '1.12.12.12'
-      detour: DIRECT
+      type: local
   add_resolve_action:
     server: PROXY
     strategy: prefer_ipv4  # Easier to match with IP rules.
