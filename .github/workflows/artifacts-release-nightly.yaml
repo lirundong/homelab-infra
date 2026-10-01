@@ -2,6 +2,7 @@ name: Artifacts Release Nightly
 on:
   pull_request:
   push:
+    branches: [master]  # PR runs cover feature branches.
   schedule:
   - cron: '0 8 * * *'  # Nightly build, after upstream snapshot feeds are complete.
 jobs:
@@ -12,46 +13,21 @@ jobs:
       conf_gen: ${{ steps.changed.outputs.conf_gen }}
       openwrt_builder: ${{ steps.changed.outputs.openwrt_builder }}
       release: ${{ steps.changed.outputs.release }}
-      run_ci: ${{ steps.changed.outputs.run_ci }}
     steps:
     - uses: actions/checkout@v5
       with:
         fetch-depth: 0
     - id: changed
-      env:
-        GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
         conf_gen=false
         openwrt_builder=false
         release=false
-        run_ci=true
         case "${{ github.event_name }}" in
-          schedule)
+          schedule|push)
             conf_gen=true
             openwrt_builder=true
             release=true
-            ;;
-          push)
-            if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-              conf_gen=true
-              openwrt_builder=true
-              release=true
-            else
-              if ! open_pr_count="$(gh pr list \
-                --head "${{ github.ref_name }}" \
-                --state open \
-                --json number \
-                --jq 'length')"; then
-                echo "::error::gh pr list failed for ${{ github.ref_name }}"
-                exit 1
-              fi
-              if [[ "$open_pr_count" == "0" ]]; then
-                conf_gen=true
-              else
-                run_ci=false
-              fi
-            fi
             ;;
           pull_request)
             base="${{ github.event.pull_request.base.sha }}"
@@ -85,14 +61,12 @@ jobs:
           echo "conf_gen=$conf_gen"
           echo "openwrt_builder=$openwrt_builder"
           echo "release=$release"
-          echo "run_ci=$run_ci"
         } >> "$GITHUB_OUTPUT"
 
   type_check:
     name: Type Check
     runs-on: ubuntu-latest
     needs: detect_changes
-    if: ${{ needs.detect_changes.outputs.run_ci == 'true' }}
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
@@ -106,11 +80,7 @@ jobs:
     name: conf-gen Tests
     runs-on: ubuntu-latest
     needs: detect_changes
-    if: >-
-      ${{
-        needs.detect_changes.outputs.run_ci == 'true' &&
-        needs.detect_changes.outputs.conf_gen == 'true'
-      }}
+    if: ${{ needs.detect_changes.outputs.conf_gen == 'true' }}
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
@@ -124,11 +94,7 @@ jobs:
     name: Build Configurations
     runs-on: ubuntu-latest
     needs: detect_changes
-    if: >-
-      ${{
-        needs.detect_changes.outputs.run_ci == 'true' &&
-        needs.detect_changes.outputs.conf_gen == 'true'
-      }}
+    if: ${{ needs.detect_changes.outputs.conf_gen == 'true' }}
     env:
       LINUX_SING_BOX_CHECK_CONFIGS: sing-box-daemon sing-box-apple
       LINUX_SING_BOX_CHECK_ANDROID_CONFIGS: sing-box-clients
@@ -182,7 +148,6 @@ jobs:
     if: >-
       ${{
         always() &&
-        needs.detect_changes.outputs.run_ci == 'true' &&
         needs.detect_changes.outputs.openwrt_builder == 'true' &&
         needs.build_configuration.result != 'failure' &&
         needs.build_configuration.result != 'cancelled'
@@ -290,14 +255,7 @@ jobs:
     name: CI Gate
     runs-on: ubuntu-latest
     needs: [detect_changes, type_check, conf_gen_tests, build_configuration, build_openwrt]
-    if: >-
-      ${{
-        always() &&
-        (
-          needs.detect_changes.result != 'success' ||
-          needs.detect_changes.outputs.run_ci == 'true'
-        )
-      }}
+    if: ${{ always() }}
     steps:
     - run: |
         # Single stable check for branch protection. snapshots matrix legs are
@@ -330,11 +288,7 @@ jobs:
     # ci_gate in needs makes every required check (incl. conf_gen_tests) gate the release.
     needs: [detect_changes, build_configuration, ci_gate]
     runs-on: ubuntu-latest
-    if: >-
-      ${{
-        needs.detect_changes.outputs.run_ci == 'true' &&
-        needs.detect_changes.outputs.release == 'true'
-      }}
+    if: ${{ needs.detect_changes.outputs.release == 'true' }}
     strategy:
       matrix:
         conf: ${{ fromJSON(needs.build_configuration.outputs.config_names) }}
@@ -397,11 +351,7 @@ jobs:
     # ci_gate in needs makes every required check (incl. conf_gen_tests) gate the release.
     needs: [detect_changes, build_openwrt, ci_gate]
     runs-on: ubuntu-latest
-    if: >-
-      ${{
-        needs.detect_changes.outputs.run_ci == 'true' &&
-        needs.detect_changes.outputs.release == 'true'
-      }}
+    if: ${{ needs.detect_changes.outputs.release == 'true' }}
     strategy:
       matrix:
         arch:
