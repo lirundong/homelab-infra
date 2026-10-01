@@ -19,8 +19,8 @@ OpenWRT builds cover `x86/64` and `rockchip/armv8`
 - `snapshots`: GCC `14.4.0_musl`, allowed to fail
 
 `ci_gate` is the single branch-protection check and fans in only jobs required by the event
-and touched paths. Release jobs depend on it. Non-`master` pushes skip CI when the branch
-already has an open PR, making the PR run authoritative.
+and touched paths. Release jobs depend on it. `push` triggers only on `master`; feature
+branches get CI solely from their PR run.
 
 ## Secret-bearing Artifacts
 
