@@ -71,7 +71,6 @@ _SAFE_SECRET_VALUES: dict[str, str | int] = {
     "CLASH_PROXY_USERNAME": "proxy-user",
     "CLASH_SECRET": "clash-secret",
     "DOMAIN": "example.test",
-    "DOT_PUB": "1.12.12.12",
     "JP_NODE_AES_128_PASSWORD": "jp-aes-128-password",
     "JP_NODE_AES_128_PORT": 12003,
     "JP_NODE_CHACHA_PASSWORD": "jp-chacha-password",
