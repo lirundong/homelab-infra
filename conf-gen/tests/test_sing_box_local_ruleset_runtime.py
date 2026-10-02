@@ -243,8 +243,9 @@ def test_local_ruleset_runtime_matches_inline_probe_behavior(
         covered_route_rules |= covered_rules
         covered_route_branches |= covered_branches
         covered_dns_rules = exercise_generated_dns_rules(
-            dns_rules,
+            inline_config["dns"],
             dns_port,
+            mixed_port,
             local_dir / "sing-box.log",
         )
         covered_dns_branches |= exercise_generated_dns_rule_branches(
