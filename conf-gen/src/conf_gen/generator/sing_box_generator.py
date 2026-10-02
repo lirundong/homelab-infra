@@ -277,7 +277,7 @@ class RuleSetCompiler:
             # Published .srs rule sets are plaintext; `inline` keeps the rule in config.json.
             if rule.pop("inline", False):
                 continue
-            if rule["action"] == "route" and "server" in rule:
+            elif rule["action"] == "route" and "server" in rule:
                 tag_prefix = rule["server"]
             elif rule["action"] == "route" and "outbound" in rule:
                 tag_prefix = rule["outbound"]
