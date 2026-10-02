@@ -610,8 +610,9 @@ generates:
     # DNS responses are purely used for deciding whether hostnames could be in
     # mainland China. The destinations will be replaced with hostnames later.
     servers:
+    # DoT keeps one pipelined TCP stream through the proxy; Google honors ECS.
     - tag: PROXY
-      type: udp
+      type: tls
       server: 8.8.8.8
       detour: PROXY
     # Unicast dnsmasq on loopback, not `type: local`: on Linux sing-box >= 1.14
