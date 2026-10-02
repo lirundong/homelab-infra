@@ -30,6 +30,9 @@ never surface their plaintext values.
   methods.
 - New generators subclass `GeneratorBase` and are wired into `generate_conf()`.
 - Keep pytest-only helpers under `tests/_support`, not `src/`.
+- Published `.srs` rule sets are plaintext. Sing-box rules that carry `@secret:` values must set
+  `inline: true` to stay in the encrypted `config.json`; `test_secret_leaks.py` enforces this.
+  A space-separated filter list secret expands via `'@secret:KEY!str.split'`.
 
 ## Validation
 

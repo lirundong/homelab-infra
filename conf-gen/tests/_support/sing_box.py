@@ -44,7 +44,7 @@ SCHEMA_URL = (
 )
 _T = TypeVar("_T")
 
-_SECRET_MARKER_RE = re.compile(r"@secret:(?P<key>\w+)(?:!(?P<cast>\w+))?")
+_SECRET_MARKER_RE = re.compile(r"@secret:(?P<key>\w+)(?:!(?P<cast>[\w.]+))?")
 _DNS_QUERY_TYPES = {
     "A": 1,
     "AAAA": 28,
@@ -82,6 +82,14 @@ _SAFE_SECRET_VALUES: dict[str, str | int] = {
     "JP_NODE_SS2022_AES_256_PORT": 12001,
     "JP_NODE_SS2022_CHACHA_PASSWORD": "jp-2022-chacha-password",
     "JP_NODE_SS2022_CHACHA_PORT": 12002,
+    # Ten entries reach the rule-set extraction threshold, exercising `inline`.
+    "REAL_IP_HOSTNAMES": " ".join(
+        [
+            "DOMAIN-SUFFIX,rundong.local",
+            *(f"DOMAIN-SUFFIX,real-ip-suffix-{i}.test" for i in range(8)),
+            "DOMAIN,real-ip-host.test",
+        ]
+    ),
     "SUBSCRIPTION_BACKUP_URL": "https://example.test/subscription-backup.yaml",
     "SUBSCRIPTION_URL": "https://example.test/subscription.yaml",
 }
@@ -932,15 +940,16 @@ def _default_dns_rule_matches_query(
     if unsupported := sorted(set(rule) - supported):
         raise AssertionError(f"Cannot model DNS rule matchers {unsupported}: {rule}")
     host = qname.rstrip(".").lower()
-    if domains := rule.get("domain", []):
-        if not any(host == value.lower() for value in domains):
-            return False
-    if suffixes := rule.get("domain_suffix", []):
-        if not any(_matches_domain_suffix(host, value) for value in suffixes):
-            return False
-    if keywords := rule.get("domain_keyword", []):
-        if not any(value.lower() in host for value in keywords):
-            return False
+    domains = rule.get("domain", [])
+    suffixes = rule.get("domain_suffix", [])
+    keywords = rule.get("domain_keyword", [])
+    # sing-box ORs domain items together as one destination-address group.
+    if (domains or suffixes or keywords) and not (
+        any(host == value.lower() for value in domains)
+        or any(_matches_domain_suffix(host, value) for value in suffixes)
+        or any(value.lower() in host for value in keywords)
+    ):
+        return False
     if query_types := rule.get("query_type", []):
         if qtype not in [_dns_qtype_number(query_type) for query_type in query_types]:
             return False
@@ -1814,7 +1823,7 @@ def _sanitize_secret_markers(value: Any) -> Any:
     return value
 
 
-def _safe_secret_value(match: re.Match[str]) -> str | int:
+def _safe_secret_value(match: re.Match[str]) -> str | int | list[str]:
     key = match.group("key")
     cast = match.group("cast")
     if key not in _SAFE_SECRET_VALUES:
@@ -1824,6 +1833,10 @@ def _safe_secret_value(match: re.Match[str]) -> str | int:
         if not isinstance(value, int):
             raise TypeError(f"Safe placeholder for {key} must be int")
         return value
+    if cast == "str.split":
+        if not isinstance(value, str):
+            raise TypeError(f"Safe placeholder for {key} must be str")
+        return value.split()
     if cast is not None:
         raise ValueError(f"Unsupported secret cast {cast!r} for {key}")
     return value
