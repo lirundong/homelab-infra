@@ -274,6 +274,9 @@ class RuleSetCompiler:
     ) -> tuple[list[dict[str, Any]], dict[str, io.BytesIO]]:
         ruleset_literals: dict[str, Any] = dict()
         for i, rule in enumerate(rules):
+            # Published .srs rule sets are plaintext; `inline` keeps the rule in config.json.
+            if rule.pop("inline", False):
+                continue
             if rule["action"] == "route" and "server" in rule:
                 tag_prefix = rule["server"]
             elif rule["action"] == "route" and "outbound" in rule:
@@ -571,6 +574,9 @@ class SingBoxGenerator(GeneratorBase):
                 with open(srs_file, "wb") as f:
                     f.write(binary.getbuffer())
             conf["route"]["rule_set"] = dns_ruleset + route_ruleset
+        else:
+            for rule in itertools.chain(conf["dns"]["rules"], conf["route"]["rules"]):
+                rule.pop("inline", None)
         config_file = os.path.join(dst_dir, "config.json")
         with open(config_file, "w", encoding="utf-8") as f:
             json.dump(conf, f, ensure_ascii=False, indent=4, sort_keys=True)

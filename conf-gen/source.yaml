@@ -629,18 +629,15 @@ generates:
       inet4_range: 198.18.0.0/15
       inet6_range: fc00::/18
     rules:
+    # Hostnames that need real IPs, e.g., LAN, connectivity checks, and intranet names.
     - action: route
       server: DIRECT
       type: logical
       mode: or
+      inline: true  # Secret-bearing; keep out of the public .srs rule sets.
       rules:
       - clash_mode: Direct
-      - filters:
-        - DOMAIN-SUFFIX,rundong.local
-        - DOMAIN-SUFFIX,localhost.ptlogin2.qq.com
-        - DOMAIN-SUFFIX,dns.msftncsi.com
-        - DOMAIN-SUFFIX,www.msftncsi.com
-        - DOMAIN-SUFFIX,www.msftconnecttest.com
+      - filters: '@secret:REAL_IP_HOSTNAMES!str.split'
     - action: route
       server: FakeIP
       query_type:
