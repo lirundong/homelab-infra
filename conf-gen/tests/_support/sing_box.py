@@ -805,21 +805,49 @@ def assert_dns_rule_match(
 
 
 def exercise_generated_dns_rules(
-    dns_rules: list[dict[str, Any]],
+    dns: dict[str, Any],
     dns_port: int,
+    mixed_port: int,
     log_path: Path,
 ) -> set[int]:
+    dns_rules = dns["rules"]
+    fakeip_servers = {server["tag"] for server in dns["servers"] if server["type"] == "fakeip"}
     covered_rules: set[int] = set()
     for index, rule in enumerate(dns_rules):
         qname, qtype = _dns_rule_probe(dns_rules, index, rule)
-        assert_dns_rule_match(
-            log_path,
-            index,
-            rule,
-            partial(dns_exchange, dns_port, qname, qtype),
-        )
+        probe: Callable[[], Any]
+        if _dns_probe_shadowed_by_fakeip(dns_rules, index, qname, qtype, fakeip_servers):
+            # Client queries stop at FakeIP; route `resolve` lookups skip it.
+            probe = partial(_probe_route_resolve_via_mixed, mixed_port, qname)
+        else:
+            probe = partial(dns_exchange, dns_port, qname, qtype)
+        assert_dns_rule_match(log_path, index, rule, probe)
         covered_rules.add(index)
     return covered_rules
+
+
+def _dns_probe_shadowed_by_fakeip(
+    dns_rules: list[dict[str, Any]],
+    index: int,
+    qname: str,
+    qtype: int,
+    fakeip_servers: set[str],
+) -> bool:
+    shadowing = [
+        rule
+        for rule in dns_rules[:index]
+        if rule["action"] != "route-options"
+        and _dns_rule_matches_query(rule, qname, qtype, clash_mode=None)
+    ]
+    return bool(shadowing) and all(
+        rule["action"] == "route" and rule.get("server") in fakeip_servers for rule in shadowing
+    )
+
+
+def _probe_route_resolve_via_mixed(mixed_port: int, host: str) -> None:
+    # Only the DNS rule log line matters; the runtime proxies cannot complete the lookup.
+    probe = RouteProbe(host=host, port=80, user_agent="dns-lookup-probe", clash_mode=None)
+    _probe_http_via_mixed(mixed_port, probe)
 
 
 def exercise_generated_dns_rule_branches(
@@ -933,6 +961,7 @@ def _default_dns_rule_matches_query(
         "mode",
         "query_type",
         "rcode",
+        "remove_client_subnet",
         "rules",
         "server",
         "type",
@@ -1685,7 +1714,9 @@ def _route_rule_log_pattern(index: int, rule: dict[str, Any]) -> str:
         method = rule.get("method")
         return match_prefix + (rf"reject\({re.escape(method)}\)" if method else "reject")
     if action == "resolve":
-        return match_prefix + rf"resolve\({re.escape(rule['server'])}"
+        if server := rule.get("server"):
+            return match_prefix + rf"resolve\({re.escape(server)}"
+        return match_prefix + r"resolve\b"
     if action in {"sniff", "hijack-dns"}:
         return match_prefix + re.escape(action)
     raise AssertionError(f"No runtime coverage pattern for route rule {index}: {rule}")
@@ -1698,6 +1729,10 @@ def _dns_rule_probe(
 ) -> tuple[str, int]:
     if rule["action"] == "predefined":
         return "predefined-runtime.example", _unmatched_dns_qtype(dns_rules[:index])
+    if rule["action"] == "route-options":
+        # Non-terminal: any qtype unclaimed by earlier rules still logs this match.
+        if qname := _dns_qname_from_rule(rule):
+            return qname, _unmatched_dns_qtype(dns_rules[:index])
     if rule["action"] == "route":
         if query_types := rule.get("query_type"):
             return f"dns-rule-{index}.example", _dns_qtype_number(query_types[0])
@@ -1755,6 +1790,8 @@ def _dns_rule_log_pattern(index: int, rule: dict[str, Any]) -> str:
     match_prefix = rf"dns: match\[(?:{index}|{_dns_rule_log_index(index)})\] "
     if rule["action"] == "predefined":
         return match_prefix + rf".*=> predefined\({re.escape(rule['rcode'])}\)"
+    if rule["action"] == "route-options":
+        return match_prefix + r".*=> route-options\("
     if rule["action"] != "route":
         raise AssertionError(f"No runtime coverage pattern for DNS rule {index}: {rule}")
     return match_prefix + rf".*=> route\({re.escape(rule['server'])}\)"

@@ -80,6 +80,33 @@ def test_source_derived_daemon_schema_and_sing_box_check(
             run_sing_box_check(compiler._sing_box, check_dir)
 
 
+def test_source_derived_resolve_lookups_follow_dns_rules(daemon_artifacts: Path) -> None:
+    """Pins how route-stage `resolve` lookups pick a server and ECS.
+
+    `resolve` carries no server, so its lookups walk the DNS rules: FakeIP routes
+    are skipped for them, but `predefined` is not, so the `route-options` and the
+    A/AAAA `route` to PROXY must precede it. ECS must come only from the `resolve`
+    action; a `client_subnet` on the PROXY route would undo `remove_client_subnet`.
+    """
+    config = load_config(daemon_artifacts)
+    resolves = [rule for rule in config["route"]["rules"] if rule["action"] == "resolve"]
+    assert len(resolves) == 1
+    assert "server" not in resolves[0]
+    assert resolves[0]["client_subnet"]
+
+    dns_rules = config["dns"]["rules"]
+    actions = [rule["action"] for rule in dns_rules]
+    options_index = actions.index("route-options")
+    proxy_index = next(
+        index for index, rule in enumerate(dns_rules) if rule.get("server") == "PROXY"
+    )
+    assert options_index < proxy_index < actions.index("predefined")
+    assert dns_rules[options_index]["remove_client_subnet"] is True
+    assert "akamaiedge.net" in dns_rules[options_index]["domain_suffix"]
+    assert sorted(dns_rules[proxy_index]["query_type"]) == ["A", "AAAA"]
+    assert "client_subnet" not in dns_rules[proxy_index]
+
+
 def test_source_derived_client_omits_disabled_clash_api(
     source_context: SourceContext,
     tmp_path: Path,
@@ -195,8 +222,9 @@ def test_source_derived_runtime_without_tun(
         covered_route_branches |= covered_branches
         dns_log_path = runtime_dir / "sing-box.log"
         covered_dns_rules = exercise_generated_dns_rules(
-            dns_rules,
+            config["dns"],
             dns_port,
+            mixed_port,
             dns_log_path,
         )
         covered_dns_branches |= exercise_generated_dns_rule_branches(

@@ -649,6 +649,20 @@ generates:
       server: DIRECT
       query_type:
       - PTR
+    # Route `resolve` lookups skip FakeIP and land below. Google refuses ECS for Akamai zones.
+    - action: route-options
+      remove_client_subnet: true
+      filters:
+      - DOMAIN-SUFFIX,akamai.net
+      - DOMAIN-SUFFIX,akamaiedge.net
+      - DOMAIN-SUFFIX,akadns.net
+      - DOMAIN-SUFFIX,akam.net
+    # ECS comes from `add_resolve_action`; setting `client_subnet` here would re-add it.
+    - action: route
+      server: PROXY
+      query_type:
+      - A
+      - AAAA
     # NODATA on everything else: instant A/AAAA fallback, no resolver timeout.
     - action: predefined
       rcode: NOERROR
@@ -667,8 +681,7 @@ generates:
   ruleset_download_detour:  # Randomly pick a HK proxy to download rule-sets.
     type: regex
     pattern: HK|Hong\s{0,1}Kong|香港|🇭🇰
-  add_resolve_action:
-    server: PROXY
+  add_resolve_action:  # No server: resolve via DNS rules.
     strategy: prefer_ipv4  # Easier to match with IP rules.
     client_subnet: 139.226.2.0/24  # ECS hint so CDN answers land near the LAN.
   inbounds:
@@ -779,8 +792,7 @@ generates:
     # Apple via scoped system resolvers; works where only intranet DNS is open.
     - tag: DIRECT
       type: local
-  add_resolve_action:
-    server: PROXY
+  add_resolve_action:  # No server: resolve via DNS rules.
     strategy: prefer_ipv4  # Easier to match with IP rules.
     client_subnet: 139.226.2.0/24  # ECS hint so CDN answers land near the LAN.
   experimental:
