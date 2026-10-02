@@ -15,8 +15,6 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-JsonPrimitiveT = str | int | float | bool
-
 
 class _SecretsManager:
 
@@ -197,15 +195,22 @@ class _SecretsManager:
         self._fernet = new_fernet
         return len(new_encrypted)
 
-    def _expand_secret(self, match_obj: re.Match[str]) -> JsonPrimitiveT:
+    def _expand_secret(self, match_obj: re.Match[str]) -> Any:
         if (secret_key := match_obj.group("key")) == "MASTER_PASSWORD":
-            secret_val: JsonPrimitiveT = self._password
+            secret_val: Any = self._password
         else:
             secret_val = getattr(self, secret_key)
             if secret_type := match_obj.group("type"):
                 type_converter = locate(secret_type)
                 if callable(type_converter):
-                    secret_val = type_converter(secret_val)
+                    try:
+                        secret_val = type_converter(secret_val)
+                    except Exception as e:
+                        # Converter messages may echo the plaintext; drop them and the chain.
+                        raise ValueError(
+                            f"Cannot convert secret {secret_key} by {secret_type}: "
+                            f"{type(e).__name__}"
+                        ) from None
         return secret_val
 
     def _expand_include(self, match_obj: re.Match[str]) -> str:
