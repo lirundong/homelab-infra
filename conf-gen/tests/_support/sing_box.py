@@ -99,6 +99,7 @@ _SAFE_SECRET_VALUES: dict[str, str | int] = {
 class SourceContext:
     source: dict[str, Any]
     proxies: Sequence[ProxyBase]
+    proxies_without_region: Sequence[ProxyGroupBase]
     per_region_proxies: Sequence[ProxyBase | ProxyGroupBase]
     proxy_groups: Sequence[ProxyGroupBase]
 
@@ -167,16 +168,19 @@ def build_source_context() -> SourceContext:
         parse_clash_proxies(_synthetic_subscription_proxy_infos())
     )
     proxies = flatten_proxies(custom_proxies) + subscription_proxies
-    per_region_proxies = merge_proxy_by_region(
+    proxies_without_region, per_region_proxies = merge_proxy_by_region(
         proxies=[*custom_proxies, *subscription_proxies],
         proxy_check_url=source["global"]["proxy_check_url"],
         proxy_check_interval=source["global"]["proxy_check_interval"],
         region_proxy_type=source["global"]["region_proxy_type"],
     )
-    proxy_groups = parse_proxy_groups(source["rules"], available_proxies=per_region_proxies)
+    proxy_groups = parse_proxy_groups(
+        source["rules"], available_proxies=[*proxies_without_region, *per_region_proxies]
+    )
     return SourceContext(
         source=source,
         proxies=proxies,
+        proxies_without_region=proxies_without_region,
         per_region_proxies=per_region_proxies,
         proxy_groups=proxy_groups,
     )
@@ -191,6 +195,7 @@ def generate_daemon_artifacts(context: SourceContext, output_root: Path) -> Path
         proxies=context.proxies,
         per_region_proxies=context.per_region_proxies,
         proxy_groups=list(context.proxy_groups),
+        proxies_without_region=context.proxies_without_region,
         dns=deepcopy(daemon_info["dns"]),
         route=deepcopy(daemon_info["route"]),
         inbounds=deepcopy(daemon_info.get("inbounds")),
@@ -222,6 +227,7 @@ def generate_selected_artifacts(
         proxies=context.proxies,
         per_region_proxies=context.per_region_proxies,
         proxy_groups=context.proxy_groups,
+        proxies_without_region=context.proxies_without_region,
     )
 
 
@@ -263,6 +269,7 @@ def generate_runtime_config(
         proxies=context.proxies,
         per_region_proxies=context.per_region_proxies,
         proxy_groups=list(context.proxy_groups),
+        proxies_without_region=context.proxies_without_region,
         dns=deepcopy(daemon_info["dns"]),
         route=deepcopy(daemon_info["route"]),
         inbounds=inbounds,

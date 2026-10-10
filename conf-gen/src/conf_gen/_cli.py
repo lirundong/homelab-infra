@@ -30,13 +30,15 @@ def main() -> None:
     custom_proxies = parse_clash_proxies(src_conf["proxies"])
     subscription_proxies = parse_subscriptions(src_conf.get("subscriptions", []))
     proxies = flatten_proxies(custom_proxies) + subscription_proxies
-    per_region_proxies = merge_proxy_by_region(
+    proxies_without_region, per_region_proxies = merge_proxy_by_region(
         proxies=[*custom_proxies, *subscription_proxies],
         proxy_check_url=src_conf["global"]["proxy_check_url"],
         proxy_check_interval=src_conf["global"]["proxy_check_interval"],
         region_proxy_type=src_conf["global"]["region_proxy_type"],
     )
-    proxy_groups = parse_proxy_groups(src_conf["rules"], available_proxies=per_region_proxies)
+    proxy_groups = parse_proxy_groups(
+        src_conf["rules"], available_proxies=[*proxies_without_region, *per_region_proxies]
+    )
 
     generate_conf(
         generate_info=src_conf["generates"],
@@ -45,6 +47,7 @@ def main() -> None:
         proxies=proxies,
         per_region_proxies=per_region_proxies,
         proxy_groups=proxy_groups,
+        proxies_without_region=proxies_without_region,
     )
 
 

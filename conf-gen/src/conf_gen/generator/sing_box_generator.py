@@ -335,12 +335,15 @@ class SingBoxGenerator(GeneratorBase):
         add_resolve_action: dict[str, Any] | None = None,
         outbounds: list[dict[str, Any]] | None = None,
         ruleset_download_detour: str | dict[str, str] | None = None,
+        proxies_without_region: Sequence[ProxyGroupBase] = (),
     ) -> None:
-        # Construct the special group `PROXY` for sing-box; one choice needs no selector.
+        # Construct the special group `PROXY` for sing-box to select among regions; it needs
+        # region entries, and one choice needs no selector.
         proxy_groups = copy(proxy_groups)
-        if 1 < len(per_region_proxies):
+        top_level_proxies = [*proxies_without_region, *per_region_proxies]
+        if per_region_proxies and 1 < len(top_level_proxies):
             the_per_region_proxy_group = SelectProxyGroup(
-                name="PROXY", filters=None, proxies=list(per_region_proxies)
+                name="PROXY", filters=None, proxies=top_level_proxies
             )
             the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
             proxy_groups.insert(0, the_per_region_proxy_group)

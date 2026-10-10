@@ -41,15 +41,19 @@ class ClashGenerator(GeneratorBase):
         proxies: Sequence[ProxyBase],
         per_region_proxies: Sequence[ProxyBase | ProxyGroupBase],
         proxy_groups: Sequence[ProxyGroupBase],
+        proxies_without_region: Sequence[ProxyGroupBase] = (),
         **general_options: Any,
     ) -> None:
-        # Construct special group `PROXY` for clash.
+        # Construct special group `PROXY` for clash to select among regions.
         proxy_groups_list = list(proxy_groups)
-        the_per_region_proxy_group = SelectProxyGroup(
-            name="PROXY", filters=None, proxies=list(per_region_proxies)
-        )
-        the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
-        proxy_groups_list.insert(0, the_per_region_proxy_group)
+        if per_region_proxies:
+            the_per_region_proxy_group = SelectProxyGroup(
+                name="PROXY",
+                filters=None,
+                proxies=[*proxies_without_region, *per_region_proxies],
+            )
+            the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
+            proxy_groups_list.insert(0, the_per_region_proxy_group)
         super().__init__(src_file, proxies, proxy_groups_list)
         self._general_options = general_options
 

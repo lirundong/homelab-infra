@@ -125,6 +125,7 @@ def test_source_generated_routing_matches_legacy_post_codegen_deduplication(
         proxies=source_context.proxies,
         per_region_proxies=source_context.per_region_proxies,
         proxy_groups=source_context.proxy_groups,
+        proxies_without_region=source_context.proxies_without_region,
     ).generate(str(clash_path))
     clash_config = yaml.safe_load(clash_path.read_text(encoding="utf-8"))
     legacy_clash_rules = _legacy_clash_rules(source_context.proxy_groups)
@@ -136,6 +137,7 @@ def test_source_generated_routing_matches_legacy_post_codegen_deduplication(
         proxies=source_context.proxies,
         per_region_proxies=source_context.per_region_proxies,
         proxy_groups=source_context.proxy_groups,
+        proxies_without_region=source_context.proxies_without_region,
     ).generate(str(quantumult_path))
     quantumult_rules = _quantumult_filter_lines(quantumult_path.read_text(encoding="utf-8"))
     legacy_quantumult_rules = _legacy_quantumult_rules(source_context.proxy_groups)

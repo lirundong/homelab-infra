@@ -20,13 +20,15 @@ def merge_proxy_by_region(
     proxy_check_interval: int = 300,
     stat_proxy_name_pattern: str = r"traffic|expire",
     region_proxy_type: Literal["url_fallback", "select"] = "url_fallback",
-) -> list[FallbackProxyGroup | SelectProxyGroup | ProxyBase]:
+) -> tuple[list[ProxyGroupBase], list[FallbackProxyGroup | SelectProxyGroup | ProxyBase]]:
+    """Split proxies into pre-grouped ones and per-region merged ones, in this order."""
     proxies_by_region: defaultdict[str, list[ProxyBase]] = defaultdict(list)
-    ret: list[FallbackProxyGroup | SelectProxyGroup | ProxyBase] = []
+    proxies_without_region: list[ProxyGroupBase] = []
+    per_region_proxies: list[FallbackProxyGroup | SelectProxyGroup | ProxyBase] = []
     for proxy in proxies:
         if isinstance(proxy, ProxyGroupBase):
             # Custom proxies are pre-grouped.
-            ret.append(proxy)  # type: ignore[arg-type]
+            proxies_without_region.append(proxy)
         elif re.search(stat_proxy_name_pattern, proxy.name, re.IGNORECASE):
             proxies_by_region["📈 Statistics"].append(proxy)
         else:
@@ -75,9 +77,9 @@ def merge_proxy_by_region(
             region_proxy = select_group
         else:
             raise ValueError(f"invalid {region_proxy_type=}, expect url_fallback or select")
-        ret.append(region_proxy)
+        per_region_proxies.append(region_proxy)
 
-    return ret
+    return proxies_without_region, per_region_proxies
 
 
 def parse_proxy_groups(
