@@ -58,19 +58,25 @@ class QuantumultGenerator(GeneratorBase):
         proxies: Sequence[ProxyBase],
         per_region_proxies: Sequence[ProxyBase | ProxyGroupBase],
         proxy_groups: Sequence[ProxyGroupBase],
+        proxies_without_region: Sequence[ProxyGroupBase] = (),
         **additional_sections: Any,
     ) -> None:
         if generated := set(self._GENERATED_SECTIONS).intersection(additional_sections):
             raise ValueError(f"Sections {sorted(generated)} are generated, not configurable.")
         # Quantumult-X has a built-in "PROXY" selective group that contains all servers, thus we
         # have to create another selective proxy group to contain per-region auto-fallback servers,
-        # then rewrite "PROXY" in rules with this group's name.
+        # then rewrite "PROXY" in rules with this group's name. Without region entries the
+        # built-in group stays.
         proxy_groups_list = list(proxy_groups)
-        the_per_region_proxy_group = SelectProxyGroup(
-            name="PROXY-PER-REGION", filters=None, proxies=list(per_region_proxies)
-        )
-        the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
-        proxy_groups_list.insert(0, the_per_region_proxy_group)
+        the_per_region_proxy_group: SelectProxyGroup | None = None
+        if per_region_proxies:
+            the_per_region_proxy_group = SelectProxyGroup(
+                name="PROXY-PER-REGION",
+                filters=None,
+                proxies=[*proxies_without_region, *per_region_proxies],
+            )
+            the_per_region_proxy_group._proxies = sorted(the_per_region_proxy_group._proxies)
+            proxy_groups_list.insert(0, the_per_region_proxy_group)
 
         super().__init__(src_file, proxies, proxy_groups_list)
         self._rewrites, rewrite_hostnames = self.parse_rewrites(
@@ -84,11 +90,12 @@ class QuantumultGenerator(GeneratorBase):
             mitm["hostname"] = list(dict.fromkeys([*hostnames, *rewrite_hostnames]))
             additional_sections["mitm"] = mitm
         self._additional_sections = additional_sections
-        for group in self._proxy_groups:
-            # Replace the default "PROXY" name. The `group` has been copied in __init__.
-            for i, p in enumerate(group._proxies):
-                if isinstance(p, str) and p == "PROXY":
-                    group._proxies[i] = the_per_region_proxy_group.name
+        if the_per_region_proxy_group is not None:
+            for group in self._proxy_groups:
+                # Replace the default "PROXY" name. The `group` has been copied in __init__.
+                for i, p in enumerate(group._proxies):
+                    if isinstance(p, str) and p == "PROXY":
+                        group._proxies[i] = the_per_region_proxy_group.name
 
     @staticmethod
     def parse_tasks(tasks_info: list[dict[str, Any]]) -> list[str]:

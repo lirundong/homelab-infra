@@ -37,18 +37,34 @@ def _sing_box_generator(
     from conf_gen.proxy_group import parse_proxy_groups
 
     custom_proxies = parse_clash_proxies(proxies_info)
-    per_region_proxies = merge_proxy_by_region(
+    proxies_without_region, per_region_proxies = merge_proxy_by_region(
         proxies=custom_proxies, proxy_check_url="http://example.test/", region_proxy_type="select"
     )
     return SingBoxGenerator(
         src_file="source.yaml",
         proxies=flatten_proxies(custom_proxies),
         per_region_proxies=per_region_proxies,
-        proxy_groups=parse_proxy_groups(rules_info, available_proxies=per_region_proxies),
+        proxy_groups=parse_proxy_groups(
+            rules_info, available_proxies=[*proxies_without_region, *per_region_proxies]
+        ),
         dns={"servers": [], "rules": []},
         route={"rules": [], "final": final},
+        proxies_without_region=proxies_without_region,
         **kwargs,
     )
+
+
+def _merged(proxies_info: list[dict[str, Any]]) -> tuple[Any, Any, Any]:
+    from conf_gen.proxy import flatten_proxies
+    from conf_gen.proxy import parse_clash_proxies
+    from conf_gen.proxy_group import merge_proxy_by_region
+    from conf_gen.proxy_group import parse_proxy_groups
+
+    custom_proxies = parse_clash_proxies(proxies_info)
+    proxies_without_region, per_region_proxies = merge_proxy_by_region(
+        proxies=custom_proxies, proxy_check_url="http://example.test/", region_proxy_type="select"
+    )
+    return flatten_proxies(custom_proxies), proxies_without_region, per_region_proxies
 
 
 _STATIC_OUTBOUNDS = [
@@ -254,3 +270,108 @@ def test_ruleset_download_detour_resolution() -> None:
         generator.ruleset_download_detour = invalid
         with pytest.raises(ValueError):
             generator._resolve_ruleset_download_detour()
+
+
+_POOL_A = {"name": "Pool A", "type": "select", "proxies": [_http_info("a1")]}
+_POOL_B = {"name": "Pool B", "type": "select", "proxies": [_http_info("b1")]}
+
+
+def test_merge_proxy_by_region_separates_pre_grouped_proxies() -> None:
+    _, without_region, per_region = _merged([_POOL_A, _ss_info("🇯🇵 Tokyo"), _ss_info("🇸🇬 SG")])
+    assert [g.name for g in without_region] == ["Pool A"]
+    assert [p.name for p in per_region] == ["🇯🇵 Tokyo", "🇸🇬 SG"]
+    _, without_region, per_region = _merged([_POOL_A, _POOL_B])
+    assert [g.name for g in without_region] == ["Pool A", "Pool B"]
+    assert per_region == []
+
+
+def test_sing_box_has_no_proxy_group_without_region_entries() -> None:
+    generator = _sing_box_generator(
+        proxies_info=[_POOL_A, _POOL_B],
+        rules_info=[
+            {"name": "Final", "type": "select", "filters": [], "proxies": ["Pool A", "Pool B"]}
+        ],
+        final="Final",
+        outbounds=_STATIC_OUTBOUNDS,
+    )
+    outbounds = {o["tag"]: o for o in generator.outbounds}
+    assert "PROXY" not in outbounds
+    assert outbounds["Pool A"]["outbounds"] == ["a1"]
+    assert outbounds["Pool B"]["outbounds"] == ["b1"]
+    assert outbounds["Final"]["outbounds"] == ["Pool A", "Pool B"]
+
+
+def test_sing_box_proxy_group_selects_pre_grouped_and_region_entries() -> None:
+    generator = _sing_box_generator(
+        proxies_info=[_POOL_A, _ss_info("🇯🇵 Tokyo"), _ss_info("🇸🇬 Singapore")],
+        rules_info=[],
+        final="PROXY",
+    )
+    outbounds = {o["tag"]: o for o in generator.outbounds}
+    assert outbounds["PROXY"]["outbounds"] == ["Pool A", "🇯🇵 Tokyo", "🇸🇬 Singapore"]
+
+
+def test_sing_box_proxy_group_needs_more_than_one_choice() -> None:
+    generator = _sing_box_generator(
+        proxies_info=[_ss_info("🇯🇵 Tokyo")],
+        rules_info=[],
+        final="🇯🇵 Tokyo",
+    )
+    assert "PROXY" not in {o["tag"] for o in generator.outbounds}
+
+
+def _clash_group_names(
+    proxies: Any, without_region: Any, per_region: Any, rules_info: list[dict[str, Any]]
+) -> dict[str, list[str]]:
+    from conf_gen.generator.clash_generator import ClashGenerator
+    from conf_gen.proxy_group import parse_proxy_groups
+
+    generator = ClashGenerator(
+        src_file="source.yaml",
+        proxies=proxies,
+        per_region_proxies=per_region,
+        proxy_groups=parse_proxy_groups(
+            rules_info, available_proxies=[*without_region, *per_region]
+        ),
+        proxies_without_region=without_region,
+    )
+    return {g.name: g._proxies for g in generator._proxy_groups}
+
+
+def test_clash_proxy_group_requires_region_entries() -> None:
+    groups = _clash_group_names(*_merged([_POOL_A, _POOL_B]), rules_info=[])
+    assert sorted(groups) == ["Pool A", "Pool B"]
+    groups = _clash_group_names(
+        *_merged([_POOL_A, _ss_info("🇯🇵 Tokyo"), _ss_info("🇸🇬 SG")]), rules_info=[]
+    )
+    assert groups["PROXY"] == sorted(["Pool A", "🇯🇵 Tokyo", "🇸🇬 SG"])
+
+
+def _quantumult_group_proxies(
+    proxies: Any, without_region: Any, per_region: Any
+) -> dict[str, list[str]]:
+    from conf_gen.generator.quantumult_generator import QuantumultGenerator
+    from conf_gen.proxy_group import parse_proxy_groups
+
+    rules_info = [{"name": "Rule", "type": "select", "filters": [], "proxies": ["PROXY"]}]
+    generator = QuantumultGenerator(
+        src_file="source.yaml",
+        proxies=proxies,
+        per_region_proxies=per_region,
+        proxy_groups=parse_proxy_groups(
+            rules_info, available_proxies=[*without_region, *per_region]
+        ),
+        proxies_without_region=without_region,
+    )
+    return {g.name: g._proxies for g in generator._proxy_groups}
+
+
+def test_quantumult_keeps_builtin_proxy_group_without_region_entries() -> None:
+    groups = _quantumult_group_proxies(*_merged([_POOL_A, _POOL_B]))
+    assert "PROXY-PER-REGION" not in groups
+    assert groups["Rule"] == ["PROXY"]
+    groups = _quantumult_group_proxies(
+        *_merged([_POOL_A, _ss_info("🇯🇵 Tokyo"), _ss_info("🇸🇬 SG")])
+    )
+    assert groups["PROXY-PER-REGION"] == sorted(["Pool A", "🇯🇵 Tokyo", "🇸🇬 SG"])
+    assert groups["Rule"] == ["PROXY-PER-REGION"]

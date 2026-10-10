@@ -18,6 +18,7 @@ def generate_conf(
     proxies: Sequence[ProxyBase],
     per_region_proxies: Sequence[ProxyBase | ProxyGroupBase],
     proxy_groups: Sequence[ProxyGroupBase],
+    proxies_without_region: Sequence[ProxyGroupBase] = (),
 ) -> None:
     generators: dict[str, GeneratorBase] = {}
     for gen_info in generate_info:
@@ -31,6 +32,7 @@ def generate_conf(
                 proxies=proxies,
                 per_region_proxies=per_region_proxies,
                 proxy_groups=proxy_groups,
+                proxies_without_region=proxies_without_region,
                 **general_options,
             )
             dst_dir = os.path.join(dst, f"{gen_info['name']}.yaml")
@@ -44,6 +46,7 @@ def generate_conf(
                 proxies=proxies,
                 per_region_proxies=per_region_proxies,
                 proxy_groups=proxy_groups,
+                proxies_without_region=proxies_without_region,
                 **additional_sections,
             )
             dst_dir = os.path.join(dst, f"{gen_info['name']}.conf")
@@ -92,6 +95,7 @@ def generate_conf(
                     add_resolve_action=args.get("add_resolve_action"),
                     outbounds=args.get("outbounds"),
                     ruleset_download_detour=args.get("ruleset_download_detour"),
+                    proxies_without_region=proxies_without_region,
                 )
             dst_dir = os.path.join(dst, gen_info["name"])
             gen.generate(dst_dir)

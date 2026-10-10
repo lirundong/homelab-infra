@@ -17,11 +17,15 @@ pip install -e ./common && pip install -e ./conf-gen
 uv run conf-gen -s source.yaml -o output-dir/
 
 # Python API
-from conf_gen import generate_conf, parse_clash_proxies
+from conf_gen import generate_conf, merge_proxy_by_region, parse_clash_proxies
 
 proxies = parse_clash_proxies(config["proxies"])
+# Pre-grouped proxies stay as they are; the rest merge into per-region groups.
+proxies_without_region, per_region_proxies = merge_proxy_by_region(
+    proxies, proxy_check_url="http://example.test/")
 generate_conf(generate_info=config["generates"], src="source.yaml", dst="output/",
-              proxies=proxies, proxy_groups=proxy_groups)
+              proxies=proxies, per_region_proxies=per_region_proxies,
+              proxy_groups=proxy_groups, proxies_without_region=proxies_without_region)
 ```
 
 ## Features
