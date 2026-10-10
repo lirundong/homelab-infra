@@ -54,7 +54,18 @@ proxies:
         type: http
         server: 192.0.2.1
         port: 8080
+  - name: "SSH Proxy"  # sing-box only; fields follow mihomo
+    type: ssh
+    server: 192.0.2.2
+    port: 22
+    username: user
+    private-key: "@secret:SSH_PRIVATE_KEY"  # PEM text, or a path to the key
+    host-key:
+      - ssh-ed25519 AAAA...
 ```
+
+Each generator skips the proxy types it does not support; SSH proxies appear only in sing-box
+configurations.
 
 For sing-box targets, `outbounds` replaces the default `DIRECT` outbound, and
 `ruleset_download_detour` names an outbound or gives a `type: regex` pattern that picks a
