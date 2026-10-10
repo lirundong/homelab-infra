@@ -8,6 +8,7 @@ from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022CiphersT
 from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022Proxy
 from conf_gen.proxy.shadowsocks_proxy import ShadowSocksProxy
 from conf_gen.proxy.socks_proxy import Socks5Proxy
+from conf_gen.proxy.ssh_proxy import SshProxy
 from conf_gen.proxy.trojan_proxy import TrojanProxy
 from conf_gen.proxy.v2ray_proxy import VMessGRPCProxy
 from conf_gen.proxy.v2ray_proxy import VMessProxy
@@ -20,6 +21,7 @@ __all__ = (
     "ShadowSocksProxy",
     "ShadowSocks2022Proxy",
     "Socks5Proxy",
+    "SshProxy",
     "TrojanProxy",
     "VMessGRPCProxy",
     "VMessProxy",

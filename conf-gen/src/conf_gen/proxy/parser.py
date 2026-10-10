@@ -12,6 +12,7 @@ from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022CiphersT
 from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022Proxy
 from conf_gen.proxy.shadowsocks_proxy import ShadowSocksProxy
 from conf_gen.proxy.socks_proxy import Socks5Proxy
+from conf_gen.proxy.ssh_proxy import SshProxy
 from conf_gen.proxy.trojan_proxy import TrojanProxy
 from conf_gen.proxy.v2ray_proxy import VMessGRPCProxy
 from conf_gen.proxy.v2ray_proxy import VMessProxy
@@ -131,6 +132,20 @@ def parse_clash_proxies(
                 sni=proxy_info.get("sni", None),
                 path=proxy_info.get("path", None),
                 headers=proxy_info.get("headers", None),
+            )
+        elif proxy_info["type"] == "ssh":
+            if "udp" in proxy_info:
+                raise ValueError(f"SSH proxy {proxy_info['name']} cannot relay UDP")
+            proxy = SshProxy(
+                name=proxy_info["name"],
+                server=proxy_info["server"],
+                port=proxy_info["port"],
+                username=proxy_info["username"],
+                password=proxy_info.get("password", None),
+                private_key=proxy_info.get("private-key", None),
+                private_key_passphrase=proxy_info.get("private-key-passphrase", None),
+                host_key=proxy_info.get("host-key", None),
+                host_key_algorithms=proxy_info.get("host-key-algorithms", None),
             )
         elif proxy_info["type"] == "select":
             members = parse_clash_proxies(proxy_info["proxies"])

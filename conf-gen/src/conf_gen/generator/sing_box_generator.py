@@ -31,6 +31,7 @@ from conf_gen.proxy import HttpProxy
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy import ShadowSocks2022Proxy
 from conf_gen.proxy import ShadowSocksProxy
+from conf_gen.proxy import SshProxy
 from conf_gen.proxy import TrojanProxy
 from conf_gen.proxy_group import ProxyGroupBase
 from conf_gen.proxy_group.fallback_proxy_group import FallbackProxyGroup
@@ -314,6 +315,7 @@ class SingBoxGenerator(GeneratorBase):
         HttpProxy,
         ShadowSocksProxy,
         ShadowSocks2022Proxy,
+        SshProxy,
         TrojanProxy,
     )
 
