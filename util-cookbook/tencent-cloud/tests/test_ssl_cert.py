@@ -81,3 +81,22 @@ def test_download_failure_hides_presigned_url(monkeypatch: pytest.MonkeyPatch) -
         ssl_cert.download_certificate("c1", "nginx")
     assert "SECRET" not in str(exc.value) and exc.value.__cause__ is None
     assert exc.value.__suppress_context__
+
+
+def test_apply_certificate_cleans_up_dns_record(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, Any] = {}
+
+    def fake(service: str, version: str, action: str, payload: dict[str, Any]) -> dict:
+        captured.update(action=action, payload=payload)
+        return {"CertificateId": "new"}
+
+    monkeypatch.setattr(qcloud_api, "signed_request", fake)
+    assert ssl_cert.apply_certificate("nas.example.com") == "new"
+    assert captured == {
+        "action": "ApplyCertificate",
+        "payload": {
+            "DvAuthMethod": "DNS_AUTO",
+            "DomainName": "nas.example.com",
+            "DeleteDnsAutoRecord": True,
+        },
+    }
