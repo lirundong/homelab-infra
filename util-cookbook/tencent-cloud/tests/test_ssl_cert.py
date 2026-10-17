@@ -25,7 +25,12 @@ def test_from_response_parses_beijing_time() -> None:
     assert ssl_cert.Certificate.from_response(raw_cert("c2", end="")).end_time is None
 
 
-def test_describe_certificates_paginates(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize(
+    ("page_size", "offsets"), [(100, [0, 100]), (40, [0, 40, 80, 120]), (150, [0])]
+)
+def test_describe_certificates_paginates(
+    monkeypatch: pytest.MonkeyPatch, page_size: int, offsets: list[int]
+) -> None:
     calls: list[dict[str, Any]] = []
     total = 150
 
@@ -37,9 +42,10 @@ def test_describe_certificates_paginates(monkeypatch: pytest.MonkeyPatch) -> Non
         return {"TotalCount": total, "Certificates": page}
 
     monkeypatch.setattr(qcloud_api, "signed_request", fake)
-    certs = ssl_cert.describe_certificates("example.com")
+    certs = ssl_cert.describe_certificates("example.com", page_size=page_size)
     assert len(certs) == total
-    assert [c["Offset"] for c in calls] == [0, 100]
+    assert [c["Offset"] for c in calls] == offsets
+    assert {c["Limit"] for c in calls} == {page_size}
 
 
 def test_signed_request_targets_service(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -30,6 +30,7 @@ EXIT_ACTION_NEEDED = 2
 # Tencent Cloud native download formats, plus `plex` (PKCS#12 converted from nginx).
 CERT_TYPES = ("nginx", "apache", "tomcat", "iis", "jks", "plex")
 POLL_INTERVAL_SECONDS = 30
+DEFAULT_PLEX_PASSWORD_SECRET = "PLEX_CERT_PASSWORD"
 
 
 class _Parser(ArgumentParser):
@@ -195,14 +196,20 @@ def to_plex_pkcs12(archive: zipfile.ZipFile, fqdn: str, password: bytes) -> byte
     )
 
 
-def download(certificate_id: str, fqdn: str, cert_type: str, output_dir: Path) -> None:
+def download(
+    certificate_id: str,
+    fqdn: str,
+    cert_type: str,
+    output_dir: Path,
+    plex_password: bytes | None = None,
+) -> None:
     dest = output_dir / fqdn
     dest.mkdir(parents=True, exist_ok=True)
     if cert_type == "plex":
+        assert plex_password is not None
         archive = ssl_cert.download_certificate(certificate_id, "nginx")
         path = dest / f"{fqdn}.p12"
-        password = secrets.PLEX_CERT_PASSWORD.encode("utf-8")
-        write_private(path, to_plex_pkcs12(archive, fqdn, password))
+        write_private(path, to_plex_pkcs12(archive, fqdn, plex_password))
         written = [path]
     else:
         written = save_bundle(ssl_cert.download_certificate(certificate_id, cert_type), dest)
@@ -219,10 +226,12 @@ def fetch(
     now: datetime,
     force: bool = False,
     wait_minutes: float = 0,
+    plex_password_secret: str = DEFAULT_PLEX_PASSWORD_SECRET,
 ) -> int:
-    if cert_type == "plex":
-        # Fail before touching the API if the PKCS#12 password is not registered.
-        secrets.PLEX_CERT_PASSWORD
+    # Resolve before touching the API so a missing secret fails fast.
+    plex_password = (
+        getattr(secrets, plex_password_secret).encode("utf-8") if cert_type == "plex" else None
+    )
     cert = latest_by_domain(ssl_cert.describe_certificates(fqdn)).get(fqdn)
     state = classify(cert, now, renew_days)
     if cert is not None:
@@ -230,7 +239,7 @@ def fetch(
 
     if state == "valid" and not force:
         assert cert is not None
-        download(cert.certificate_id, fqdn, cert_type, output_dir)
+        download(cert.certificate_id, fqdn, cert_type, output_dir, plex_password)
         return EXIT_OK
     if state == "failed" and not force:
         raise RuntimeError(
@@ -245,7 +254,7 @@ def fetch(
         print(f"Applied for a new certificate for {fqdn}: {certificate_id}")
 
     if wait_minutes > 0 and wait_for_issue(certificate_id, wait_minutes):
-        download(certificate_id, fqdn, cert_type, output_dir)
+        download(certificate_id, fqdn, cert_type, output_dir, plex_password)
         return EXIT_OK
     print(
         f"Certificate {certificate_id} is pending issuance, which usually takes a few minutes. "
@@ -311,6 +320,13 @@ def main() -> None:
         metavar="MINUTES",
         help="Poll up to MINUTES for issuance and download once issued.",
     )
+    parser.add_argument(
+        "--plex-password-secret",
+        default=DEFAULT_PLEX_PASSWORD_SECRET,
+        metavar="NAME",
+        help="Name of the `common` secret holding the Plex PKCS#12 password "
+        "(never the password itself).",
+    )
     args = parser.parse_args()
 
     now = datetime.now(ssl_cert.CST)
@@ -336,6 +352,7 @@ def main() -> None:
             now=now,
             force=args.force,
             wait_minutes=args.wait,
+            plex_password_secret=args.plex_password_secret,
         )
     )
 
