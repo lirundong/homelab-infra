@@ -1,14 +1,17 @@
 # tencent-cloud
 
-DNSPod DDNS updater distributed as the `tencent-cloud` workspace package and
-`register-dns` CLI. Inherit both repository-root and `util-cookbook` instructions.
+DNSPod DDNS updater and SSL certificate fetcher distributed as the `tencent-cloud`
+workspace package with `register-dns` and `fetch-cert` CLIs. Inherit both repository-root and `util-cookbook` instructions.
 
 ## Functionality
 
-- `dnspod.py`: TC3-HMAC-SHA256 request signing, record lookup, and record modification
+- `qcloud_api.py`: TC3-HMAC-SHA256 request signing shared by every Tencent Cloud service
+- `dnspod.py`: DNSPod record lookup and record modification
 - `public_ip.py`: IPv4/IPv6 discovery through ipify, Taobao, ifconfig.me, fallback web
   requests, `ifaddr`, or optional `netifaces`
 - `register_dns.py`: compare A/AAAA records, update only changed values, and support dry-run
+- `ssl_cert.py`: list, apply for, poll, and download free DV certificates
+- `fetch_cert.py`: stateless apply/check/download CLI; converts nginx bundles to Plex PKCS#12
 
 The package is baked into OpenWRT images with pure-Python dependencies supplied by apk.
 `netifaces` remains optional because OpenWRT lacks a suitable package/wheel.
@@ -21,8 +24,9 @@ request material.
 
 ```bash
 uv run --extra dev mypy util-cookbook/tencent-cloud/src/tencent_cloud
+uv run --extra dev pytest util-cookbook/tencent-cloud/tests
 ```
 
-There is currently no pytest suite or coverage threshold. Do not use a live DNS update as
-routine validation; add isolated tests with mocked network and secret dependencies for
-behavior changes.
+Tests mock network and secret dependencies. Do not use a live DNS update or certificate
+application as routine validation: applications consume the account's free quota.
+`fetch-cert --check-only` is the safe live read.

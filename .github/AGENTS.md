@@ -7,7 +7,7 @@ Applies to `.github/`; inherit the repository-root instructions.
 `artifacts-release-nightly.yaml` detects changed paths, then conditionally runs:
 
 1. `type_check`
-2. `conf_gen_tests` and `build_configuration`
+2. `conf_gen_tests`, `tencent_cloud_tests`, and `build_configuration`
 3. `build_openwrt`
 4. `ci_gate`
 5. release jobs on nightly or `master`

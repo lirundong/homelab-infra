@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -891,6 +891,7 @@ version = "1.0.0"
 source = { editable = "util-cookbook/tencent-cloud" }
 dependencies = [
     { name = "common" },
+    { name = "cryptography" },
     { name = "ifaddr" },
     { name = "requests" },
 ]
@@ -903,6 +904,7 @@ netifaces = [
 [package.metadata]
 requires-dist = [
     { name = "common", editable = "common" },
+    { name = "cryptography", specifier = ">=50.0.0" },
     { name = "ifaddr", specifier = ">=0.2.0" },
     { name = "netifaces", marker = "extra == 'netifaces'", specifier = ">=0.11.0" },
     { name = "requests", specifier = ">=2.28.0" },
