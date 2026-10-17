@@ -10,8 +10,9 @@ workspace package with `register-dns` and `fetch-cert` CLIs. Inherit both reposi
 - `public_ip.py`: IPv4/IPv6 discovery through ipify, Taobao, ifconfig.me, fallback web
   requests, `ifaddr`, or optional `netifaces`
 - `register_dns.py`: compare A/AAAA records, update only changed values, and support dry-run
-- `ssl_cert.py`: list, apply for, poll, and download free DV certificates
-- `fetch_cert.py`: stateless apply/check/download CLI; converts nginx bundles to Plex PKCS#12
+- `ssl_cert.py`: list, apply for, poll, download, and delete free DV certificates
+- `fetch_cert.py`: stateless apply/check/download/delete CLI; converts nginx bundles to Plex
+  PKCS#12
 
 The package is baked into OpenWRT images with pure-Python dependencies supplied by apk.
 `netifaces` remains optional because OpenWRT lacks a suitable package/wheel.

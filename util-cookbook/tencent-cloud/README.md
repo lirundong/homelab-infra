@@ -84,6 +84,9 @@ PASSWORD=<master-password> uv run fetch-cert -d example.com -s nas -t nginx -o .
 
 # Plex: PKCS#12 encrypted with AES-256-CBC/SHA-256, protected by PLEX_CERT_PASSWORD.
 PASSWORD=<master-password> uv run fetch-cert -d example.com -s plex -t plex -o ./certs
+
+# Delete every expired or failed certificate under the domain, after confirmation.
+PASSWORD=<master-password> uv run fetch-cert -d example.com --delete
 ```
 
 | Newest certificate | Action | Exit code |
@@ -91,7 +94,7 @@ PASSWORD=<master-password> uv run fetch-cert -d example.com -s plex -t plex -o .
 | Issued, expires beyond the renewal window | Download | 0 |
 | Under review / adding DNS record | Report; never re-apply | 2 |
 | Missing, expired, or inside the renewal window | Apply for a new one | 2 |
-| Validation failed | Error; rerun with `--force-new` | 1 |
+| Validation failed | Error; rerun with `--force` | 1 |
 
 Issuance usually takes a few minutes. Rerun the same command after Tencent Cloud
 notifies you, or pass `--wait MINUTES` to poll in the foreground.
@@ -104,11 +107,13 @@ notifies you, or pass `--wait MINUTES` to poll in the foreground.
 | `-o`, `--output-dir` | Files land in `<output-dir>/<fqdn>/` with mode `0600`, overwriting |
 | `--renew-if-expiring-within-days` | Renewal window, default `30` |
 | `-n`, `--check-only` | Report status only; exit `2` if anything needs attention |
-| `--force-new` | Apply even if a valid or pending certificate exists |
+| `--delete` | Delete expired/failed certificates after a `y/N` prompt; pending ones are skipped |
+| `--force` | Fetch: apply even if a valid, pending, or failed certificate exists. Delete: also delete valid ones |
 | `--wait MINUTES` | Poll for issuance and download once issued |
 
 Free certificates last three months, cover a single FQDN, and count against the
-account's free quota, so `fetch-cert` reuses valid or pending certificates.
+account's free quota, so `fetch-cert` reuses valid or pending certificates. Deleting a certificate does
+not return quota.
 
 For Plex, set Settings → Server → Network → Show Advanced → custom certificate
 location to the `.p12`, the encryption key to `PLEX_CERT_PASSWORD`, and the

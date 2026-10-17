@@ -104,3 +104,9 @@ def download_certificate(certificate_id: str, service_type: str) -> zipfile.ZipF
     archive = requests.get(response["DownloadCertificateUrl"], timeout=60)
     archive.raise_for_status()
     return zipfile.ZipFile(io.BytesIO(archive.content))
+
+
+def delete_certificate(certificate_id: str) -> None:
+    response = _request("DeleteCertificate", {"CertificateId": certificate_id})
+    if not response.get("DeleteResult"):
+        raise RuntimeError(f"DeleteCertificate {certificate_id} returned {response}.")
