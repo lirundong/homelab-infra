@@ -113,7 +113,10 @@ def test_fetch_valid_downloads_without_applying(
     assert fetch_cert.fetch(FQDN, "apache", tmp_path, 30, NOW) == fetch_cert.EXIT_OK
     assert api.applied == []
     assert api.downloaded == [("c1", "apache")]
-    assert sorted(p.name for p in (tmp_path / FQDN).iterdir()) == [f"{FQDN}_bundle.crt", "x.key"]
+    assert sorted(p.name for p in (tmp_path / FQDN / "apache").iterdir()) == [
+        f"{FQDN}_bundle.crt",
+        "x.key",
+    ]
 
 
 def test_fetch_pending_does_not_reapply(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -277,7 +280,7 @@ def test_fetch_plex_writes_p12(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) 
     monkeypatch.setattr(fetch_cert, "secrets", SimpleNamespace(PLEX_CERT_PASSWORD="pw"))
 
     assert fetch_cert.fetch(FQDN, "plex", tmp_path, 30, NOW) == 0
-    p12 = tmp_path / FQDN / f"{FQDN}.p12"
+    p12 = tmp_path / FQDN / "plex" / f"{FQDN}.p12"
     assert stat.S_IMODE(p12.stat().st_mode) == 0o600
     assert pkcs12.load_pkcs12(p12.read_bytes(), b"pw").cert is not None
 
@@ -378,7 +381,7 @@ def test_fetch_plex_uses_named_secret(monkeypatch: pytest.MonkeyPatch, tmp_path:
     monkeypatch.setattr(fetch_cert, "secrets", SimpleNamespace(OTHER_P12="other"))
 
     fetch_cert.fetch(FQDN, "plex", tmp_path, 30, NOW, plex_password_secret="OTHER_P12")
-    p12 = (tmp_path / FQDN / f"{FQDN}.p12").read_bytes()
+    p12 = (tmp_path / FQDN / "plex" / f"{FQDN}.p12").read_bytes()
     assert pkcs12.load_pkcs12(p12, b"other").cert is not None
     assert api.applied == []
 
