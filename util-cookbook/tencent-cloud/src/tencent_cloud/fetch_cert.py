@@ -203,7 +203,7 @@ def download(
     output_dir: Path,
     plex_password: bytes | None = None,
 ) -> None:
-    dest = output_dir / fqdn
+    dest = output_dir / fqdn / cert_type
     dest.mkdir(parents=True, exist_ok=True)
     if cert_type == "plex":
         assert plex_password is not None
@@ -285,7 +285,7 @@ def main() -> None:
         "-o",
         type=Path,
         default=Path("."),
-        help="Files are written into <output-dir>/<fqdn>/.",
+        help="Files are written into <output-dir>/<fqdn>/<type>/.",
     )
     parser.add_argument(
         "--renew-if-expiring-within-days",

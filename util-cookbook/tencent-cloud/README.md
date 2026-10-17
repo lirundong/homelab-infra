@@ -80,7 +80,7 @@ the FQDN on Tencent Cloud and only applies for a new one when needed.
 # Check every certificate under a domain; never applies or downloads.
 PASSWORD=<master-password> uv run fetch-cert -d example.com --check-only
 
-# Download (or apply for) nas.example.com in nginx format into ./certs/nas.example.com/.
+# Download (or apply for) nas.example.com in nginx format into ./certs/nas.example.com/nginx/.
 PASSWORD=<master-password> uv run fetch-cert -d example.com -s nas -t nginx -o ./certs
 
 # Plex: PKCS#12 encrypted with AES-256-CBC/SHA-256, protected by the PLEX_CERT_PASSWORD secret.
@@ -105,7 +105,7 @@ notifies you, or pass `--wait MINUTES` to poll in the foreground.
 | `-d`, `--domain` | Apex domain registered in DNSPod |
 | `-s`, `--sub-domain` | Certificate sub-domain, `@` for the apex; optional with `--check-only` |
 | `-t`, `--type` | `nginx` (default), `apache`, `tomcat`, `iis`, `jks`, `plex` |
-| `-o`, `--output-dir` | Files land in `<output-dir>/<fqdn>/` with mode `0600`, overwriting |
+| `-o`, `--output-dir` | Files land in `<output-dir>/<fqdn>/<type>/` with mode `0600`, overwriting |
 | `--renew-if-expiring-within-days` | Renewal window, default `30` |
 | `-n`, `--check-only` | Report status only; exit `2` if anything needs attention |
 | `--delete` | Delete expired/failed certificates after a `y/N` prompt; pending ones are skipped |
