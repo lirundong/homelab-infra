@@ -80,3 +80,6 @@ output/
 *.o
 *.a
 *.so.*
+
+# Local persistent scratch space
+/sandbox/
