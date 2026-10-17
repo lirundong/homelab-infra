@@ -67,3 +67,17 @@ def test_signed_request_targets_service(monkeypatch: pytest.MonkeyPatch) -> None
     assert auth.startswith("TC3-HMAC-SHA256 Credential=AKIDtest/")
     assert "/ssl/tc3_request" in auth
     assert "SignedHeaders=content-type;host;x-tc-action;x-tc-timestamp;x-tc-version" in auth
+
+
+def test_download_failure_hides_presigned_url(monkeypatch: pytest.MonkeyPatch) -> None:
+    url = "https://bucket.cos.example/key.zip?sign=SECRET"
+    monkeypatch.setattr(qcloud_api, "signed_request", lambda *_: {"DownloadCertificateUrl": url})
+
+    def fail(*_: Any, **__: Any) -> None:
+        raise ssl_cert.requests.ConnectionError(url)
+
+    monkeypatch.setattr(ssl_cert.requests, "get", fail)
+    with pytest.raises(RuntimeError) as exc:
+        ssl_cert.download_certificate("c1", "nginx")
+    assert "SECRET" not in str(exc.value) and exc.value.__cause__ is None
+    assert exc.value.__suppress_context__
