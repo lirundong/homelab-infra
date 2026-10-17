@@ -49,10 +49,12 @@ class FakeApi:
         self.applied: list[str] = []
         self.downloaded: list[tuple[str, str]] = []
         self.statuses: list[int] = []
+        self.deleted: list[str] = []
         monkeypatch.setattr(ssl_cert, "describe_certificates", lambda key: self.certs)
         monkeypatch.setattr(ssl_cert, "apply_certificate", self.apply)
         monkeypatch.setattr(ssl_cert, "describe_certificate", self.describe)
         monkeypatch.setattr(ssl_cert, "download_certificate", self.download)
+        monkeypatch.setattr(ssl_cert, "delete_certificate", self.deleted.append)
         monkeypatch.setattr(fetch_cert.time, "sleep", lambda _: None)
 
     def apply(self, domain: str) -> str:
@@ -133,15 +135,15 @@ def test_fetch_applies_when_missing_expiring_or_expired(
 
 def test_fetch_failed_requires_force(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     api = FakeApi(monkeypatch, [cert(status=2, days_left=None)])
-    with pytest.raises(RuntimeError, match="--force-new"):
+    with pytest.raises(RuntimeError, match="--force"):
         fetch_cert.fetch(FQDN, "nginx", tmp_path, 30, NOW)
-    assert fetch_cert.fetch(FQDN, "nginx", tmp_path, 30, NOW, force_new=True) == 2
+    assert fetch_cert.fetch(FQDN, "nginx", tmp_path, 30, NOW, force=True) == 2
     assert api.applied == [FQDN]
 
 
-def test_fetch_force_new_with_valid(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_fetch_force_with_valid(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     api = FakeApi(monkeypatch, [cert(days_left=60)])
-    fetch_cert.fetch(FQDN, "nginx", tmp_path, 30, NOW, force_new=True)
+    fetch_cert.fetch(FQDN, "nginx", tmp_path, 30, NOW, force=True)
     assert api.applied == [FQDN]
 
 
@@ -282,6 +284,88 @@ def test_fetch_plex_writes_p12(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) 
 
 def test_cli_usage_error_exits_1(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("sys.argv", ["fetch-cert", "-d", "example.com"])
+    with pytest.raises(SystemExit) as exc:
+        fetch_cert.main()
+    assert exc.value.code == fetch_cert.EXIT_ERROR
+
+
+def delete_fixture(monkeypatch: pytest.MonkeyPatch, answer: str | None) -> FakeApi:
+    def fake_input(prompt: str) -> str:
+        if answer is None:
+            raise EOFError
+        return answer
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    return FakeApi(
+        monkeypatch,
+        [
+            cert(cid="expired", status=3, days_left=-8),
+            cert(cid="failed", status=2, days_left=None),
+            cert(cid="pending", status=0, days_left=None),
+            cert(cid="expiring", days_left=10),
+            cert(cid="valid", days_left=60, domain="plex.example.com"),
+            cert(cid="foreign", status=3, days_left=-8, domain="nas.example.com.cn"),
+        ],
+    )
+
+
+@pytest.mark.parametrize(
+    ("force", "expected"),
+    [(False, ["expired", "failed"]), (True, ["expired", "failed", "expiring", "valid"])],
+)
+def test_delete_selects_targets(
+    monkeypatch: pytest.MonkeyPatch, force: bool, expected: list[str]
+) -> None:
+    api = delete_fixture(monkeypatch, "y")
+    assert fetch_cert.delete("example.com", None, 30, NOW, force=force) == fetch_cert.EXIT_OK
+    assert sorted(api.deleted) == sorted(expected)
+
+
+def test_delete_scoped_to_fqdn(monkeypatch: pytest.MonkeyPatch) -> None:
+    api = delete_fixture(monkeypatch, "Y")
+    fetch_cert.delete("example.com", "plex.example.com", 30, NOW, force=True)
+    assert api.deleted == ["valid"]
+
+
+@pytest.mark.parametrize("answer", ["n", "", "yes", None])
+def test_delete_aborts_without_y(monkeypatch: pytest.MonkeyPatch, answer: str | None) -> None:
+    api = delete_fixture(monkeypatch, answer)
+    assert fetch_cert.delete("example.com", None, 30, NOW) == fetch_cert.EXIT_ERROR
+    assert api.deleted == []
+
+
+def test_delete_nothing_skips_prompt(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("builtins.input", lambda _: pytest.fail("prompted"))
+    FakeApi(monkeypatch, [cert(days_left=60)])
+    assert fetch_cert.delete("example.com", None, 30, NOW) == fetch_cert.EXIT_OK
+
+
+def test_delete_stops_on_first_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    api = delete_fixture(monkeypatch, "y")
+
+    def fail(cid: str) -> None:
+        api.deleted.append(cid)
+        raise RuntimeError("BoundResources")
+
+    monkeypatch.setattr(ssl_cert, "delete_certificate", fail)
+    with pytest.raises(RuntimeError, match="BoundResources"):
+        fetch_cert.delete("example.com", None, 30, NOW)
+    assert len(api.deleted) == 1
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["--check-only", "--force"],
+        ["--check-only", "--delete"],
+        ["--delete", "--wait", "5"],
+        ["-s", "nas", "--force-new"],
+    ],
+)
+def test_cli_rejects_invalid_combinations(
+    monkeypatch: pytest.MonkeyPatch, argv: list[str]
+) -> None:
+    monkeypatch.setattr("sys.argv", ["fetch-cert", "-d", "example.com", *argv])
     with pytest.raises(SystemExit) as exc:
         fetch_cert.main()
     assert exc.value.code == fetch_cert.EXIT_ERROR

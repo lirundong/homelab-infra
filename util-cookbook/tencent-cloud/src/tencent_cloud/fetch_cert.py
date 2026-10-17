@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Apply for, check, and download Tencent Cloud free SSL certificates."""
+"""Apply for, check, download, and delete Tencent Cloud free SSL certificates."""
 
 import os
 import sys
@@ -72,12 +72,17 @@ def describe(cert: Certificate, state: str, now: datetime) -> str:
     return f"{cert.domain:<32} {state:<9} {days:<16} ends {end:<22} id {cert.certificate_id}"
 
 
-def check_only(domain: str, fqdn: str | None, renew_days: int, now: datetime) -> int:
+def certificates_in_scope(domain: str, fqdn: str | None) -> list[Certificate]:
+    """All certificates of `fqdn`, or of `domain` and its sub-domains when `fqdn` is None."""
+
     def wanted(name: str) -> bool:
         return name == fqdn if fqdn else name == domain or name.endswith(f".{domain}")
 
-    certs = ssl_cert.describe_certificates(fqdn or domain)
-    latest = latest_by_domain([c for c in certs if wanted(c.domain)])
+    return [c for c in ssl_cert.describe_certificates(fqdn or domain) if wanted(c.domain)]
+
+
+def check_only(domain: str, fqdn: str | None, renew_days: int, now: datetime) -> int:
+    latest = latest_by_domain(certificates_in_scope(domain, fqdn))
     if fqdn and fqdn not in latest:
         print(f"{fqdn:<32} missing")
         return EXIT_ACTION_NEEDED
@@ -89,6 +94,41 @@ def check_only(domain: str, fqdn: str | None, renew_days: int, now: datetime) ->
         if state != "valid":
             exit_code = EXIT_ACTION_NEEDED
     return exit_code
+
+
+def delete(
+    domain: str, fqdn: str | None, renew_days: int, now: datetime, force: bool = False
+) -> int:
+    """Delete unusable certificates (and valid ones with `force`) after confirmation."""
+    certs = sorted(certificates_in_scope(domain, fqdn), key=lambda c: (c.domain, c.insert_time))
+    targets: list[tuple[Certificate, str]] = []
+    for cert in certs:
+        state = classify(cert, now, renew_days)
+        if state == "pending":
+            print(f"Skipped, cancel its review first: {describe(cert, state, now)}")
+        elif force or state not in ("valid", "expiring"):
+            targets.append((cert, state))
+    if not targets:
+        print("Nothing to delete.")
+        return EXIT_OK
+
+    print("Certificates to delete:")
+    for cert, state in targets:
+        print(f"  {describe(cert, state, now)}")
+        if state in ("valid", "expiring"):
+            print("    WARNING: still valid; deployments using it will break.")
+    try:
+        answer = input(f"Delete {len(targets)} certificate(s)? [y/N] ")
+    except EOFError:
+        answer = ""
+    if answer.strip().lower() != "y":
+        print("Aborted.")
+        return EXIT_ERROR
+
+    for cert, _ in targets:
+        ssl_cert.delete_certificate(cert.certificate_id)
+        print(f"Deleted {cert.certificate_id} ({cert.domain})")
+    return EXIT_OK
 
 
 def wait_for_issue(certificate_id: str, wait_minutes: float) -> bool:
@@ -177,7 +217,7 @@ def fetch(
     output_dir: Path,
     renew_days: int,
     now: datetime,
-    force_new: bool = False,
+    force: bool = False,
     wait_minutes: float = 0,
 ) -> int:
     if cert_type == "plex":
@@ -188,16 +228,16 @@ def fetch(
     if cert is not None:
         print(f"Latest: {describe(cert, state, now)}")
 
-    if state == "valid" and not force_new:
+    if state == "valid" and not force:
         assert cert is not None
         download(cert.certificate_id, fqdn, cert_type, output_dir)
         return EXIT_OK
-    if state == "failed" and not force_new:
+    if state == "failed" and not force:
         raise RuntimeError(
             f"Latest certificate for {fqdn} failed validation; inspect it in the console "
-            "or rerun with --force-new."
+            "or rerun with --force."
         )
-    if state == "pending" and not force_new:
+    if state == "pending" and not force:
         assert cert is not None
         certificate_id = cert.certificate_id
     else:
@@ -217,7 +257,7 @@ def fetch(
 def main() -> None:
     parser = _Parser(
         "fetch-cert",
-        description="Apply for, check, and download Tencent Cloud free SSL certificates. "
+        description="Apply for, check, download, and delete Tencent Cloud free SSL certificates. "
         f"Exits {EXIT_OK} on success, {EXIT_ERROR} on errors, and {EXIT_ACTION_NEEDED} when "
         "a certificate is pending, expiring, or missing.",
     )
@@ -245,16 +285,24 @@ def main() -> None:
         metavar="DAYS",
         help="Apply for a new certificate when the current one expires within DAYS.",
     )
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--check-only",
         "-n",
         action="store_true",
         help="Only report certificate status; never apply or download.",
     )
-    parser.add_argument(
-        "--force-new",
+    mode.add_argument(
+        "--delete",
         action="store_true",
-        help="Apply for a new certificate even if a valid or pending one exists.",
+        help="Delete expired or failed certificates after a y/N confirmation; "
+        "pending ones are skipped. Ignores --type and --output-dir.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Fetch: apply for a new certificate even if a valid, pending, or failed one "
+        "exists. Delete: also delete valid certificates.",
     )
     parser.add_argument(
         "--wait",
@@ -266,19 +314,27 @@ def main() -> None:
     args = parser.parse_args()
 
     now = datetime.now(ssl_cert.CST)
+    renew_days = args.renew_if_expiring_within_days
+    fqdn = fqdn_of(args.domain, args.sub_domain) if args.sub_domain else None
+    if args.check_only and args.force:
+        parser.error("--force cannot be used with --check-only")
+    if (args.check_only or args.delete) and args.wait:
+        parser.error("--wait only applies when fetching")
     if args.check_only:
-        fqdn = fqdn_of(args.domain, args.sub_domain) if args.sub_domain else None
-        sys.exit(check_only(args.domain, fqdn, args.renew_if_expiring_within_days, now))
+        sys.exit(check_only(args.domain, fqdn, renew_days, now))
+    if args.delete:
+        sys.exit(delete(args.domain, fqdn, renew_days, now, force=args.force))
     if not args.sub_domain:
-        parser.error("--sub-domain is required unless --check-only is given")
+        parser.error("--sub-domain is required unless --check-only or --delete is given")
+    assert fqdn is not None
     sys.exit(
         fetch(
-            fqdn=fqdn_of(args.domain, args.sub_domain),
+            fqdn=fqdn,
             cert_type=args.type,
             output_dir=args.output_dir,
-            renew_days=args.renew_if_expiring_within_days,
+            renew_days=renew_days,
             now=now,
-            force_new=args.force_new,
+            force=args.force,
             wait_minutes=args.wait,
         )
     )
