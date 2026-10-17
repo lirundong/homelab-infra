@@ -5,10 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tencent-cloud"
 version = "1.0.0"
-description = "Tencent Cloud utilities (DNSPod DDNS updater)"
+description = "Tencent Cloud utilities (DNSPod DDNS updater, SSL certificate fetcher)"
 requires-python = ">=3.12"
 dependencies = [
     "common",
+    "cryptography>=50.0.0",
     "ifaddr>=0.2.0",
     "requests>=2.28.0",
 ]
@@ -21,6 +22,7 @@ netifaces = ["netifaces>=0.11.0"]
 
 [project.scripts]
 register-dns = "tencent_cloud.register_dns:main"
+fetch-cert = "tencent_cloud.fetch_cert:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

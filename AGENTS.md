@@ -28,7 +28,7 @@ Python >=3.12 uv workspace; `uv.lock` is pinned. `uv sync` installs `common`, `c
 - `common`: encrypted secrets and template expansion
 - `openwrt-builder`: build custom OpenWRT images
 - `conf-cookbook`: reference service configurations
-- `util-cookbook`: standalone utilities, including the `tencent-cloud` DDNS package
+- `util-cookbook`: standalone utilities, including the `tencent-cloud` DDNS and SSL certificate package
 
 ## Shared Commands
 

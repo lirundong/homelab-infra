@@ -1,7 +1,10 @@
-# tencent-cloud - Tencent Cloud DNSPod DDNS Updater
+# tencent-cloud - Tencent Cloud DNSPod DDNS Updater and SSL Certificate Fetcher
 
-Update Tencent Cloud DNSPod A/AAAA records from the host's current public IP
-addresses. Intended for home routers (OpenWRT) or any system with Python 3.12+.
+- `register-dns`: update Tencent Cloud DNSPod A/AAAA records from the host's
+  current public IP addresses. Intended for home routers (OpenWRT) or any system
+  with Python 3.12+.
+- `fetch-cert`: apply for, check, and download free TrustAsia DV certificates
+  through the Tencent Cloud SSL API, validated automatically via DNSPod.
 
 ## Installation
 
@@ -17,12 +20,13 @@ pip install -e ./common && pip install -e ./util-cookbook/tencent-cloud
 pip install -e './util-cookbook/tencent-cloud[netifaces]'
 ```
 
-Either path exposes `register-dns` on `PATH`.
+Either path exposes `register-dns` and `fetch-cert` on `PATH`.
 
 Required secrets in `common/src/common/secrets.yaml` (see `common` README):
-`MASTER_PASSWORD`, `QCLOUD_API_SECRET_ID`, `QCLOUD_API_SECRET_KEY`.
+`MASTER_PASSWORD`, `QCLOUD_API_SECRET_ID`, `QCLOUD_API_SECRET_KEY`;
+`fetch-cert -t plex` also needs `PLEX_CERT_PASSWORD`.
 
-## Usage
+## `register-dns` usage
 
 ```bash
 # From repo root, via uv:
@@ -47,7 +51,7 @@ PASSWORD=<master-password> python3 -m tencent_cloud.register_dns -h
 `--dry-run` prints the records that would be modified without writing to
 DNSPod. Omit it for a live update.
 
-## Options
+## `register-dns` options
 
 | Flag | Description |
 | --- | --- |
@@ -65,3 +69,47 @@ and a first-boot uci-defaults script runs
 `python3 -m pip install -e /root/util-cookbook/tencent-cloud`, putting
 `register-dns` at `/usr/bin/register-dns`. Cron then invokes it every 15 minutes
 with credentials expanded from `secrets.yaml` at build time.
+
+## `fetch-cert` usage
+
+Every run is stateless and safe to repeat: it inspects the newest certificate of
+the FQDN on Tencent Cloud and only applies for a new one when needed.
+
+```bash
+# Check every certificate under a domain; never applies or downloads.
+PASSWORD=<master-password> uv run fetch-cert -d example.com --check-only
+
+# Download (or apply for) nas.example.com in nginx format into ./certs/nas.example.com/.
+PASSWORD=<master-password> uv run fetch-cert -d example.com -s nas -t nginx -o ./certs
+
+# Plex: PKCS#12 encrypted with AES-256-CBC/SHA-256, protected by PLEX_CERT_PASSWORD.
+PASSWORD=<master-password> uv run fetch-cert -d example.com -s plex -t plex -o ./certs
+```
+
+| Newest certificate | Action | Exit code |
+| --- | --- | --- |
+| Issued, expires beyond the renewal window | Download | 0 |
+| Under review / adding DNS record | Report; never re-apply | 2 |
+| Missing, expired, or inside the renewal window | Apply for a new one | 2 |
+| Validation failed | Error; rerun with `--force-new` | 1 |
+
+Issuance usually takes a few minutes. Rerun the same command after Tencent Cloud
+notifies you, or pass `--wait MINUTES` to poll in the foreground.
+
+| Flag | Description |
+| --- | --- |
+| `-d`, `--domain` | Apex domain registered in DNSPod |
+| `-s`, `--sub-domain` | Certificate sub-domain, `@` for the apex; optional with `--check-only` |
+| `-t`, `--type` | `nginx` (default), `apache`, `tomcat`, `iis`, `jks`, `plex` |
+| `-o`, `--output-dir` | Files land in `<output-dir>/<fqdn>/` with mode `0600`, overwriting |
+| `--renew-if-expiring-within-days` | Renewal window, default `30` |
+| `-n`, `--check-only` | Report status only; exit `2` if anything needs attention |
+| `--force-new` | Apply even if a valid or pending certificate exists |
+| `--wait MINUTES` | Poll for issuance and download once issued |
+
+Free certificates last three months, cover a single FQDN, and count against the
+account's free quota, so `fetch-cert` reuses valid or pending certificates.
+
+For Plex, set Settings → Server → Network → Show Advanced → custom certificate
+location to the `.p12`, the encryption key to `PLEX_CERT_PASSWORD`, and the
+domain to the certificate FQDN. The Plex user must be able to read the file.
