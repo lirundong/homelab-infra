@@ -369,3 +369,30 @@ def test_cli_rejects_invalid_combinations(
     with pytest.raises(SystemExit) as exc:
         fetch_cert.main()
     assert exc.value.code == fetch_cert.EXIT_ERROR
+
+
+def test_fetch_plex_uses_named_secret(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    archive, _ = _nginx_bundle()
+    api = FakeApi(monkeypatch, [cert(days_left=60)])
+    monkeypatch.setattr(ssl_cert, "download_certificate", lambda cid, service_type: archive)
+    monkeypatch.setattr(fetch_cert, "secrets", SimpleNamespace(OTHER_P12="other"))
+
+    fetch_cert.fetch(FQDN, "plex", tmp_path, 30, NOW, plex_password_secret="OTHER_P12")
+    p12 = (tmp_path / FQDN / f"{FQDN}.p12").read_bytes()
+    assert pkcs12.load_pkcs12(p12, b"other").cert is not None
+    assert api.applied == []
+
+
+def test_fetch_plex_missing_secret_fails_before_api(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(ssl_cert, "describe_certificates", lambda key: pytest.fail("API called"))
+    monkeypatch.setattr(fetch_cert, "secrets", SimpleNamespace())
+    with pytest.raises(AttributeError):
+        fetch_cert.fetch(FQDN, "plex", tmp_path, 30, NOW, plex_password_secret="MISSING")
+
+
+def test_non_plex_fetch_ignores_secret(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    FakeApi(monkeypatch, [cert(days_left=60)])
+    monkeypatch.setattr(fetch_cert, "secrets", SimpleNamespace())
+    assert fetch_cert.fetch(FQDN, "nginx", tmp_path, 30, NOW, plex_password_secret="X") == 0

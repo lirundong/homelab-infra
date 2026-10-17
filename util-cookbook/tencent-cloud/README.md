@@ -24,7 +24,8 @@ Either path exposes `register-dns` and `fetch-cert` on `PATH`.
 
 Required secrets in `common/src/common/secrets.yaml` (see `common` README):
 `MASTER_PASSWORD`, `QCLOUD_API_SECRET_ID`, `QCLOUD_API_SECRET_KEY`;
-`fetch-cert -t plex` also needs `PLEX_CERT_PASSWORD`.
+`fetch-cert -t plex` also needs `PLEX_CERT_PASSWORD` (or the secret named by
+`--plex-password-secret`).
 
 ## `register-dns` usage
 
@@ -82,7 +83,7 @@ PASSWORD=<master-password> uv run fetch-cert -d example.com --check-only
 # Download (or apply for) nas.example.com in nginx format into ./certs/nas.example.com/.
 PASSWORD=<master-password> uv run fetch-cert -d example.com -s nas -t nginx -o ./certs
 
-# Plex: PKCS#12 encrypted with AES-256-CBC/SHA-256, protected by PLEX_CERT_PASSWORD.
+# Plex: PKCS#12 encrypted with AES-256-CBC/SHA-256, protected by the PLEX_CERT_PASSWORD secret.
 PASSWORD=<master-password> uv run fetch-cert -d example.com -s plex -t plex -o ./certs
 
 # Delete every expired or failed certificate under the domain, after confirmation.
@@ -110,11 +111,12 @@ notifies you, or pass `--wait MINUTES` to poll in the foreground.
 | `--delete` | Delete expired/failed certificates after a `y/N` prompt; pending ones are skipped |
 | `--force` | Fetch: apply even if a valid, pending, or failed certificate exists. Delete: also delete valid ones |
 | `--wait MINUTES` | Poll for issuance and download once issued |
+| `--plex-password-secret NAME` | `common` secret holding the Plex PKCS#12 password, default `PLEX_CERT_PASSWORD` |
 
 Free certificates last three months, cover a single FQDN, and count against the
 account's free quota, so `fetch-cert` reuses valid or pending certificates. Deleting a certificate does
 not return quota.
 
 For Plex, set Settings → Server → Network → Show Advanced → custom certificate
-location to the `.p12`, the encryption key to `PLEX_CERT_PASSWORD`, and the
+location to the `.p12`, the encryption key to that secret's value, and the
 domain to the certificate FQDN. The Plex user must be able to read the file.

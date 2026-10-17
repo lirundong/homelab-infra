@@ -59,18 +59,17 @@ def _request(action: str, payload: dict[str, Any]) -> dict[str, Any]:
     return qcloud_api.signed_request("ssl", SSL_API_VERSION, action, payload)
 
 
-def describe_certificates(search_key: str) -> list[Certificate]:
+def describe_certificates(search_key: str, page_size: int = 100) -> list[Certificate]:
     """List all certificates whose domain contains `search_key`."""
     certs: list[Certificate] = []
-    limit = 100
     while True:
         response = _request(
             "DescribeCertificates",
-            {"SearchKey": search_key, "Offset": len(certs), "Limit": limit},
+            {"SearchKey": search_key, "Offset": len(certs), "Limit": page_size},
         )
         page = response["Certificates"] or []
         certs.extend(Certificate.from_response(c) for c in page)
-        if len(page) < limit or len(certs) >= response["TotalCount"]:
+        if len(page) < page_size or len(certs) >= response["TotalCount"]:
             return certs
 
 
