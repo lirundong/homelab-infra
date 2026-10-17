@@ -81,16 +81,12 @@ def describe_certificate(certificate_id: str) -> Certificate:
 
 
 def apply_certificate(domain: str) -> str:
-    """Apply for a free DV certificate validated through DNSPod. Returns CertificateId."""
+    """Apply for a free RSA 2048 DV certificate validated through DNSPod. Returns CertificateId."""
+    # Explicit CsrEncryptAlgo/CsrKeyParameter are rejected as an invalid domain; RSA 2048 is
+    # the default.
     response = _request(
         "ApplyCertificate",
-        {
-            "DvAuthMethod": "DNS_AUTO",
-            "DomainName": domain,
-            "DeleteDnsAutoRecord": True,
-            "CsrEncryptAlgo": "RSA",
-            "CsrKeyParameter": "2048",
-        },
+        {"DvAuthMethod": "DNS_AUTO", "DomainName": domain, "DeleteDnsAutoRecord": True},
     )
     return str(response["CertificateId"])
 
@@ -101,8 +97,12 @@ def download_certificate(certificate_id: str, service_type: str) -> zipfile.ZipF
         "DescribeDownloadCertificateUrl",
         {"CertificateId": certificate_id, "ServiceType": service_type},
     )
-    archive = requests.get(response["DownloadCertificateUrl"], timeout=60)
-    archive.raise_for_status()
+    try:
+        archive = requests.get(response["DownloadCertificateUrl"], timeout=60)
+        archive.raise_for_status()
+    except requests.RequestException as e:
+        # The presigned URL grants access to the private key; keep it out of tracebacks.
+        raise RuntimeError(f"Downloading {certificate_id} failed: {type(e).__name__}") from None
     return zipfile.ZipFile(io.BytesIO(archive.content))
 
 
