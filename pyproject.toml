@@ -35,6 +35,8 @@ known_first_party = ["common", "conf_gen", "tencent_cloud"]
 
 [tool.uv]
 package = false
+# Floor past the eMudhra/emSign CA compromise.
+constraint-dependencies = ["certifi>=2026.10.19"]
 
 [tool.uv.workspace]
 members = ["common", "conf-gen", "util-cookbook/tencent-cloud"]
