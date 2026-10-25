@@ -6,8 +6,9 @@ image. Inherit the repository-root instructions.
 ## Build Pipeline
 
 `build.sh` downloads the SDK and imagebuilder, expands `files/`, cross-compiles sing-box
-(CGO) and vlmcsd, fetches Yacd-meta, installs `common` and `tencent-cloud` into the target
-Python site-packages, and runs the imagebuilder.
+(CGO) and vlmcsd, preinstalls the native sing-box dashboard with auto-updates enabled,
+installs `common` and `tencent-cloud` into the target Python site-packages, and runs the
+imagebuilder.
 
 Stable package selection is `packages/25.12.5.txt`; snapshots use
 `packages/snapshots.txt`. Target Python is detected from the apk feed. Required runtime

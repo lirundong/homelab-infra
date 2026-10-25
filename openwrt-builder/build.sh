@@ -71,11 +71,13 @@ mkdir -p $CUSTOM_FILES_DIR/root/.config/sing-box
 cp ${SING_BOX_OPENWRT_EXE} $CUSTOM_FILES_DIR/usr/bin/
 cp ${SING_BOX_CONFIG} $CUSTOM_FILES_DIR/root/.config/sing-box/config.json
 
-# Sing-Box web dashbord.
-mkdir -p $CUSTOM_FILES_DIR/root/.config/sing-box
-curl -sSLO https://github.com/MetaCubeX/yacd/archive/gh-pages.zip
-unzip gh-pages.zip
-mv Yacd-meta-gh-pages $CUSTOM_FILES_DIR/root/.config/sing-box/ui
+# sing-box dashboard.
+curl -fsSL -o sing-box-dashboard.zip \
+  https://github.com/SagerNet/sing-box-dashboard/archive/refs/heads/gh-pages.zip
+unzip sing-box-dashboard.zip
+mv sing-box-dashboard-gh-pages "$CUSTOM_FILES_DIR/root/.config/sing-box/dashboard"
+# Mark preinstalled files for sing-box auto-update.
+touch "$CUSTOM_FILES_DIR/root/.config/sing-box/dashboard/.etag"
 
 # VLMCSD.
 git clone https://github.com/Wind4/vlmcsd.git

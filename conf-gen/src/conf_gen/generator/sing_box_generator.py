@@ -328,6 +328,7 @@ class SingBoxGenerator(GeneratorBase):
         dns: dict[str, Any],
         route: dict[str, Any],
         inbounds: list[dict[str, Any]] | None = None,
+        services: list[dict[str, Any]] | None = None,
         log: dict[str, Any] | None = None,
         ntp: dict[str, Any] | None = None,
         experimental: dict[str, Any] | None = None,
@@ -402,6 +403,7 @@ class SingBoxGenerator(GeneratorBase):
         self.dns = dns
         self.ntp = ntp
         self.inbounds = inbounds
+        self.services = services if services is not None else []
         self.outbounds: list[dict[str, Any]] = []
         self.route = route
         self.experimental = experimental
@@ -423,6 +425,7 @@ class SingBoxGenerator(GeneratorBase):
         base_object: Self,
         dns: dict[str, list[dict[str, str]]] | None = None,
         inbounds: list[dict[str, str]] | None = None,
+        services: list[dict[str, Any]] | None = None,
         route: dict[str, list[dict[str, str]] | str] | None = None,
         experimental: dict[str, Any] | None = None,
         included_process_irs: list[str] | None = None,
@@ -451,6 +454,8 @@ class SingBoxGenerator(GeneratorBase):
                 new_object.dns["rules"] = new_dns_rules
         if inbounds is not None:
             new_object.inbounds = inbounds
+        if services is not None:
+            new_object.services = services
         if route is not None:
             if "rules" in route:
                 new_object._initial_route_rules = copy(route["rules"])
@@ -553,6 +558,7 @@ class SingBoxGenerator(GeneratorBase):
             "dns": deepcopy(self.dns),
             "ntp": deepcopy(self.ntp),
             "inbounds": deepcopy(self.inbounds),
+            "services": deepcopy(self.services),
             "outbounds": deepcopy(self.outbounds),
             "route": deepcopy(self.route),
             "experimental": deepcopy(self.experimental),
