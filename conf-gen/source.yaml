@@ -741,7 +741,7 @@ generates:
   services:
   - type: api
     tag: api
-    listen: 0.0.0.0
+    listen: '::'
     listen_port: 9091
     secret: '@secret:CLASH_SECRET'
     access_control_allow_private_network: true
@@ -753,7 +753,7 @@ generates:
       update_interval: 1d
   experimental:
     clash_api:
-      external_controller: 0.0.0.0:9090
+      external_controller: :9090
       secret: '@secret:CLASH_SECRET'
     cache_file:
       enabled: true
