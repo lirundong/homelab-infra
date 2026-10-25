@@ -40,6 +40,10 @@ This is a monorepo containing all software infrastructures of Rundong's home-lab
 
 ## Development
 
+Given this project's informal homelab use, we intentionally avoid automated test suites to
+prioritize human maintainability. Validate changes through configuration generation and
+firmware builds.
+
 Install the development tools and enable the repository hooks after cloning:
 
 ```bash

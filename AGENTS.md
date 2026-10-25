@@ -3,6 +3,10 @@
 Canonical instructions for every coding agent. `CLAUDE.md` links here; agent-specific
 directories remain separate for sandbox settings, while skills are shared from `.ai/skills`.
 
+Given this project's informal homelab use, we intentionally avoid automated test suites to
+prioritize human maintainability. Validate changes through configuration generation and
+firmware builds.
+
 ## Instruction Map
 
 Before changing a scoped path, read its closest `AGENTS.md` in addition to this file:
@@ -46,8 +50,8 @@ uv run --extra dev mypy common/src/common conf-gen/src/conf_gen \
 
 The configured hooks run whitespace/EOF, YAML/TOML/JSON, merge-conflict, debug-statement,
 large-file, Black, isort, and mypy checks. They do not run builds, ShellCheck, or shfmt;
-use each component's `AGENTS.md` for additional validation. The repository has no automated
-test suites; CI validates affected configuration generation and OpenWRT builds.
+use each component's `AGENTS.md` for additional validation. CI validates affected
+configuration generation and OpenWRT builds.
 
 ## Workflow
 
