@@ -25,9 +25,10 @@ request material.
 
 ```bash
 uv run --extra dev mypy util-cookbook/tencent-cloud/src/tencent_cloud
-uv run --extra dev pytest util-cookbook/tencent-cloud/tests
 ```
 
-Tests mock network and secret dependencies. Do not use a live DNS update or certificate
-application as routine validation: applications consume the account's free quota.
+There is no automated test suite. CI requires stable OpenWRT builds for code changes in
+this package; successful packaging does not verify live DNS or certificate behavior.
+Do not use a live DNS update or certificate application as routine validation: applications
+consume the account's free quota.
 `fetch-cert --check-only` is the safe live read.

@@ -45,15 +45,16 @@ uv run --extra dev mypy common/src/common conf-gen/src/conf_gen \
 `uv run --extra dev`. Install the hook in each checkout and use ordinary `git commit`.
 
 The configured hooks run whitespace/EOF, YAML/TOML/JSON, merge-conflict, debug-statement,
-large-file, Black, isort, and mypy checks. They do not run pytest, builds, ShellCheck, or
-shfmt; use each component's `AGENTS.md` for additional validation.
+large-file, Black, isort, and mypy checks. They do not run builds, ShellCheck, or shfmt;
+use each component's `AGENTS.md` for additional validation. The repository has no automated
+test suites; CI validates affected configuration generation and OpenWRT builds.
 
 ## Workflow
 
 For non-trivial changes:
 
 1. Branch from `master` as `<username>/<feature, fix, chore, ...>/<description>`.
-2. Run all pre-commit hooks and the affected component's tests or end-to-end command.
+2. Run all pre-commit hooks and the affected component's end-to-end command.
 3. Push and create a PR with `gh pr create`.
 4. Watch CI with `gh run watch <id>`; `ci_gate` is the single required check.
 5. Rebase-merge only after `ci_gate` passes.

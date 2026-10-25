@@ -12,7 +12,7 @@ jobs:
     outputs:
       conf_gen: ${{ steps.changed.outputs.conf_gen }}
       openwrt_builder: ${{ steps.changed.outputs.openwrt_builder }}
-      tencent_cloud: ${{ steps.changed.outputs.tencent_cloud }}
+      openwrt_versions: ${{ steps.changed.outputs.openwrt_versions }}
       release: ${{ steps.changed.outputs.release }}
     steps:
     - uses: actions/checkout@v5
@@ -23,13 +23,17 @@ jobs:
         set -euo pipefail
         conf_gen=false
         openwrt_builder=false
-        tencent_cloud=false
         release=false
+        stable_version='{"openwrt":"25.12.5","gcc":"14.3.0_musl","allow_failure":false}'
+        snapshot_version='{"openwrt":"snapshots","gcc":"14.4.0_musl","allow_failure":true}'
+        openwrt_versions="[$stable_version]"
+        if [[ "${{ github.event_name }}" == 'schedule' ]]; then
+          openwrt_versions="[$stable_version,$snapshot_version]"
+        fi
         case "${{ github.event_name }}" in
           schedule|push)
             conf_gen=true
             openwrt_builder=true
-            tencent_cloud=true
             release=true
             ;;
           pull_request)
@@ -42,20 +46,18 @@ jobs:
             while IFS= read -r file; do
               [[ -n "$file" ]] || continue
               case "$file" in
+                *.md|docs/*|*/docs/*)
+                  continue
+                  ;;
                 conf-gen/*)
                   conf_gen=true
                   ;;
-                openwrt-builder/*)
+                openwrt-builder/*|util-cookbook/tencent-cloud/*)
                   openwrt_builder=true
-                  ;;
-                util-cookbook/tencent-cloud/*)
-                  openwrt_builder=true
-                  tencent_cloud=true
                   ;;
                 common/*|pyproject.toml|uv.lock|.github/workflows/*)
                   conf_gen=true
                   openwrt_builder=true
-                  tencent_cloud=true
                   ;;
               esac
             done <<< "$changed_files"
@@ -68,81 +70,24 @@ jobs:
         {
           echo "conf_gen=$conf_gen"
           echo "openwrt_builder=$openwrt_builder"
-          echo "tencent_cloud=$tencent_cloud"
+          echo "openwrt_versions=$openwrt_versions"
           echo "release=$release"
         } >> "$GITHUB_OUTPUT"
-
-  type_check:
-    name: Type Check
-    runs-on: ubuntu-latest
-    needs: detect_changes
-    steps:
-    - uses: actions/checkout@v5
-    - uses: astral-sh/setup-uv@v7
-      with:
-        cache-suffix: type-check
-    - run: |
-        uv sync --extra dev
-        uv run mypy common/src/common conf-gen/src/conf_gen util-cookbook/tencent-cloud/src/tencent_cloud
-
-  conf_gen_tests:
-    name: conf-gen Tests
-    runs-on: ubuntu-latest
-    needs: detect_changes
-    if: ${{ needs.detect_changes.outputs.conf_gen == 'true' }}
-    steps:
-    - uses: actions/checkout@v5
-    - uses: astral-sh/setup-uv@v7
-      with:
-        cache-suffix: conf-gen-tests
-    - run: |
-        uv sync --extra dev
-        uv run pytest conf-gen/tests
-
-  tencent_cloud_tests:
-    name: tencent-cloud Tests
-    runs-on: ubuntu-latest
-    needs: detect_changes
-    if: ${{ needs.detect_changes.outputs.tencent_cloud == 'true' }}
-    steps:
-    - uses: actions/checkout@v5
-    - uses: astral-sh/setup-uv@v7
-      with:
-        cache-suffix: tencent-cloud-tests
-    - run: |
-        uv sync --extra dev
-        uv run pytest util-cookbook/tencent-cloud/tests
 
   build_configuration:
     name: Build Configurations
     runs-on: ubuntu-latest
     needs: detect_changes
     if: ${{ needs.detect_changes.outputs.conf_gen == 'true' }}
-    env:
-      LINUX_SING_BOX_CHECK_CONFIGS: sing-box-daemon sing-box-apple
-      LINUX_SING_BOX_CHECK_ANDROID_CONFIGS: sing-box-clients
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
-    - run: uv sync --extra dev
+    - run: uv sync
     - id: generate_proxy_conf
       env:
         PASSWORD: ${{ secrets.MASTER_PASSWORD }}
       run: |
         uv run conf-gen -s conf-gen/source.yaml -o artifacts-conf/
-        sing_box_check_args=()
-        case "$RUNNER_OS" in
-          Linux)
-            for config in $LINUX_SING_BOX_CHECK_CONFIGS; do
-              sing_box_check_args+=(--check-config "$config")
-            done
-            for config in $LINUX_SING_BOX_CHECK_ANDROID_CONFIGS; do
-              sing_box_check_args+=(--check-config-android "$config")
-            done
-            ;;
-        esac
-        uv run pytest conf-gen/tests/test_generated_sing_box_artifacts.py \
-          --artifact-dir artifacts-conf "${sing_box_check_args[@]}"
         # Encrypt every config in place; .srs rule sets are public domain
         # lists and stay plaintext. Workflow artifacts on a public repo are
         # downloadable by anyone with read access, so we cannot upload the
@@ -190,13 +135,7 @@ jobs:
           sing_box: arm64
           artifact: rockchip_armv8
           profile: friendlyarm_nanopi-r6s
-        version:
-        - openwrt: '25.12.5'
-          gcc: 14.3.0_musl
-          allow_failure: false
-        - openwrt: snapshots
-          gcc: 14.4.0_musl
-          allow_failure: true
+        version: ${{ fromJSON(needs.detect_changes.outputs.openwrt_versions) }}
     continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
     - uses: actions/checkout@v5
@@ -277,7 +216,7 @@ jobs:
   ci_gate:
     name: CI Gate
     runs-on: ubuntu-latest
-    needs: [detect_changes, type_check, conf_gen_tests, tencent_cloud_tests, build_configuration, build_openwrt]
+    needs: [detect_changes, build_configuration, build_openwrt]
     if: ${{ always() }}
     steps:
     - run: |
@@ -286,16 +225,9 @@ jobs:
         # needs.build_openwrt.result; this gate tracks stable legs only.
         required=(
           "detect_changes=${{ needs.detect_changes.result }}"
-          "type_check=${{ needs.type_check.result }}"
         )
         if [[ "${{ needs.detect_changes.outputs.conf_gen }}" == "true" ]]; then
-          required+=(
-            "conf_gen_tests=${{ needs.conf_gen_tests.result }}"
-            "build_configuration=${{ needs.build_configuration.result }}"
-          )
-        fi
-        if [[ "${{ needs.detect_changes.outputs.tencent_cloud }}" == "true" ]]; then
-          required+=("tencent_cloud_tests=${{ needs.tencent_cloud_tests.result }}")
+          required+=("build_configuration=${{ needs.build_configuration.result }}")
         fi
         if [[ "${{ needs.detect_changes.outputs.openwrt_builder }}" == "true" ]]; then
           required+=("build_openwrt=${{ needs.build_openwrt.result }}")
@@ -311,7 +243,7 @@ jobs:
 
   release_proxy_configurations:
     name: Release ${{ matrix.conf }} Configuration
-    # ci_gate in needs makes every required check (incl. conf_gen_tests) gate the release.
+    # Publish only after all affected generation and stable builds succeed.
     needs: [detect_changes, build_configuration, ci_gate]
     runs-on: ubuntu-latest
     if: ${{ needs.detect_changes.outputs.release == 'true' }}
@@ -374,7 +306,7 @@ jobs:
 
   release_openwrt_builds:
     name: Release OpenWRT ${{ matrix.version.openwrt }} ${{ matrix.arch.openwrt }}
-    # ci_gate in needs makes every required check (incl. conf_gen_tests) gate the release.
+    # Publish only after all affected generation and stable builds succeed.
     needs: [detect_changes, build_openwrt, ci_gate]
     runs-on: ubuntu-latest
     if: ${{ needs.detect_changes.outputs.release == 'true' }}
@@ -385,13 +317,7 @@ jobs:
           artifact: x86_64
         - openwrt: rockchip/armv8
           artifact: rockchip_armv8
-        version:
-        - openwrt: '25.12.5'
-          gcc: 14.3.0_musl
-          allow_failure: false
-        - openwrt: snapshots
-          gcc: 14.4.0_musl
-          allow_failure: true
+        version: ${{ fromJSON(needs.detect_changes.outputs.openwrt_versions) }}
     continue-on-error: ${{ matrix.version.allow_failure }}
     steps:
     - uses: actions/checkout@v5

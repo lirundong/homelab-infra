@@ -6,17 +6,26 @@ Applies to `.github/`; inherit the repository-root instructions.
 
 `artifacts-release-nightly.yaml` detects changed paths, then conditionally runs:
 
-1. `type_check`
-2. `conf_gen_tests`, `tencent_cloud_tests`, and `build_configuration`
-3. `build_openwrt`
-4. `ci_gate`
-5. release jobs on nightly or `master`
+1. `build_configuration`
+2. `build_openwrt`
+3. `ci_gate`
+4. release jobs on nightly or `master`
+
+PR path routing skips Markdown and `docs/` paths. Changes under `conf-gen/` require
+configuration generation; `openwrt-builder/` or `util-cookbook/tencent-cloud/` require firmware
+builds. Changes under `common/`, root dependency manifests, or workflows require both.
+Unrelated changes pass the gate without generation or builds. Formatting and type checks
+remain local pre-commit hooks.
+
+Configuration generation succeeds when the CLI exits successfully; CI does not run schema,
+client configuration checks, or runtime probes. Firmware-only PRs use the published daemon
+configuration; when generation also runs, firmware uses that run's configuration artifact.
 
 OpenWRT builds cover `x86/64` and `rockchip/armv8`
 (`friendlyarm_nanopi-r6s`) with:
 
 - stable `25.12.5`: GCC `14.3.0_musl`, required
-- `snapshots`: GCC `14.4.0_musl`, allowed to fail
+- `snapshots`: GCC `14.4.0_musl`, scheduled nightly only, allowed to fail
 
 `ci_gate` is the single branch-protection check and fans in only jobs required by the event
 and touched paths. Release jobs depend on it. `push` triggers only on `master`; feature
