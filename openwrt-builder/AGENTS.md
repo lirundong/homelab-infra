@@ -24,8 +24,9 @@ running or changing the build, and never expose or upload an unencrypted image.
 
 ## Validation
 
-CI builds `{x86/64, rockchip/armv8} × {25.12.5, snapshots}`; stable builds are required and
-snapshot builds are allowed failures. There is no unit-test or shell-lint suite, so changes
+PR and `master` push CI require stable `25.12.5` builds for both `x86/64` and
+`rockchip/armv8`. Scheduled nightly runs additionally build snapshots for both architectures,
+with snapshot failures allowed. There is no automated test or shell-lint suite, so changes
 to `build.sh`, packages, or rootfs files require an affected end-to-end image build.
 
 The local build requires a safely supplied `PASSWORD`; after reading the secret-handling

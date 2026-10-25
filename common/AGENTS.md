@@ -33,7 +33,6 @@ uv run --extra dev mypy common/src/common
 uv run --extra dev pre-commit run --all-files
 ```
 
-There is currently no direct `common` pytest suite or coverage threshold. Its normal CI
-coverage is static typing plus indirect use by `conf-gen` tests and OpenWRT builds; changes
-to encryption, expansion, or rotation need focused tests rather than relying on that
-indirect coverage.
+There is no automated test suite. Changes under `common/` require both configuration
+generation and stable OpenWRT builds in CI. These exercise expansion and packaging, but do
+not verify password rotation or all encryption behavior. Keep type checking local.
