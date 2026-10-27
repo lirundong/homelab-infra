@@ -27,11 +27,15 @@ Required secrets in `common/src/common/secrets.yaml` (see `common` README):
 `fetch-cert -t plex` also needs `PLEX_CERT_PASSWORD` (or the secret named by
 `--plex-password-secret`).
 
+The `uv run` examples read the master password from the gitignored `.env.local` (a single
+`PASSWORD=<master>` line, see `.ai/skills/secret-handling/SKILL.md`) so it never appears on
+the command line. An exported `PASSWORD` takes precedence over the file.
+
 ## `register-dns` usage
 
 ```bash
 # From repo root, via uv:
-PASSWORD=<master-password> uv run register-dns \
+uv run --env-file .env.local register-dns \
     -d example.com -s home \
     -i pppoe-wan \
     --get-ipv4-method ipify \
@@ -78,16 +82,16 @@ the FQDN on Tencent Cloud and only applies for a new one when needed.
 
 ```bash
 # Check every certificate under a domain; never applies or downloads.
-PASSWORD=<master-password> uv run fetch-cert -d example.com --check-only
+uv run --env-file .env.local fetch-cert -d example.com --check-only
 
 # Download (or apply for) nas.example.com in nginx format into ./certs/nas.example.com/nginx/.
-PASSWORD=<master-password> uv run fetch-cert -d example.com -s nas -t nginx -o ./certs
+uv run --env-file .env.local fetch-cert -d example.com -s nas -t nginx -o ./certs
 
 # Plex: PKCS#12 encrypted with AES-256-CBC/SHA-256, protected by the PLEX_CERT_PASSWORD secret.
-PASSWORD=<master-password> uv run fetch-cert -d example.com -s plex -t plex -o ./certs
+uv run --env-file .env.local fetch-cert -d example.com -s plex -t plex -o ./certs
 
 # Delete every expired or failed certificate under the domain, after confirmation.
-PASSWORD=<master-password> uv run fetch-cert -d example.com --delete
+uv run --env-file .env.local fetch-cert -d example.com --delete
 ```
 
 | Newest certificate | Action | Exit code |
