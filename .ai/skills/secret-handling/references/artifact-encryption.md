@@ -39,7 +39,7 @@ Hardenings:
 - `if: github.actor == 'lirundong'` — only the repo owner can invoke it
 
 The truncated hash is fingerprint-safe **only** for high-entropy inputs. If a future
-rotation uses anything other than `uuidgen -r` output, raise the truncation length or
+rotation uses anything other than a random (v4) UUID, raise the truncation length or
 switch to HMAC with a separate verification key — otherwise a short/low-entropy master
 becomes brute-forceable from the public 16-hex prefix.
 

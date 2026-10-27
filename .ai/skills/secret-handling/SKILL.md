@@ -82,9 +82,15 @@ reliable expungement once it lands.**
 
 ### Acceptable patterns for passing secrets into a process
 
+- **`uv run --env-file .env.local …` (default)** — `.env.local` is gitignored and holds one
+  `PASSWORD=<master>` line. The user creates it in their own terminal, e.g.
+  `{ printf 'PASSWORD='; pass show homelab/master-password; } > .env.local && chmod 600 .env.local`.
+  Never `Read`, `cat`, or otherwise open it. uv does not override an already-exported
+  `PASSWORD`, so keep `PASSWORD` out of the shell environment. Wrap non-uv commands too:
+  `uv run --env-file .env.local bash openwrt-builder/build.sh`. Where uv is absent, load it
+  with `set -a; . ./.env.local; set +a` before the command
 - **stdin redirect from a file path on argv**
-  (`common-rotate-password < /dev/shm/.rotation/master-new`) — the *path* is on argv, not
-  the value
+  (`common-rotate-password < "$ROT/master-new"`) — the *path* is on argv, not the value
 - **Pre-set environment variable from outside Claude Code** (set in a shell before launching
   the session, or in `~/.claude/settings.json`)
 - **`getpass`-style prompt** that reads from `/dev/tty` directly, never from stdin — only
@@ -106,7 +112,7 @@ reliable expungement once it lands.**
 - **`! export PASSWORD=…` writes the value into `~/.claude/history.jsonl`.** Don't do this.
   Pass via file or pre-set env from outside Claude Code.
 - **`PASSWORD=$(cat …) command`**: the substituted command itself appears in the transcript.
-  Prefer `command < /path/to/file` (stdin redirect).
+  Prefer `uv run --env-file .env.local command` or `command < /path/to/file` (stdin redirect).
 - **Editable install**: `uv run common-rotate-password` always picks up the current source
   of `common/src/common/_rotate_password.py` (workspace editable install). If behavior
   surprises you, audit `__pycache__` for stale bytecode rather than the source.
@@ -121,8 +127,7 @@ reliable expungement once it lands.**
   `rotate_password`
 - `common/src/common/_rotate_password.py` — stdin-only rotation CLI
 - `common/src/common/_cli.py` — `common-secret-decoder` for expanding markers in files
-- `AGENTS.md` (project root) — `common — Secrets Management` section for the high-level
-  model
+- `common/AGENTS.md` — high-level model of the `common` package and its secret discipline
 - [references/rotation.md](references/rotation.md) — full master-password rotation procedure
 - [references/artifact-encryption.md](references/artifact-encryption.md) — workflow-artifact
   encryption + the `verify-master-password.yaml` workflow

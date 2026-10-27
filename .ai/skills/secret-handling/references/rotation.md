@@ -27,6 +27,9 @@ atomicity), `e248092` (rotation), `dcee14b` (workflow encryption fix).
    historical release artifacts.
 5. **Workspace clean.** `git status` — no uncommitted changes that could end up bundled with
    the rotation commit.
+6. **`.env.local` holds the current master.** The user creates it out-of-band (see
+   [../SKILL.md](../SKILL.md)); agents never read it. Run the whole sequence in one shell with
+   `PASSWORD` *not* exported — an inherited `PASSWORD` silently overrides every `--env-file`.
 
 ## Sequence
 
@@ -34,46 +37,45 @@ atomicity), `e248092` (rotation), `dcee14b` (workflow encryption fix).
 # B0 — close the race window
 gh workflow disable artifacts-release-nightly.yaml --repo <owner/repo>
 
-# B1 — generate new master to tmpfs (memory-backed, never paged to swap)
-umask 077 && mkdir -p /dev/shm/.rotation
-uuidgen -r | tr -d '\n' > /dev/shm/.rotation/master-new
-# Sanity: 36 bytes, mode 0600, version digit at pos 14 == '4'
-test "$(wc -c < /dev/shm/.rotation/master-new)" -eq 36
-test "$(stat -c '%a' /dev/shm/.rotation/master-new)" = 600
-test "$(cut -c15 /dev/shm/.rotation/master-new)" = 4
+# B1 — generate the new master into a private temp dir (portable to macOS and Linux)
+umask 077 && ROT="$(mktemp -d)"
+uv run python3 -c 'import sys, uuid; sys.stdout.write(str(uuid.uuid4()))' > "$ROT/master-new"
+{ printf 'PASSWORD='; cat "$ROT/master-new"; } > "$ROT/new.env"
+# Sanity: 36 bytes, UUID version (15th char) == '4'
+test "$(wc -c < "$ROT/master-new")" -eq 36
+test "$(cut -c15 "$ROT/master-new")" = 4
 
 # B1.5 — USER escrows the new master out-of-band (separate terminal, not Claude)
-#   pass insert -m homelab/master-password < /dev/shm/.rotation/master-new
-#   diff <(pass show homelab/master-password) /dev/shm/.rotation/master-new
+#   pass insert -m homelab/master-password < "$ROT/master-new"
+#   diff <(pass show homelab/master-password) "$ROT/master-new"
 # Pause until the user confirms escrow succeeded. After C1 the file is gone
 # and the master is recoverable only from this escrow.
 
 # B2 — upload to GitHub via stdin (value never on argv or stdout)
-gh secret set MASTER_PASSWORD --repo <owner/repo> < /dev/shm/.rotation/master-new
+gh secret set MASTER_PASSWORD --repo <owner/repo> < "$ROT/master-new"
 
 # B3 — verify GitHub-side bytes match local-side via 16-hex sha256 fingerprint
 gh workflow run verify-master-password.yaml --repo <owner/repo>
 # Wait for the run to complete, fetch the log, extract the 16-hex line.
-# Compare to: sha256sum < /dev/shm/.rotation/master-new | cut -c1-16
+# Compare to: sha256sum < "$ROT/master-new" | cut -c1-16
 # Mismatch → re-run B2.
 
-# B4 — rotate local secrets.yaml
-PASSWORD='<old-master-from-escrow>' uv run common-rotate-password \
-    < /dev/shm/.rotation/master-new
+# B4 — rotate local secrets.yaml; .env.local still holds the old master
+uv run --env-file .env.local common-rotate-password < "$ROT/master-new"
 # Decrypts every entry with old fernet, derives new fernet, re-encrypts,
 # atomically swaps via temp + flush + fsync + chmod-preserve + os.replace
 # + dir-fsync. See _manager.py:rotate_password.
 
 # B5 — fresh-process round-trip; boolean only
-PASSWORD="$(cat /dev/shm/.rotation/master-new)" uv run python3 -c '
+uv run --env-file "$ROT/new.env" python3 -c '
 from common import secrets
 import sys
 ok = sum(1 for k in secrets._encrypted_secrets if getattr(secrets, k))
 sys.exit(0 if ok == len(secrets._encrypted_secrets) else 1)'
 
-# B6 — commit (with [no release] until the router is re-flashed)
+# B6 — commit
 git add common/src/common/secrets.yaml
-git commit -m "[common] rotate secrets.yaml master password [no release]"
+git commit -m "[common] rotate secrets.yaml master password"
 
 # B7 — re-enable workflow
 gh workflow enable artifacts-release-nightly.yaml --repo <owner/repo>
@@ -81,11 +83,16 @@ gh workflow enable artifacts-release-nightly.yaml --repo <owner/repo>
 # B8 — push (triggers CI on the new tip; build_configuration is the integration test)
 git push origin master
 
-# B9 — watch CI
+# B9 — watch CI; on success it publishes releases encrypted with the new master
 gh run watch <run-id>
 
-# C1 — clean up tmpfs
-rm -f /dev/shm/.rotation/master-new && rmdir /dev/shm/.rotation
+# B10 — USER updates the router before its next 00:30 config fetch (see below)
+
+# B11 — make the new master the local default
+mv "$ROT/new.env" .env.local
+
+# C1 — clean up
+rm -rf "$ROT"
 ```
 
 ## Why each step is the way it is
@@ -101,30 +108,33 @@ rm -f /dev/shm/.rotation/master-new && rmdir /dev/shm/.rotation
   is a fingerprint, safe for public CI logs given UUID v4 entropy. **Do not** publish a
   fingerprint of a non-UUID password — short or low-entropy inputs become brute-forceable
   from the prefix.
-- **B4 stdin-only CLI:** `--new-password-stdin` pattern keeps the value off argv and out of
+- **B4/B5 `--env-file`:** both masters reach the process from files, never from argv or a
+  command substitution. uv does not override an already-exported `PASSWORD`, hence the
+  pre-flight check.
+- **B4 stdin-only CLI:** the new master arrives on stdin, keeping it off argv and out of
   `/proc/<pid>/cmdline`, shell history, audit logs. The CLI refuses an interactive TTY to
-  avoid terminal echo. Strips one trailing `\n` (`gh secret set < file` also strips one —
+  avoid terminal echo. Strips trailing `\n` (`gh secret set < file` also strips one —
   alignment depends on this).
-- **B6 `[no release]`:** the deployed router still has the old master baked into its image.
-  Without `[no release]`, the very next CI run publishes a new-master-encrypted release that
-  the router cannot decrypt at `30 0 * * *`. Keep `[no release]` on every subsequent commit
-  until the router is re-flashed.
+- **B10 router update:** CI has no release-skip switch, so every push to `master` publishes
+  new-master artifacts, while the router's `/etc/crontabs/root` still holds the old master
+  and fails to decrypt them at `30 0 * * *`. Right after B9, either flash the image B9
+  released (decrypt it with the new master) or, in the user's own SSH session, replace the
+  passphrase in both crontab lines.
 
 ## Recovery paths
 
 | Failure | State on disk | Recovery |
 |---|---|---|
 | B3 fingerprint mismatch | GH secret possibly wrong | Re-run B2 |
-| B4 raises before write | `secrets.yaml` untouched | Re-set GH to old: `gh secret set MASTER_PASSWORD --repo … <<<"$(pass show old-master)"`. Investigate, retry. |
+| B4 raises before write | `secrets.yaml` untouched | Re-set GH to old: `pass show old-master \| gh secret set MASTER_PASSWORD --repo …`. Investigate, retry. |
 | B5 fails (corrupt rotated file) | local `secrets.yaml` rotated, not yet pushed | `git checkout -- common/src/common/secrets.yaml`. Re-set GH to old. Abort. |
 | B8 push fails | local rotated, GH has new master | Retry push promptly; window of broken CI is the duration |
 | B9 CI fails | repo + GH consistent in theory | Re-trigger; if persistent, B3 was wrong |
 
 ## After rotation — outstanding work for the user
 
-- **Re-flash the router** with a locally-built image using the new master from escrow. Use
-  `bash openwrt-builder/build.sh` with `PASSWORD=$(pass show homelab/master-password)`.
-- **Keep `[no release]` on subsequent commits** until the router is re-flashed.
+- **Re-flash the router** with a released image if B10 only patched its crontab, so the
+  baked-in master matches again after a factory reset.
 - **Consider rotating non-master secrets** (`PPPOE_*`, `JP_NODE_*`, `NAIVE_PROXY_*`,
   `CLASH_*`, `SUBSCRIPTION_*`, `DOT_PUB`) at the upstream services — the master rotation
   doesn't invalidate them, and they may have been leaked via past unencrypted workflow
@@ -136,10 +146,13 @@ rm -f /dev/shm/.rotation/master-new && rmdir /dev/shm/.rotation
 
 ## Rotation-specific footguns
 
-- **`uuidgen -r` not `uuidgen`**: bare `uuidgen` may produce v1 (MAC-derived) UUIDs on
-  BSD-derived platforms, dropping effective entropy from ~122 bits to ~60. Always `-r` for
-  v4. (The fingerprint-prefix scheme in B3 *only* stays safe with v4 entropy.)
+- **Python `uuid.uuid4()`, not `uuidgen`**: macOS `uuidgen` has no `-r`, and util-linux
+  `uuidgen` may fall back to time-based v1 UUIDs, dropping effective entropy from ~122 bits
+  to ~60. (The fingerprint-prefix scheme in B3 *only* stays safe with v4 entropy.)
+- **No `/dev/shm` on macOS**: B1 uses a `mktemp -d` directory under the per-user `$TMPDIR`
+  instead. It is disk-backed, so rely on FileVault (or full-disk encryption on Linux) and
+  remove it in C1.
 - **`gh secret set` strips one trailing `\n` from stdin.** If the local file has the newline
   and the rotation CLI doesn't strip it (or vice versa), the local secrets.yaml encryption
   diverges from GitHub's and CI fails. Both sides must be consistent — current
-  implementation: file has no `\n` (`uuidgen | tr -d '\n'`), CLI strips one if present.
+  implementation: file has no `\n` (B1 writes without one), CLI strips any if present.

@@ -13,8 +13,9 @@
 # Prerequisites: gh (GitHub CLI, authenticated), gpg, jq
 #
 # Usage:
-#   PASSWORD=xxx ./fetch_config.sh
-#   PASSWORD=xxx CONFIGS="quantumult-x sing-box-clients" ./fetch_config.sh
+#   set -a; . ./.env.local; set +a  # one PASSWORD=<master> line, never inline
+#   ./fetch_config.sh
+#   CONFIGS="quantumult-x sing-box-clients" ./fetch_config.sh
 
 set -euo pipefail
 
