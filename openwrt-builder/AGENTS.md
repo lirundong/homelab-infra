@@ -30,10 +30,15 @@ PR and `master` push CI require stable `25.12.5` builds for both `x86/64` and
 with snapshot failures allowed. There is no automated test or shell-lint suite, so changes
 to `build.sh`, packages, or rootfs files require an affected end-to-end image build.
 
-The local build reads `PASSWORD` from the gitignored `.env.local`; after reading the
+The local build needs `PASSWORD`: from the gitignored `.env.local` when it exists and defines
+`PASSWORD`, otherwise from an environment set outside the agent session. After reading the
 secret-handling skill, use:
 
 ```bash
+uv_env=()
+if [[ -f .env.local ]] && grep -q '^PASSWORD=' .env.local; then
+    uv_env=(--env-file .env.local)
+fi
 VERSION=25.12.5 GCC_VERSION=14.3.0_musl \
-    uv run --env-file .env.local bash openwrt-builder/build.sh
+    uv run "${uv_env[@]}" bash openwrt-builder/build.sh
 ```
