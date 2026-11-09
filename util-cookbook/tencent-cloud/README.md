@@ -22,8 +22,8 @@ pip install -e './util-cookbook/tencent-cloud[netifaces]'
 
 Either path exposes `register-dns` and `fetch-cert` on `PATH`.
 
-Required secrets in `common/src/common/secrets.yaml` (see `common` README):
-`MASTER_PASSWORD`, `QCLOUD_API_SECRET_ID`, `QCLOUD_API_SECRET_KEY`;
+Both CLIs need `PASSWORD` and these secrets in `common/src/common/secrets.yaml`
+(see `common` README): `QCLOUD_API_SECRET_ID`, `QCLOUD_API_SECRET_KEY`;
 `fetch-cert -t plex` also needs `PLEX_CERT_PASSWORD` (or the secret named by
 `--plex-password-secret`).
 
@@ -71,11 +71,9 @@ DNSPod. Omit it for a live update.
 
 ## OpenWRT deployment
 
-The `openwrt-builder` rsyncs this package to `/root/util-cookbook/tencent-cloud`
-and a first-boot uci-defaults script runs
-`python3 -m pip install -e /root/util-cookbook/tencent-cloud`, putting
-`register-dns` at `/usr/bin/register-dns`. Cron then invokes it every 15 minutes
-with credentials expanded from `secrets.yaml` at build time.
+`openwrt-builder/build.sh` installs `common` and this package into the image's
+site-packages at build time and links `register-dns` into `/usr/bin`. Cron runs it every
+15 minutes with credentials expanded at build time.
 
 ## `fetch-cert` usage
 
