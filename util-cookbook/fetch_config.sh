@@ -13,7 +13,8 @@
 # Prerequisites: gh (GitHub CLI, authenticated), gpg, jq
 #
 # Usage:
-#   set -a; . ./.env.local; set +a  # one PASSWORD=<master> line, never inline
+#   # If .env.local exists and defines PASSWORD; else pre-set PASSWORD, never inline.
+#   set -a; . ./.env.local; set +a
 #   ./fetch_config.sh
 #   CONFIGS="quantumult-x sing-box-clients" ./fetch_config.sh
 

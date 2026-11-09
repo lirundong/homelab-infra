@@ -29,7 +29,9 @@ Required secrets in `common/src/common/secrets.yaml` (see `common` README):
 
 The `uv run` examples read the master password from the gitignored `.env.local` (a single
 `PASSWORD=<master>` line, see `.ai/skills/secret-handling/SKILL.md`) so it never appears on
-the command line. An exported `PASSWORD` takes precedence over the file.
+the command line. They assume the file exists and defines `PASSWORD`; otherwise drop
+`--env-file` and supply `PASSWORD` through the environment. An exported `PASSWORD` takes
+precedence over the file.
 
 ## `register-dns` usage
 
