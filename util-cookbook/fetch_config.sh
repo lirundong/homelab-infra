@@ -67,8 +67,9 @@ for tag in ${CONFIGS}; do
     done < <(find "${tag_dir}" -name '*.gpg' -print0)
 
     # Rewrite sing-box remote rulesets to bootstrap without proxy dependencies.
+    # sing-box 1.14+ rejects http_client alongside the deprecated download_detour.
     if [[ -f "${tag_dir}/config.json" ]]; then
-        echo "  Rewriting .srs URLs -> ${CONF_URL}/${tag}/ and download_detour -> DIRECT ..."
+        echo "  Rewriting .srs URLs -> ${CONF_URL}/${tag}/ and http_client.detour -> DIRECT ..."
         config_file="${tag_dir}/config.json"
         rewritten_config="${tag_dir}/config.json.rewritten"
         jq \
@@ -84,7 +85,11 @@ for tag in ${CONFIGS}; do
                             .
                         end
                     )
-                    | if .type == "remote" then .download_detour = "DIRECT" else . end
+                    | if .type == "remote" then
+                        del(.download_detour) | .http_client.detour = "DIRECT"
+                    else
+                        .
+                    end
                 else
                     .
                 end;
