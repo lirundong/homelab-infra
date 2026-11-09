@@ -5,7 +5,7 @@
 *.swo
 *~
 
-# Coding-agent config (track shared settings + skills, ignore per-user overrides)
+# Coding-agent config (track shared skills, ignore per-user overrides)
 .agents/settings.local.json
 
 # macOS

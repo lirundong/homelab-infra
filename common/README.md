@@ -39,9 +39,11 @@ echo "@secret:MY_KEY" | uv run common-secret-decoder
 ## Template Syntax
 
 - `@secret:KEY` - Returns string value
-- `@secret:KEY!int` - Returns int(value)
+- `@secret:KEY!TYPE` - Converts by any importable callable, e.g. `!int`
 - `@secret:MASTER_PASSWORD` - Special key for master password
 - `@include:path/to/file` - Include file content (strips comments)
+- `@include:FILE[!JOIN][>INDENT]` - Join lines by `JOIN` (word or whitespace characters;
+  default newline); indent lines after the first by `INDENT` spaces
 
 ## Environment Variables
 

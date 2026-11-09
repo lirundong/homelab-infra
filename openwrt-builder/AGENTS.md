@@ -40,5 +40,14 @@ if [[ -f .env.local ]] && grep -q '^PASSWORD=' .env.local; then
     uv_env=(--env-file .env.local)
 fi
 VERSION=25.12.5 GCC_VERSION=14.3.0_musl \
+    SING_BOX_CONFIG="$PWD/conf/sing-box-daemon/config.json" \
     uv run "${uv_env[@]}" bash openwrt-builder/build.sh
 ```
+
+Local build notes:
+
+- Run on Linux: `build.sh` uses GNU `grep -P`/`sed -i` and Linux SDK binaries.
+- Always pass `VERSION` and `GCC_VERSION`; the script defaults are stale.
+- `SING_BOX_CONFIG` must be absolute, since `build.sh` runs inside `WORK_DIR`.
+- `WORK_DIR` (default `/tmp/openwrt`) is wiped first.
+- `REPOSITORY` defaults to the TUNA mirror; override it if unreachable.

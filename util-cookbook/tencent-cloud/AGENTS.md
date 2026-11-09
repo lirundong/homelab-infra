@@ -17,6 +17,9 @@ workspace package with `register-dns` and `fetch-cert` CLIs. Inherit both reposi
 The package is baked into OpenWRT images with pure-Python dependencies supplied by apk.
 `netifaces` remains optional because OpenWRT lacks a suitable package/wheel.
 
+The root `Dockerfile` installs `common` and this package editably, with entrypoint
+`register-dns`; supply `PASSWORD` at run time.
+
 DNSPod credentials come through `common`; read `.ai/skills/secret-handling/SKILL.md` before
 running authenticated or OpenWRT-integrated paths. Never expose credentials or signed
 request material.

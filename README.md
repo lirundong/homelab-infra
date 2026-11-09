@@ -11,7 +11,7 @@
 |                | Current Stable[^1] | Snapshot |
 |:---------------|-------------------:|---------:|
 | x86/64         | [openwrt_25.12.5_x86/64](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_25.12.5_x86%2F64) | [openwrt_snapshots_x86/64](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_snapshots_x86%2F64) |
-| Rockchip ARMv8 | [openwrt_25.12.5_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_25.12.5_rockchip%2Farmv8) | [openwrt_snapshots_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_25.12.5_rockchip%2Farmv8) |
+| Rockchip ARMv8 | [openwrt_25.12.5_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_25.12.5_rockchip%2Farmv8) | [openwrt_snapshots_rockchip/armv8](https://github.com/lirundong/homelab-infra/releases/tag/openwrt_snapshots_rockchip%2Farmv8) |
 
 [^1]: The [current stable release](https://github.com/openwrt/openwrt/releases/latest) is version 25.12.5.
 
@@ -33,7 +33,7 @@
 
 This is a monorepo containing all software infrastructures of Rundong's home-lab. Projects include:
 
-* [conf-gen](./conf-gen): Generating [Clash](https://github.com/Dreamacro/clash), [Quantumult-X](https://apps.apple.com/us/app/quantumult-x/id1443988620), and [sing-box](https://github.com/SagerNet/sing-box) configuration files for various deployment scenarios (PC clients, home routers, mobile apps, etc.) from one single unified source configuration file
+* [conf-gen](./conf-gen): Generating Clash, [Quantumult-X](https://apps.apple.com/us/app/quantumult-x/id1443988620), and [sing-box](https://github.com/SagerNet/sing-box) configuration files for various deployment scenarios (PC clients, home routers, mobile apps, etc.) from one single unified source configuration file
 * [conf-cookbook](./conf-cookbook): Boilerplate configurations for secured internet services (e.g., shadowsocks-rust, V2Ray + Nginx WebSocket)
 * [openwrt-builder](./openwrt-builder): Build OpenWRT image with custom configurations and packages, include scripts to archive transparent proxy
 * [util-cookbook](./util-cookbook): Handy utilities for daily home-lab maintaining, e.g., DDNS, router LED scheduling etc.
@@ -48,10 +48,10 @@ Install the development tools and enable the repository hooks after cloning:
 
 ```bash
 uv sync --extra dev
-uv run pre-commit install
+uv run --extra dev pre-commit install
 ```
 
-Run every hook before submitting a change with `uv run pre-commit run --all-files`.
+Run every hook before submitting a change with `uv run --extra dev pre-commit run --all-files`.
 
 ## How to handle confidential information
 
@@ -62,7 +62,7 @@ Confidential information such as API keys, subscription URLs, and user ids is ma
    * `salt`: Any unicode string
    * `plain_text` or `cypher_text`: Any unsigned byte string to be encrypted or decrypted
 1. Encode strings to bytes:
-   * `master_password_byes` <- Encode `master_password` in UTF-8
+   * `master_password_bytes` <- Encode `master_password` in UTF-8
    * `salt_bytes` <- Encode `salt` in UTF-8
 2. Derive `key_bytes` <- PBKDF2HMAC algorithm from `master_password_bytes` and `salt_bytes` using the following parameters:
    * algorithm: SHA256

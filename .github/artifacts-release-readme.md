@@ -2,7 +2,7 @@
 {RELEASE_DATE}
 
 ## Note
-All artifacts here are GnuPG encrypted to protect sensitive information.
+Sensitive artifacts are GnuPG encrypted; sing-box `.srs` rule sets are plaintext.
 
 ## Contents
 {CONTENT_DESCRIPTION}
