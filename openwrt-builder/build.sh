@@ -29,6 +29,10 @@ SDK_URL=$BASE_URL/$SDK.$TAR_EXT
 IMG_BUILDER=openwrt-imagebuilder-${VERSION_PREFIX}${TARGET_ARCH/\//-}.Linux-${HOST_ARCH/\//_}
 IMG_BUILDER_URL=$BASE_URL/$IMG_BUILDER.$TAR_EXT
 
+# Mirrors shed connections mid-transfer; retry rather than lose a long build.
+# --retry alone only covers 408/429/5xx, not resets (curl 18/56/92).
+CURL_RETRY=(--retry 5 --retry-all-errors --retry-delay 5)
+
 # Prepare working directory.
 if [[ -d $WORK_DIR ]]; then
   rm -rf $WORK_DIR/*
@@ -38,7 +42,7 @@ fi
 pushd $WORK_DIR
 
 # OpenWRT cross-compilation SDK.
-curl -sSLO $SDK_URL
+curl -sSLO "${CURL_RETRY[@]}" $SDK_URL
 tar -xf $SDK.$TAR_EXT
 STAGING_DIR=$(realpath -- $SDK/staging_dir)
 if [[ ${TOOLCHAIN_ARCH} == 'aarch64' ]]; then
@@ -72,7 +76,7 @@ cp ${SING_BOX_OPENWRT_EXE} $CUSTOM_FILES_DIR/usr/bin/
 cp ${SING_BOX_CONFIG} $CUSTOM_FILES_DIR/root/.config/sing-box/config.json
 
 # sing-box dashboard.
-curl -fsSL -o sing-box-dashboard.zip \
+curl -fsSL "${CURL_RETRY[@]}" -o sing-box-dashboard.zip \
   https://github.com/SagerNet/sing-box-dashboard/archive/refs/heads/gh-pages.zip
 unzip sing-box-dashboard.zip
 mv sing-box-dashboard-gh-pages "$CUSTOM_FILES_DIR/root/.config/sing-box/dashboard"
@@ -91,7 +95,8 @@ cp vlmcsd/bin/vlmcs vlmcsd/bin/vlmcsd $CUSTOM_FILES_DIR/usr/bin/
 # pure-Python; runtime deps (cryptography, PyYAML, requests, ifaddr) come
 # from python3-* apk packages, hence --no-deps. Target Python version is
 # read from the apk feed so stable (3.13) and snapshots (3.14) both work.
-TARGET_PY=$(curl -fsSL "$PKG_FEED_URL" | grep -oE 'python3-3\.[0-9]+-[0-9]' | head -1 | grep -oE '3\.[0-9]+')
+TARGET_PY=$(curl -fsSL "${CURL_RETRY[@]}" "$PKG_FEED_URL" \
+  | grep -oE 'python3-3\.[0-9]+-[0-9]' | head -1 | grep -oE '3\.[0-9]+')
 SITE_PACKAGES=$CUSTOM_FILES_DIR/usr/lib/python$TARGET_PY/site-packages
 mkdir -p "$SITE_PACKAGES" "$CUSTOM_FILES_DIR/usr/bin"
 uv pip install --no-deps --no-compile-bytecode --target "$SITE_PACKAGES" \
@@ -112,7 +117,7 @@ image_builder_args=(ROOTFS_PARTSIZE=256 FILES=$CUSTOM_FILES_DIR PACKAGES="$PACKA
 if [[ -n ${PROFILE} ]]; then
   image_builder_args+=(PROFILE=$PROFILE)
 fi
-curl -sSLO $IMG_BUILDER_URL
+curl -sSLO "${CURL_RETRY[@]}" $IMG_BUILDER_URL
 tar -xf $IMG_BUILDER.$TAR_EXT
 pushd $IMG_BUILDER
 sed -i "s!https://downloads.openwrt.org!$REPOSITORY!" ${REPO_FILE}
