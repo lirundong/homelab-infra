@@ -85,8 +85,10 @@ reliable expungement once it lands.**
 - **`uv run --env-file .env.local …` (default)** — `.env.local` is gitignored and holds one
   `PASSWORD=<master>` line. The user creates it in their own terminal, e.g.
   `{ printf 'PASSWORD='; pass show homelab/master-password; } > .env.local && chmod 600 .env.local`.
-  Never `Read`, `cat`, or otherwise open it. uv does not override an already-exported
-  `PASSWORD`, so keep `PASSWORD` out of the shell environment. Wrap non-uv commands too:
+  Never `Read`, `cat`, or otherwise open it. Use it only when `.env.local` exists and defines
+  `PASSWORD`; otherwise rely on a pre-set environment (below). uv does not override an
+  already-exported `PASSWORD`, so keep `PASSWORD` out of the shell environment. Wrap non-uv
+  commands too:
   `uv run --env-file .env.local bash openwrt-builder/build.sh`. Where uv is absent, load it
   with `set -a; . ./.env.local; set +a` before the command
 - **stdin redirect from a file path on argv**
