@@ -5,11 +5,11 @@ from typing import NotRequired
 from typing import Sequence
 from typing import TypedDict
 
+import requests
 import yaml
 
 from common import CLASH_RULESET_FORMATS
 from common import COMMENT_BEGINS
-from conf_gen._util.fetch import fetch_url
 from conf_gen.rule._base_ir import _IR_REGISTRY
 from conf_gen.rule._base_ir import IRBase
 from conf_gen.rule.ir import IPCIDR
@@ -47,7 +47,8 @@ def _fetch_rule_set_payload(url: str, format: Literal["yaml", "text"]) -> Sequen
         raise ValueError(f"Unsupported format {format}, expect any of {CLASH_RULESET_FORMATS}")
 
     print(f"Requesting to get from {url}...")
-    r = fetch_url(url, headers={"user-agent": "clash"})
+    r = requests.get(url, headers={"user-agent": "clash"})
+    r.raise_for_status()
 
     filters = []
     if format == "yaml":

@@ -5,7 +5,6 @@ from typing import get_args
 import requests
 import yaml
 
-from conf_gen._util.fetch import fetch_url
 from conf_gen.proxy import ProxyBase
 from conf_gen.proxy.http_proxy import HttpProxy
 from conf_gen.proxy.shadowsocks_proxy import ShadowSocks2022CiphersT
@@ -181,11 +180,13 @@ def parse_clash_subscription(
     headers: dict[str, str] | None = None,
 ) -> list[ProxyBase]:
     try:
-        r = fetch_url(url, params=params, headers=headers)
+        r = requests.get(url, params=params, headers=headers)
+        r.raise_for_status()
     except requests.RequestException:
         if backup_url is None:
             raise
-        r = fetch_url(backup_url)
+        r = requests.get(backup_url)
+        r.raise_for_status()
     if not (proxies := yaml.safe_load(r.text)["proxies"]):
         raise ValueError("No proxies found in subscription")
     return flatten_proxies(parse_clash_proxies(proxies))
