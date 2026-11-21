@@ -4,8 +4,9 @@ from typing import Any
 from typing import ClassVar
 from typing import Sequence
 
+import requests
+
 from common import COMMENT_BEGINS
-from conf_gen._util.fetch import fetch_url
 from conf_gen.generator._base_generator import GeneratorBase
 from conf_gen.proxy import HttpProxy
 from conf_gen.proxy import ProxyBase
@@ -122,7 +123,9 @@ class QuantumultGenerator(GeneratorBase):
         hostnames: list[str] = []
         for r in rewrites_info:
             rewrites.append(f"# {r['name']}")
-            for line in fetch_url(r["url"]).text.splitlines():
+            response = requests.get(r["url"])
+            response.raise_for_status()
+            for line in response.text.splitlines():
                 line = line.strip()
                 if not line or line.startswith(COMMENT_BEGINS):
                     continue

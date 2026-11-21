@@ -9,7 +9,7 @@ subscriptions:
   url: https://api.wd-red.com/sub
   params:
     emoji: 'true'
-    filename: WestData
+    filename: WestData.yaml
     new_name: 'true'
     scv: 'true'
     target: clash
